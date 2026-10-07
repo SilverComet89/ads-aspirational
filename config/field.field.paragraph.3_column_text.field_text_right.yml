@@ -1,0 +1,22 @@
+uuid: 580f5cc2-7932-4b9e-867b-3883d41b8880
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_text_right
+    - paragraphs.paragraphs_type.3_column_text
+  module:
+    - text
+id: paragraph.3_column_text.field_text_right
+field_name: field_text_right
+entity_type: paragraph
+bundle: 3_column_text
+label: 'Text Right'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: false
+field_type: text_with_summary

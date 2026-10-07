@@ -1,0 +1,7 @@
+uuid: a39bd09c-6b67-44b8-8beb-a34f76272afc
+langcode: en
+status: false
+dependencies: {  }
+formId: node_magazine_form
+captchaType: default
+label: null

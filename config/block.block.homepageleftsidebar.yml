@@ -1,0 +1,35 @@
+uuid: 2ef57a18-655c-49ce-b84f-d1c82d8e1b3d
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:left_sidebar_adverts:6b7086e2-6643-478a-89ab-9bcbe498f68f'
+  module:
+    - block_class
+    - block_content
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'hidden-sm hidden-xs hidden-md'
+id: homepageleftsidebar
+theme: aspirational
+region: content
+weight: 0
+provider: null
+plugin: 'block_content:6b7086e2-6643-478a-89ab-9bcbe498f68f'
+settings:
+  id: 'block_content:6b7086e2-6643-478a-89ab-9bcbe498f68f'
+  label: 'Homepage Left Sidebar'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: '<front>'
+    negate: false
+    context_mapping: {  }

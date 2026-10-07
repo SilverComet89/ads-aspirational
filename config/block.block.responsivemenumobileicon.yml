@@ -1,0 +1,24 @@
+uuid: 729d39b7-6fe8-4e48-aeec-d5c8e84443f9
+langcode: en
+status: true
+dependencies:
+  module:
+    - block_class
+    - responsive_menu
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'col-xs-6 visible-xs visible-sm no-gutter'
+id: responsivemenumobileicon
+theme: aspirational
+region: header
+weight: -21
+provider: null
+plugin: responsive_menu_toggle
+settings:
+  id: responsive_menu_toggle
+  label: 'Responsive menu mobile icon'
+  provider: responsive_menu
+  label_display: '0'
+visibility: {  }

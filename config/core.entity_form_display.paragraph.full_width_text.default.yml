@@ -1,0 +1,27 @@
+uuid: d3deb704-7c49-4a9b-b7f7-b3dd327146b8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.full_width_text.field_text
+    - paragraphs.paragraphs_type.full_width_text
+  module:
+    - text
+id: paragraph.full_width_text.default
+targetEntityType: paragraph
+bundle: full_width_text
+mode: default
+content:
+  field_text:
+    weight: 0
+    settings:
+      rows: 9
+      summary_rows: 3
+      placeholder: ''
+    third_party_settings: {  }
+    type: text_textarea_with_summary
+    region: content
+hidden:
+  created: true
+  status: true
+  uid: true

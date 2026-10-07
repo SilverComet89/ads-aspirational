@@ -1,0 +1,8 @@
+uuid: b2cb476e-d293-4fe2-8a07-d6c46ad8ac3e
+langcode: en
+status: true
+dependencies: {  }
+id: advert_block_2_vertical_stack_wi
+label: 'Advert block (2 vertical stack with middle body)'
+revision: 0
+description: ''

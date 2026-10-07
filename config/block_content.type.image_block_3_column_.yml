@@ -1,0 +1,8 @@
+uuid: 3271096a-a64a-4d29-bb47-ebb1b52e40fa
+langcode: en
+status: true
+dependencies: {  }
+id: image_block_3_column_
+label: 'Image block (3 Column)'
+revision: 0
+description: ''

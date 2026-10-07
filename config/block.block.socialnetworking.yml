@@ -1,0 +1,30 @@
+uuid: 4911b75b-dc7e-4b3c-86d4-2e9bf4f4a52d
+langcode: en
+status: true
+dependencies:
+  module:
+    - block_class
+    - md_slider
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'no-gutter col-md-12'
+id: socialnetworking
+theme: aspirational
+region: highlighted
+weight: 0
+provider: null
+plugin: 'md_slider_block:social_networking'
+settings:
+  id: 'md_slider_block:social_networking'
+  label: 'Social & Networking'
+  provider: md_slider
+  label_display: '0'
+visibility:
+  request_path:
+    id: request_path
+    pages: /social-networking
+    negate: false
+    context_mapping: {  }

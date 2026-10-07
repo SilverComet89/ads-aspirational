@@ -1,0 +1,35 @@
+uuid: 31b88c1b-e211-4ba5-ac9a-eb6e56e139a6
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:2_vertical_stack:1b309e4a-475f-46c2-bbc5-ad9d559d6f92'
+  module:
+    - block_class
+    - block_content
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'col-md-pull-4 col-md-4 col-sm-12'
+id: fronttopadvertblock
+theme: aspirational
+region: highlighted
+weight: -28
+provider: null
+plugin: 'block_content:1b309e4a-475f-46c2-bbc5-ad9d559d6f92'
+settings:
+  id: 'block_content:1b309e4a-475f-46c2-bbc5-ad9d559d6f92'
+  label: 'Front Top Advert Block'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: '<front>'
+    negate: false
+    context_mapping: {  }

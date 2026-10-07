@@ -1,0 +1,35 @@
+uuid: 0fe31368-f3b2-430a-a7bf-44278dfbb836
+langcode: en
+status: false
+dependencies:
+  content:
+    - 'block_content:advert_block_full_width_:4db14c04-8f49-4e33-85e7-c0e4c1cbb0ed'
+  module:
+    - block_class
+    - block_content
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: col-md-12
+id: househomegardenadvertfullwidth
+theme: aspirational
+region: content
+weight: -5
+provider: null
+plugin: 'block_content:4db14c04-8f49-4e33-85e7-c0e4c1cbb0ed'
+settings:
+  id: 'block_content:4db14c04-8f49-4e33-85e7-c0e4c1cbb0ed'
+  label: 'House, Home & Garden Advert Full Width'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /house-home-garden
+    negate: false
+    context_mapping: {  }

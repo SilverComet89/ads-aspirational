@@ -1,0 +1,35 @@
+uuid: 893819b1-53c0-4a06-8205-5ab9dfd36892
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:left_sidebar_adverts:d05a694e-a4c8-4749-b013-9314482fdf82'
+  module:
+    - block_class
+    - block_content
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'hidden-sm hidden-xs hidden-md'
+id: giftguideleftsidebar
+theme: aspirational
+region: content
+weight: 0
+provider: null
+plugin: 'block_content:d05a694e-a4c8-4749-b013-9314482fdf82'
+settings:
+  id: 'block_content:d05a694e-a4c8-4749-b013-9314482fdf82'
+  label: 'Gift Guide Left Sidebar'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /gift-guide
+    negate: false
+    context_mapping: {  }

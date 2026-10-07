@@ -1,0 +1,23 @@
+uuid: edf4525a-d15a-49ab-b420-da9243a6b16e
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.image_block_3_column_with_links_
+    - field.storage.block_content.field_image_link
+  module:
+    - link
+id: block_content.image_block_3_column_with_links_.field_image_link
+field_name: field_image_link
+entity_type: block_content
+bundle: image_block_3_column_with_links_
+label: 'Image Link'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 17
+  title: 0
+field_type: link

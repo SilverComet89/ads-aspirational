@@ -1,0 +1,34 @@
+cdn_provider: ''
+_core:
+  default_config_hash: _5qrDuRmWmRVjW00si3U1s1NrgrocA4N653EYGRfgEE
+favicon:
+  mimetype: image/vnd.microsoft.icon
+  path: 'public://favicon_2.ico'
+  url: 'https://aspirational.local/sites/default/files/favicon_1.ico'
+  use_default: false
+schemas:
+  bootstrap: 8000
+  aspirational: 8000
+logo:
+  path: 'public://aspi logo.png'
+  url: ''
+  use_default: false
+table_responsive: '-1'
+table: ''
+region_wells:
+  navigation: ''
+  navigation_collapsible: ''
+  extra_header: ''
+  header: ''
+  highlighted: ''
+  help: ''
+  content: ''
+  sidebar_first: ''
+  sidebar_second: ''
+  contact: ''
+  footer: ''
+features:
+  comment_user_picture: true
+  comment_user_verification: true
+  favicon: true
+  node_user_picture: true

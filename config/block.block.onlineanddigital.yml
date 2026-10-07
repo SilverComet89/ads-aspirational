@@ -1,0 +1,31 @@
+uuid: 39757a88-deae-441c-b1fe-ad1d3fe6a245
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:image_block:1b6a68cd-7b0a-47f9-8346-2894ea1d01bd'
+  module:
+    - block_content
+    - system
+  theme:
+    - aspirational
+id: onlineanddigital
+theme: aspirational
+region: content
+weight: -33
+provider: null
+plugin: 'block_content:1b6a68cd-7b0a-47f9-8346-2894ea1d01bd'
+settings:
+  id: 'block_content:1b6a68cd-7b0a-47f9-8346-2894ea1d01bd'
+  label: 'Online And Digital'
+  provider: block_content
+  label_display: visible
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /advertise-us
+    negate: false
+    context_mapping: {  }

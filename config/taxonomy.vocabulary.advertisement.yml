@@ -1,0 +1,8 @@
+uuid: 59af116d-8207-4b4a-b6a5-2ed09c205b92
+langcode: en
+status: true
+dependencies: {  }
+name: Advertisement
+vid: advertisement
+description: 'Taxonomy for where an advertisement will be displayed'
+weight: 0

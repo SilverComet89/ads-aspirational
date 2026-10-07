@@ -1,0 +1,45 @@
+uuid: 1a68f661-3924-498b-9620-93b85d44a0fb
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.3_column_text.field_text_left
+    - field.field.paragraph.3_column_text.field_text_middle
+    - field.field.paragraph.3_column_text.field_text_right
+    - paragraphs.paragraphs_type.3_column_text
+  module:
+    - field_formatter_class
+    - text
+id: paragraph.3_column_text.default
+targetEntityType: paragraph
+bundle: 3_column_text
+mode: default
+content:
+  field_text_left:
+    weight: 0
+    label: hidden
+    settings: {  }
+    third_party_settings:
+      field_formatter_class:
+        class: col-md-4
+    type: text_default
+    region: content
+  field_text_middle:
+    weight: 1
+    label: hidden
+    settings: {  }
+    third_party_settings:
+      field_formatter_class:
+        class: col-md-4
+    type: text_default
+    region: content
+  field_text_right:
+    weight: 2
+    label: hidden
+    settings: {  }
+    third_party_settings:
+      field_formatter_class:
+        class: col-md-4
+    type: text_default
+    region: content
+hidden: {  }

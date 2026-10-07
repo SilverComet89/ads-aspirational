@@ -1,0 +1,71 @@
+uuid: 80fdc32b-7879-4e8b-b2d3-6e688980014d
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.advert_block_2_vertical_stack_wi
+    - field.field.block_content.advert_block_2_vertical_stack_wi.body
+    - field.field.block_content.advert_block_2_vertical_stack_wi.field_first_advert
+    - field.field.block_content.advert_block_2_vertical_stack_wi.field_first_advert_link
+    - field.field.block_content.advert_block_2_vertical_stack_wi.field_second_advert
+    - field.field.block_content.advert_block_2_vertical_stack_wi.field_second_advert_link
+    - image.style.thumbnail
+  module:
+    - image
+    - link
+    - text
+id: block_content.advert_block_2_vertical_stack_wi.default
+targetEntityType: block_content
+bundle: advert_block_2_vertical_stack_wi
+mode: default
+content:
+  body:
+    type: text_textarea_with_summary
+    weight: 3
+    settings:
+      rows: 9
+      summary_rows: 3
+      placeholder: ''
+    third_party_settings: {  }
+    region: content
+  field_first_advert:
+    weight: 1
+    settings:
+      preview_image_style: thumbnail
+      progress_indicator: throbber
+    third_party_settings: {  }
+    type: image_image
+    region: content
+  field_first_advert_link:
+    weight: 2
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+    type: link_default
+    region: content
+  field_second_advert:
+    weight: 4
+    settings:
+      preview_image_style: thumbnail
+      progress_indicator: throbber
+    third_party_settings: {  }
+    type: image_image
+    region: content
+  field_second_advert_link:
+    weight: 5
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+    type: link_default
+    region: content
+  info:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden: {  }

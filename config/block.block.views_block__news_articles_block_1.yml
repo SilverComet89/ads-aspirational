@@ -1,0 +1,34 @@
+uuid: d96619d3-b231-4cff-ab20-2140e246321d
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.news_articles
+  module:
+    - block_class
+    - system
+    - views
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'col-md-4 col-sm-6'
+id: views_block__news_articles_block_1
+theme: aspirational
+region: content
+weight: -31
+provider: null
+plugin: 'views_block:news_articles-block_1'
+settings:
+  id: 'views_block:news_articles-block_1'
+  label: ''
+  provider: views
+  label_display: '0'
+  views_label: ''
+  items_per_page: none
+visibility:
+  request_path:
+    id: request_path
+    pages: '<front>'
+    negate: false
+    context_mapping: {  }

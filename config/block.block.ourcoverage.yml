@@ -1,0 +1,35 @@
+uuid: a2ccf1cb-39cb-41a7-9316-81573136f5cb
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:image_block_3_column_with_links_:4eef29b4-6e16-46e4-a327-af70a42b335e'
+  module:
+    - block_class
+    - block_content
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: col-md-12
+id: ourcoverage
+theme: aspirational
+region: content
+weight: -21
+provider: null
+plugin: 'block_content:4eef29b4-6e16-46e4-a327-af70a42b335e'
+settings:
+  id: 'block_content:4eef29b4-6e16-46e4-a327-af70a42b335e'
+  label: 'Our Coverage'
+  provider: block_content
+  label_display: visible
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: "<front>\r\n/about-us\r\n/read-online"
+    negate: false
+    context_mapping: {  }

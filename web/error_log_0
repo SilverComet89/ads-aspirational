@@ -1,0 +1,1450 @@
+[27-Mar-2020 20:44:01 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 3739302115e7e6591686743.42869927
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[27-Mar-2020 22:31:25 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 19296451035e7e7ebda05cd9.18105495
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[28-Mar-2020 03:49:16 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 2884435495e7ec93c2c5be6.64269551
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[28-Mar-2020 07:02:17 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 7024952595e7ef6792a4118.78496220
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[28-Mar-2020 10:30:32 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 15421201905e7f2748a488a4.37526543
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[28-Mar-2020 11:36:57 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 15436805605e7f36d94537a6.46949803
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[28-Mar-2020 14:41:23 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 17583825505e7f621374ba02.97876139
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[29-Mar-2020 00:14:07 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 14669777455e7fe84fe7f9d4.26670973
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[29-Mar-2020 05:50:27 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 18243910565e802913025d37.27167288
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[29-Mar-2020 07:01:51 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 8455161175e8039cf914516.60616792
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[29-Mar-2020 16:58:25 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 17179025385e80c5a1195c39.48732307
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[30-Mar-2020 00:19:44 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 7008398065e812d105c59f4.77668783
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[30-Mar-2020 01:25:12 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 6483826565e813c6885a751.84659198
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[30-Mar-2020 02:37:25 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 14631794955e814d555a0702.14365329
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[30-Mar-2020 07:37:10 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 14227607255e81939698faa1.98710430
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[30-Mar-2020 09:32:01 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 2746456735e81ae81e0f805.16121978
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[30-Mar-2020 22:10:38 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 16180254975e82604e335039.81187117
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[30-Mar-2020 22:39:38 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 8533192665e82671a1f3eb6.43885780
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[31-Mar-2020 02:11:03 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 17128615725e8298a79dee49.50447476
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[31-Mar-2020 03:01:50 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 2251516385e82a48e0a6a08.51587509
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[31-Mar-2020 05:36:45 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 13837078355e82c8ddf327a3.44301892
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[31-Mar-2020 06:30:59 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 8948946375e82d5931b1cc3.16558465
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[31-Mar-2020 07:26:05 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 16159659145e82e27d31c202.55464167
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[31-Mar-2020 08:30:22 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 13911606425e82f18e6a26a9.29687645
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[31-Mar-2020 09:55:32 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 3354152465e830584ea3114.22626104
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[31-Mar-2020 13:22:01 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 2049672285e8335e9833163.74708674
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[31-Mar-2020 16:25:53 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 11389812595e836101a69398.14686933
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[31-Mar-2020 21:28:22 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 1883960635e83a7e6e63085.05397424
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[31-Mar-2020 21:34:34 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 3310538615e83a95a89d826.72101148
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[01-Apr-2020 01:54:17 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 3139428595e83e639de30e4.38885869
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[01-Apr-2020 02:26:10 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 19784461925e83edb20c41f8.77128828
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[01-Apr-2020 07:54:52 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 17925437705e843abc6f0732.57073419
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[01-Apr-2020 16:33:54 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 14269599685e84b462315ad4.47474899
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[01-Apr-2020 19:33:43 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 533186765e84de8748fa35.57206642
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[02-Apr-2020 04:21:37 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 6728164485e855a41db8da5.60142241
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[02-Apr-2020 12:51:17 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 13756401985e85d1b529aba9.12968952
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[02-Apr-2020 16:40:07 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 2228404605e860757882115.19545705
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[02-Apr-2020 17:52:35 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 8407881815e8618530776a4.29003274
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[03-Apr-2020 02:28:19 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 17558648105e8691339557e4.78583831
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[03-Apr-2020 02:52:24 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 11324554185e8696d89250b4.12298044
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[03-Apr-2020 09:59:52 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 5023566755e86fb0871bef1.19605053
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[03-Apr-2020 12:29:21 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 17612694695e871e11a83c62.80509327
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[04-Apr-2020 02:09:55 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 9671601435e87de63e559d2.49463407
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[04-Apr-2020 02:27:43 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 17190234625e87e28f496049.80338404
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[04-Apr-2020 03:28:35 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 1252189095e87f0d34b41d0.52436633
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[04-Apr-2020 06:04:54 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 14342330275e881576720e84.64685129
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[04-Apr-2020 08:05:29 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 20369452635e8831b91ee417.71735164
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[04-Apr-2020 17:29:02 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 326163245e88b5ceb9f1e7.95083336
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[04-Apr-2020 21:13:26 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 20444081875e88ea66624a53.65195153
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[04-Apr-2020 23:17:24 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 14147225695e890774c3afa6.66318267
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[05-Apr-2020 08:02:59 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 17026093665e8982a3453474.00864919
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[05-Apr-2020 17:16:54 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 3072676585e8a0476805d57.78503487
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[05-Apr-2020 19:39:43 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 5069083125e8a25ef2e2977.07054607
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[05-Apr-2020 22:02:41 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 20800506685e8a4771200e02.11600251
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[06-Apr-2020 01:21:24 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 1106309905e8a7604e573f4.00385579
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[06-Apr-2020 04:42:04 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 14947018015e8aa50ccf63c2.38361557
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[06-Apr-2020 06:55:41 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 13705757195e8ac45da15e44.40246073
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}
+[06-Apr-2020 10:00:48 Europe/London] PDOException: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute. in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php:59
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Statement.php(59): PDOStatement->execute(Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(631): Drupal\Core\Database\Statement->execute(Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#4 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#5 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#6 [internal function]: _drupal_shutdown_function()
+#7 {main}
+
+Next Drupal\Core\Database\DatabaseExceptionWrapper: SQLSTATE[HY000]: General error: 2014 Cannot execute queries while other unbuffered queries are active.  Consider using PDOStatement::fetchAll().  Alternatively, if your code is only ever going to run against mysql, you may enable query buffering by setting the PDO::MYSQL_ATTR_USE_BUFFERED_QUERY attribute.: DELETE FROM {semaphore} 
+WHERE value = :db_condition_placeholder_0; Array
+(
+    [:db_condition_placeholder_0] => 18219522535e8aefc0177418.24024682
+)
+ in /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php:692
+Stack trace:
+#0 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Connection.php(656): Drupal\Core\Database\Connection->handleQueryException(Object(PDOException), 'DELETE FROM {se...', Array, Array)
+#1 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Driver/mysql/Connection.php(358): Drupal\Core\Database\Connection->query('DELETE FROM {se...', Array, Array)
+#2 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Database/Query/Delete.php(55): Drupal\Core\Database\Driver\mysql\Connection->query('DELETE FROM {se...', Array, Array)
+#3 /home/aspirationaluk/public_html/web/core/lib/Drupal/Core/Lock/DatabaseLockBackend.php(170): Drupal\Core\Database\Query\Delete->execute()
+#4 /home/aspirationaluk/public_html/web/core/includes/bootstrap.inc(1043): Drupal\Core\Lock\DatabaseLockBackend->releaseAll()
+#5 [internal function]: _drupal_shutdown_function()
+#6 {main}

@@ -1,0 +1,29 @@
+uuid: 51d6e2ad-0824-4560-b3d7-65bfc5386b53
+langcode: en
+status: false
+dependencies:
+  content:
+    - 'block_content:advert_block_full_width_:9420f21e-caba-48db-80b3-68ade7de85e3'
+  module:
+    - block_class
+    - block_content
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: col-md-12
+id: itsamansworldadvertfullwidth
+theme: aspirational
+region: content
+weight: -7
+provider: null
+plugin: 'block_content:9420f21e-caba-48db-80b3-68ade7de85e3'
+settings:
+  id: 'block_content:9420f21e-caba-48db-80b3-68ade7de85e3'
+  label: 'It''s A Man''s World Advert Full Width'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

@@ -1,0 +1,44 @@
+uuid: 1fa7a18a-8c7d-46d5-8c5a-fea253b1b5c1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.magazine.field_cover_image
+    - field.field.node.magazine.field_magazine_url
+    - node.type.magazine
+  module:
+    - image
+    - link
+    - user
+id: node.magazine.default
+targetEntityType: node
+bundle: magazine
+mode: default
+content:
+  field_cover_image:
+    weight: 102
+    label: above
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings: {  }
+    type: image
+    region: content
+  field_magazine_url:
+    weight: 103
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    type: link
+    region: content
+  links:
+    weight: 100
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden: {  }

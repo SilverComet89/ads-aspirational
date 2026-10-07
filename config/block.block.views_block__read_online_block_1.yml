@@ -1,0 +1,30 @@
+uuid: 0b1efea2-13c5-478b-9743-cba42c255961
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.read_online
+  module:
+    - system
+    - views
+  theme:
+    - aspirational
+id: views_block__read_online_block_1
+theme: aspirational
+region: content
+weight: -24
+provider: null
+plugin: 'views_block:read_online-block_1'
+settings:
+  id: 'views_block:read_online-block_1'
+  label: ''
+  provider: views
+  label_display: '0'
+  views_label: ''
+  items_per_page: none
+visibility:
+  request_path:
+    id: request_path
+    pages: /read-online
+    negate: false
+    context_mapping: {  }

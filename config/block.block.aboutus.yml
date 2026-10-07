@@ -1,0 +1,30 @@
+uuid: a61ccc1c-03bf-43b0-9ac1-34c3546a2214
+langcode: en
+status: true
+dependencies:
+  module:
+    - block_class
+    - md_slider
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'no-gutter col-md-12'
+id: aboutus
+theme: aspirational
+region: highlighted
+weight: -34
+provider: null
+plugin: 'md_slider_block:about_us'
+settings:
+  id: 'md_slider_block:about_us'
+  label: 'About Us'
+  provider: md_slider
+  label_display: '0'
+visibility:
+  request_path:
+    id: request_path
+    pages: /about-us
+    negate: false
+    context_mapping: {  }

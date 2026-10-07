@@ -1,0 +1,14 @@
+uuid: d2dab5a0-a84b-45c2-9c19-32c9fe5827c6
+langcode: en
+status: true
+dependencies: {  }
+name: maga
+label: 'Magazine Cover'
+effects:
+  65415ba8-9b67-400c-868f-5604923a9aa4:
+    uuid: 65415ba8-9b67-400c-868f-5604923a9aa4
+    id: image_resize
+    weight: 1
+    data:
+      width: 218
+      height: 270

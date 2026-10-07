@@ -1,0 +1,35 @@
+uuid: b665ca83-4089-4aa4-bcfd-e3af0aac2cd1
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.right_sidebar_adverts
+    - field.field.block_content.right_sidebar_adverts.field_right_sidebar_adverts
+  module:
+    - paragraphs
+id: block_content.right_sidebar_adverts.default
+targetEntityType: block_content
+bundle: right_sidebar_adverts
+mode: default
+content:
+  field_right_sidebar_adverts:
+    type: entity_reference_paragraphs
+    weight: 26
+    settings:
+      title: Paragraph
+      title_plural: Paragraphs
+      edit_mode: open
+      add_mode: dropdown
+      form_display_mode: default
+      default_paragraph_type: ''
+    third_party_settings: {  }
+    region: content
+  info:
+    type: string_textfield
+    weight: -5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden: {  }

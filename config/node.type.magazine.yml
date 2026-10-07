@@ -1,0 +1,18 @@
+uuid: ce0c0db6-08f4-4400-807c-3462ef312638
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus:
+      - main
+    parent: 'main:'
+name: Magazine
+type: magazine
+description: 'Upload Magazine Images and link for Read Online View'
+help: 'Title has to be in format: Spring/Summer 2016, Autumn/Winter 2016 etc.'
+new_revision: true
+preview_mode: 1
+display_submitted: true

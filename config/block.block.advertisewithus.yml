@@ -1,0 +1,30 @@
+uuid: 78a36f7f-c918-4929-90de-a1a96c1d2597
+langcode: en
+status: true
+dependencies:
+  module:
+    - block_class
+    - md_slider
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'no-gutter col-md-12'
+id: advertisewithus
+theme: aspirational
+region: highlighted
+weight: -33
+provider: null
+plugin: 'md_slider_block:advertise_with_us'
+settings:
+  id: 'md_slider_block:advertise_with_us'
+  label: 'Advertise With Us'
+  provider: md_slider
+  label_display: '0'
+visibility:
+  request_path:
+    id: request_path
+    pages: /advertise-us
+    negate: false
+    context_mapping: {  }

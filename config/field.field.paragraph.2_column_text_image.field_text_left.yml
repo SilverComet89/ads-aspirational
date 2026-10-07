@@ -1,0 +1,22 @@
+uuid: 7023db35-888c-478b-a0f9-608ba99facee
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_text_left
+    - paragraphs.paragraphs_type.2_column_text_image
+  module:
+    - text
+id: paragraph.2_column_text_image.field_text_left
+field_name: field_text_left
+entity_type: paragraph
+bundle: 2_column_text_image
+label: 'Text Left'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: false
+field_type: text_with_summary

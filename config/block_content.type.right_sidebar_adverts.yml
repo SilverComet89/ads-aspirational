@@ -1,0 +1,8 @@
+uuid: 5728326d-f4ff-4c71-a15d-68516bfd14e1
+langcode: en
+status: true
+dependencies: {  }
+id: right_sidebar_adverts
+label: 'Right Sidebar Adverts'
+revision: 0
+description: 'Right sidebar adverts'

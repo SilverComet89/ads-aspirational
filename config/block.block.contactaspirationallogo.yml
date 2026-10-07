@@ -1,0 +1,29 @@
+uuid: 561c2253-c8b5-4aca-8879-826f818540dc
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:image_block_with_link_:1d18edf8-ae69-4edb-9671-c77ce050fb57'
+  module:
+    - block_class
+    - block_content
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'col-md-4 overflow'
+id: contactaspirationallogo
+theme: aspirational
+region: contact
+weight: -13
+provider: null
+plugin: 'block_content:1d18edf8-ae69-4edb-9671-c77ce050fb57'
+settings:
+  id: 'block_content:1d18edf8-ae69-4edb-9671-c77ce050fb57'
+  label: 'Contact Aspirational Logo'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

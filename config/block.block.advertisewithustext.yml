@@ -1,0 +1,31 @@
+uuid: d2562ddc-a9cd-4784-bdeb-7644ca477ba9
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:2c3fd014-d0ac-4aee-9f6e-d21b09498926'
+  module:
+    - block_content
+    - system
+  theme:
+    - aspirational
+id: advertisewithustext
+theme: aspirational
+region: content
+weight: -35
+provider: null
+plugin: 'block_content:2c3fd014-d0ac-4aee-9f6e-d21b09498926'
+settings:
+  id: 'block_content:2c3fd014-d0ac-4aee-9f6e-d21b09498926'
+  label: 'Advertise With Us Text'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /advertise-us
+    negate: false
+    context_mapping: {  }

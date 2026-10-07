@@ -1,0 +1,29 @@
+uuid: 1aadc270-3681-4dff-ba4a-5e4c47f6da41
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:1283eae6-bde7-4654-bbf8-d6e89ea043df'
+  module:
+    - block_class
+    - block_content
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'text-right col-md-4 hidden-sm hidden-xs'
+id: backtotop
+theme: aspirational
+region: footer
+weight: -43
+provider: null
+plugin: 'block_content:1283eae6-bde7-4654-bbf8-d6e89ea043df'
+settings:
+  id: 'block_content:1283eae6-bde7-4654-bbf8-d6e89ea043df'
+  label: 'Back To Top'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

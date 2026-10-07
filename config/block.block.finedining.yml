@@ -1,0 +1,30 @@
+uuid: 913b062b-69fe-44d6-8cd7-2c02e50ae1c3
+langcode: en
+status: true
+dependencies:
+  module:
+    - block_class
+    - md_slider
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'no-gutter col-md-12'
+id: finedining
+theme: aspirational
+region: highlighted
+weight: 0
+provider: null
+plugin: 'md_slider_block:fine_dining'
+settings:
+  id: 'md_slider_block:fine_dining'
+  label: 'Fine Dining'
+  provider: md_slider
+  label_display: '0'
+visibility:
+  request_path:
+    id: request_path
+    pages: /fine-dining-guide
+    negate: false
+    context_mapping: {  }

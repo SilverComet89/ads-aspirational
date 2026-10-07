@@ -1,0 +1,35 @@
+uuid: 7c24f186-0a7e-4080-82bb-791265329d2d
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:right_sidebar_adverts:ea170abe-fd98-4bb7-93f5-6b4c6e877884'
+  module:
+    - block_class
+    - block_content
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'hidden-sm hidden-xs hidden-md'
+id: homepagerightsidebar
+theme: aspirational
+region: content
+weight: 0
+provider: null
+plugin: 'block_content:ea170abe-fd98-4bb7-93f5-6b4c6e877884'
+settings:
+  id: 'block_content:ea170abe-fd98-4bb7-93f5-6b4c6e877884'
+  label: 'Homepage Right Sidebar'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: '<front>'
+    negate: false
+    context_mapping: {  }

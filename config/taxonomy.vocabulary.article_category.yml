@@ -1,0 +1,8 @@
+uuid: f76cb580-3bc9-461d-a93e-28b14845b4f4
+langcode: en
+status: true
+dependencies: {  }
+name: 'Article Category'
+vid: article_category
+description: 'Categories for articles from the magazine'
+weight: 0

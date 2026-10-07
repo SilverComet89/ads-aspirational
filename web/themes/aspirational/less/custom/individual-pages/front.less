@@ -1,0 +1,108 @@
+.path-frontpage {
+  article {
+    clear: both;
+  }
+}
+
+
+.view-id-news_articles {
+  position: relative;
+  .view-header {
+    text-align: center;
+    font-size: 30px;
+    position: relative;
+    div {
+      position: absolute;
+      background-color: fade(@AspiGrey,50);
+      width: 100%;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    a {
+      width: 70%;
+      display: block;
+      margin: 0 auto;
+      font-family: 'minion-pro' !important;
+      font-style: normal !important;
+      font-weight: 400 !important;
+      text-transform: uppercase;
+      font-size: 30px;
+      line-height: 30px;
+      color: white;
+      text-shadow: 2px 2px black;
+      text-decoration: none;
+    }
+  }
+  .views-row {
+    padding: 10px 0px 10px 0px;
+  }
+}
+
+#block-views-block-news-articles-block-1,
+#block-views-block-news-articles-block-2,
+#block-views-block-news-articles-block-3,
+#block-views-block-news-articles-block-4,
+#block-views-block-news-articles-block-5,
+#block-views-block-news-articles-block-6 {
+  min-height: 520px;
+  img {
+    margin: auto;
+  }
+}
+
+
+#block-views-block-news-articles-block-3 {
+  .view-header {
+    a {
+      width: 59%;
+    }
+  }
+}
+#block-views-block-news-articles-block-4 {
+  .view-header {
+    a {
+      width: 47%;
+    }
+  }
+}
+#block-ourcoverage {
+  img {
+    padding-bottom: 25px;
+    margin: auto;
+  }
+}
+
+#block-views-block-gift-guide-block-1 {
+  clear: both;
+  .jcarousel-skin-default {
+    width: 100% !important;
+    height: 170px !important;
+    -webkit-box-shadow: 0 0 0 #999 !important;
+    -moz-box-shadow: 0 0 0 #999 !important;
+    box-shadow: 0 0 0 #999 !important;
+  }
+  .jcarousel {
+    li {
+      margin-right: 20px !important;
+    }
+  }
+}
+
+@media (max-width: @screen-xs-max) {
+  #block-views-block-gift-guide-block-1 {
+    width: 100%;
+    .jcarousel-control-next {
+      right: -30px;
+    }
+    .jcarousel-control-prev {
+      left: -30px;
+    }
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  // #block-views-block-news-articles-block-5 {
+  //   margin-left: 17%;
+  // }
+}

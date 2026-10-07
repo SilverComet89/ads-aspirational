@@ -1,0 +1,134 @@
+uuid: e03db512-b174-47d9-b286-4455ccd542ab
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.gift.body
+    - field.field.node.gift.field_brand
+    - field.field.node.gift.field_featured
+    - field.field.node.gift.field_gift_category
+    - field.field.node.gift.field_image
+    - field.field.node.gift.field_price
+    - field.field.node.gift.field_purchase_url
+    - node.type.gift
+  module:
+    - ds
+    - field_formatter_class
+    - image
+    - link
+    - text
+    - user
+third_party_settings:
+  ds:
+    layout:
+      id: bs_2col
+      library: null
+      disable_css: false
+      entity_classes: all_classes
+      settings:
+        layout:
+          wrapper: div
+          classes:
+            row: row
+          add_layout_class: 1
+          attributes: ''
+        regions:
+          left:
+            wrapper: div
+            classes:
+              col-xs-12: col-xs-12
+              col-sm-7: col-sm-7
+            add_region_classes: 1
+            attributes: ''
+          right:
+            wrapper: div
+            classes:
+              col-xs-12: col-xs-12
+              col-sm-5: col-sm-5
+              text-center: text-center
+            add_region_classes: 1
+            attributes: ''
+    regions:
+      left:
+        - field_image
+      right:
+        - links
+        - field_brand
+        - node_title
+        - body
+        - field_price
+        - field_purchase_url
+    fields:
+      node_title:
+        plugin_id: node_title
+        weight: 3
+        label: hidden
+        formatter: default
+        settings:
+          wrapper: p
+          class: ''
+          link: false
+id: node.gift.default
+targetEntityType: node
+bundle: gift
+mode: default
+content:
+  body:
+    label: hidden
+    type: text_default
+    weight: 4
+    settings: {  }
+    third_party_settings: {  }
+    region: right
+  field_brand:
+    weight: 2
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings:
+      field_formatter_class:
+        class: font-bodoni-italic
+    type: string
+    region: right
+  field_image:
+    weight: 0
+    label: hidden
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings: {  }
+    type: image
+    region: left
+  field_price:
+    weight: 5
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings:
+      field_formatter_class:
+        class: font-bodoni
+    type: string
+    region: right
+  field_purchase_url:
+    weight: 6
+    label: hidden
+    settings:
+      trim_length: 80
+      target: _blank
+      url_only: false
+      url_plain: false
+      rel: '0'
+    third_party_settings:
+      field_formatter_class:
+        class: ''
+    type: link
+    region: right
+  links:
+    weight: 1
+    region: right
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  addtoany: true
+  field_featured: true
+  field_gift_category: true

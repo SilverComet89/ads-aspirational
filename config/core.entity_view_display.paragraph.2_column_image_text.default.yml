@@ -1,0 +1,38 @@
+uuid: 5dbbb3c6-cba9-4f4d-a9b1-9ceab3e203a1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.2_column_image_text.field_image_left
+    - field.field.paragraph.2_column_image_text.field_text_right
+    - paragraphs.paragraphs_type.2_column_image_text
+  module:
+    - field_formatter_class
+    - image
+    - text
+id: paragraph.2_column_image_text.default
+targetEntityType: paragraph
+bundle: 2_column_image_text
+mode: default
+content:
+  field_image_left:
+    weight: 0
+    label: hidden
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings:
+      field_formatter_class:
+        class: col-md-6
+    type: image
+    region: content
+  field_text_right:
+    weight: 1
+    label: hidden
+    settings: {  }
+    third_party_settings:
+      field_formatter_class:
+        class: col-md-6
+    type: text_default
+    region: content
+hidden: {  }

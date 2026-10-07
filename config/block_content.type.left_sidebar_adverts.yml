@@ -1,0 +1,8 @@
+uuid: b6b91825-b09b-48f8-b44a-8605211f1684
+langcode: en
+status: true
+dependencies: {  }
+id: left_sidebar_adverts
+label: 'Left Sidebar Adverts'
+revision: 0
+description: 'Left sidebar adverts'

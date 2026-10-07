@@ -1,0 +1,20 @@
+uuid: 58d781d1-a291-442f-b7b3-5015832c6039
+langcode: en
+status: false
+dependencies:
+  theme:
+    - aspirational
+_core:
+  default_config_hash: 13GQpeITIJsp1kyPniXtWZfyFH87vb1xxJCHifL4UeE
+id: aspirational_local_actions
+theme: aspirational
+region: navigation
+weight: -18
+provider: null
+plugin: local_actions_block
+settings:
+  id: local_actions_block
+  label: 'Primary admin actions'
+  provider: core
+  label_display: '0'
+visibility: {  }

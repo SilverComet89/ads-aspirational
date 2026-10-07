@@ -1,0 +1,22 @@
+uuid: 740a0ad7-4238-4e68-9459-84700cf7252a
+langcode: en
+status: false
+dependencies:
+  module:
+    - system
+  theme:
+    - aspirational
+_core:
+  default_config_hash: oXUb3JZR2WW5VOdw4HrhRicCsq51mCgLfRyvheG68ck
+id: aspirational_breadcrumbs
+theme: aspirational
+region: navigation
+weight: -23
+provider: null
+plugin: system_breadcrumb_block
+settings:
+  id: system_breadcrumb_block
+  label: Breadcrumbs
+  provider: system
+  label_display: '0'
+visibility: {  }

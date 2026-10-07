@@ -1,0 +1,29 @@
+uuid: 26ce5f3c-0b7e-429a-ad82-21ba94e28f81
+langcode: en
+status: false
+dependencies:
+  content:
+    - 'block_content:advert_block_1_3_column_:863cf893-218e-4436-90c1-81bd5c0fea66'
+  module:
+    - block_class
+    - block_content
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: col-md-4
+id: socialnetworkingadvert13
+theme: aspirational
+region: content
+weight: 2
+provider: null
+plugin: 'block_content:863cf893-218e-4436-90c1-81bd5c0fea66'
+settings:
+  id: 'block_content:863cf893-218e-4436-90c1-81bd5c0fea66'
+  label: 'Social & Networking Advert 1/3'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

@@ -1,0 +1,29 @@
+uuid: 3474797d-f188-4343-89ef-d400ee484661
+langcode: en
+status: false
+dependencies:
+  content:
+    - 'block_content:advert_block_full_width_:0d982734-c4cc-4aa4-99d8-a4546e5164f4'
+  module:
+    - block_class
+    - block_content
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: col-md-12
+id: businessfinanceadvertfullwidth
+theme: aspirational
+region: content
+weight: -1
+provider: null
+plugin: 'block_content:0d982734-c4cc-4aa4-99d8-a4546e5164f4'
+settings:
+  id: 'block_content:0d982734-c4cc-4aa4-99d8-a4546e5164f4'
+  label: 'Business & Finance Advert Full Width'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

@@ -1,0 +1,25 @@
+uuid: a5782d95-c3f3-477d-8a1e-748d26e6c727
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:f931e733-6415-4965-ba5c-78596939bc2b'
+  module:
+    - block_content
+  theme:
+    - aspirational
+id: championsaddress
+theme: aspirational
+region: footer
+weight: -47
+provider: null
+plugin: 'block_content:f931e733-6415-4965-ba5c-78596939bc2b'
+settings:
+  id: 'block_content:f931e733-6415-4965-ba5c-78596939bc2b'
+  label: 'Champions Address'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

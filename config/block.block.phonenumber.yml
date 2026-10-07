@@ -1,0 +1,25 @@
+uuid: 7dbce611-dbbc-4f41-9814-d8037961507d
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:167525be-eba6-4068-90ce-05f4c5c2796e'
+  module:
+    - block_content
+  theme:
+    - aspirational
+id: phonenumber
+theme: aspirational
+region: footer
+weight: -48
+provider: null
+plugin: 'block_content:167525be-eba6-4068-90ce-05f4c5c2796e'
+settings:
+  id: 'block_content:167525be-eba6-4068-90ce-05f4c5c2796e'
+  label: 'Phone Number'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

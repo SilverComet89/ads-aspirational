@@ -1,0 +1,30 @@
+uuid: 40586d84-06cc-410d-8084-441e9d76e2ad
+langcode: en
+status: true
+dependencies:
+  module:
+    - block_class
+    - md_slider
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'no-gutter col-md-12'
+id: househomegarden
+theme: aspirational
+region: highlighted
+weight: 0
+provider: null
+plugin: 'md_slider_block:house_home_garden'
+settings:
+  id: 'md_slider_block:house_home_garden'
+  label: 'House, Home & Garden'
+  provider: md_slider
+  label_display: '0'
+visibility:
+  request_path:
+    id: request_path
+    pages: /house-home-garden
+    negate: false
+    context_mapping: {  }

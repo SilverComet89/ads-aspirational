@@ -1,0 +1,30 @@
+uuid: c96b386c-95ea-4bca-b72d-717c04d5c2f7
+langcode: en
+status: true
+dependencies:
+  module:
+    - block_class
+    - md_slider
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'no-gutter col-md-12'
+id: readonlineslide
+theme: aspirational
+region: highlighted
+weight: -32
+provider: null
+plugin: 'md_slider_block:read_online_slide'
+settings:
+  id: 'md_slider_block:read_online_slide'
+  label: 'Read Online Slide'
+  provider: md_slider
+  label_display: '0'
+visibility:
+  request_path:
+    id: request_path
+    pages: /read-online
+    negate: false
+    context_mapping: {  }

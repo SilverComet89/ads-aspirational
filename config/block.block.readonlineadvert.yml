@@ -1,0 +1,35 @@
+uuid: ae78b913-d34d-4eec-9e90-7edd02713490
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:advert_block_2_vertical_stack_wi:ee6728c2-be79-4e3a-ab3d-eb00d5d9249a'
+  module:
+    - block_class
+    - block_content
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'col-md-12 hidden-xs'
+id: readonlineadvert
+theme: aspirational
+region: content
+weight: -23
+provider: null
+plugin: 'block_content:ee6728c2-be79-4e3a-ab3d-eb00d5d9249a'
+settings:
+  id: 'block_content:ee6728c2-be79-4e3a-ab3d-eb00d5d9249a'
+  label: 'Read Online Advert'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /read-online
+    negate: false
+    context_mapping: {  }

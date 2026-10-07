@@ -1,0 +1,35 @@
+uuid: 2ae6e739-809a-4bde-b169-d1e6925b69f9
+langcode: en
+status: true
+dependencies:
+  module:
+    - image_effects
+name: gift_guide_display
+label: 'Gift Guide Display'
+effects:
+  5377987f-a050-47e7-a209-99e081a288db:
+    uuid: 5377987f-a050-47e7-a209-99e081a288db
+    id: image_effects_set_canvas
+    weight: -9
+    data:
+      canvas_size: exact
+      exact:
+        width: '235'
+        height: '235'
+        placement: center-center
+        x_offset: 0
+        y_offset: 0
+      relative:
+        left: 50
+        right: 50
+        top: 50
+        bottom: 50
+      canvas_color: ''
+  43916596-8ff2-4cd9-a964-d71e39ffc212:
+    uuid: 43916596-8ff2-4cd9-a964-d71e39ffc212
+    id: image_scale
+    weight: -10
+    data:
+      width: 230
+      height: null
+      upscale: false

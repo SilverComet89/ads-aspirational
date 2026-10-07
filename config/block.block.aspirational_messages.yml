@@ -1,0 +1,22 @@
+uuid: 089af2e3-c17f-4e05-8149-0551a415913e
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - aspirational
+_core:
+  default_config_hash: KHQIJ7Vfl25lTjzIc7qIvnuistt-Mw2O0kG4jCofmkI
+id: aspirational_messages
+theme: aspirational
+region: highlighted
+weight: -36
+provider: null
+plugin: system_messages_block
+settings:
+  id: system_messages_block
+  label: 'Status messages'
+  provider: system
+  label_display: '0'
+visibility: {  }

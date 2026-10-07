@@ -1,0 +1,35 @@
+uuid: 8aab6107-e4aa-43fd-9b10-737d8cd739db
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:right_sidebar_adverts:bf9ca226-389f-414a-94c3-f078fa6e7c0f'
+  module:
+    - block_class
+    - block_content
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'hidden-sm hidden-xs hidden-md'
+id: itsamansworldrightsidebar
+theme: aspirational
+region: content
+weight: 0
+provider: null
+plugin: 'block_content:bf9ca226-389f-414a-94c3-f078fa6e7c0f'
+settings:
+  id: 'block_content:bf9ca226-389f-414a-94c3-f078fa6e7c0f'
+  label: 'It''s A Man''s World Right Sidebar'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /its-mans-world
+    negate: false
+    context_mapping: {  }

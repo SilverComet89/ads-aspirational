@@ -1,0 +1,35 @@
+uuid: bf92fe4a-e607-4385-b714-eacd1fb5770c
+langcode: en
+status: false
+dependencies:
+  content:
+    - 'block_content:advert_block_full_width_:736dbc6a-41d1-4e27-8ad8-a24f2210edd2'
+  module:
+    - block_class
+    - block_content
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: col-md-12
+id: finediningguideadvertfullwidth
+theme: aspirational
+region: content
+weight: -3
+provider: null
+plugin: 'block_content:736dbc6a-41d1-4e27-8ad8-a24f2210edd2'
+settings:
+  id: 'block_content:736dbc6a-41d1-4e27-8ad8-a24f2210edd2'
+  label: 'Fine Dining Guide Advert Full Width'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /fine-dining-guide
+    negate: false
+    context_mapping: {  }

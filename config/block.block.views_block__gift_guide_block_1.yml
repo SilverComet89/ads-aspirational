@@ -1,0 +1,34 @@
+uuid: 580edfc5-51c8-4ae7-8c20-e1c57e3439aa
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.gift_guide
+  module:
+    - block_class
+    - system
+    - views
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: col-md-12
+id: views_block__gift_guide_block_1
+theme: aspirational
+region: content
+weight: -25
+provider: null
+plugin: 'views_block:gift_guide-block_1'
+settings:
+  id: 'views_block:gift_guide-block_1'
+  label: ''
+  provider: views
+  label_display: visible
+  views_label: ''
+  items_per_page: none
+visibility:
+  request_path:
+    id: request_path
+    pages: '<front>'
+    negate: false
+    context_mapping: {  }

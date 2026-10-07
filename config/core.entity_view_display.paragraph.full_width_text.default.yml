@@ -1,0 +1,25 @@
+uuid: c594f9fd-a6b6-40e4-8f0e-afebd13bdd25
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.full_width_text.field_text
+    - paragraphs.paragraphs_type.full_width_text
+  module:
+    - field_formatter_class
+    - text
+id: paragraph.full_width_text.default
+targetEntityType: paragraph
+bundle: full_width_text
+mode: default
+content:
+  field_text:
+    weight: 0
+    label: hidden
+    settings: {  }
+    third_party_settings:
+      field_formatter_class:
+        class: col-md-12
+    type: text_default
+    region: content
+hidden: {  }

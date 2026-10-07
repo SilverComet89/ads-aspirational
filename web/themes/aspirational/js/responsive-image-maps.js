@@ -1,0 +1,1 @@
+jQuery('img[usemap]').rwdImageMaps();

@@ -1,0 +1,27 @@
+uuid: 8bc7cbcf-86eb-49b8-a127-439bc538ce18
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - aspirational
+_core:
+  default_config_hash: 9EoWV2Lot6FVSr50t4hoKgiz1LIXYWNG-IIPYsWxBqo
+id: aspirational_content
+theme: aspirational
+region: content
+weight: -32
+provider: null
+plugin: system_main_block
+settings:
+  id: system_main_block
+  label: 'Main page content'
+  provider: system
+  label_display: '0'
+visibility:
+  request_path:
+    id: request_path
+    pages: '<front>'
+    negate: true
+    context_mapping: {  }

@@ -1,0 +1,30 @@
+uuid: 3b8dfef4-1e53-4a5e-81b9-c35f9fa5fa18
+langcode: en
+status: true
+dependencies:
+  module:
+    - block_class
+    - md_slider
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'no-gutter col-md-12'
+id: businessfinance
+theme: aspirational
+region: highlighted
+weight: 0
+provider: null
+plugin: 'md_slider_block:business_finance'
+settings:
+  id: 'md_slider_block:business_finance'
+  label: 'Business & Finance'
+  provider: md_slider
+  label_display: '0'
+visibility:
+  request_path:
+    id: request_path
+    pages: /business-finance
+    negate: false
+    context_mapping: {  }

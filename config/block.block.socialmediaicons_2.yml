@@ -1,0 +1,29 @@
+uuid: 8626af34-4ed9-4836-ba85-12e63d8e5e7b
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:ce82bfbe-010a-4b23-9159-25e005f1ce50'
+  module:
+    - block_class
+    - block_content
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: text-center
+id: socialmediaicons_2
+theme: aspirational
+region: footer
+weight: -49
+provider: null
+plugin: 'block_content:ce82bfbe-010a-4b23-9159-25e005f1ce50'
+settings:
+  id: 'block_content:ce82bfbe-010a-4b23-9159-25e005f1ce50'
+  label: 'Social Media Icons'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

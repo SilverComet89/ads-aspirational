@@ -1,0 +1,22 @@
+uuid: 01bfc583-9953-46aa-a706-e804ac89cc03
+langcode: en
+status: false
+dependencies:
+  module:
+    - system
+  theme:
+    - aspirational
+_core:
+  default_config_hash: jQQUUWN2Uxr5qZtc9zcJKBCxpKY8orN1u2HPqYYRQDI
+id: aspirational_powered
+theme: aspirational
+region: navigation
+weight: -19
+provider: null
+plugin: system_powered_by_block
+settings:
+  id: system_powered_by_block
+  label: 'Powered by Drupal'
+  provider: system
+  label_display: '0'
+visibility: {  }

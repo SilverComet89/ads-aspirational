@@ -1,0 +1,57 @@
+.contact {
+  background-color: @AspiCream;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  @media(min-width: @screen-md-min){
+    .form-actions {
+      width: 8.33333333%;
+      float: left;
+      position: relative;
+      min-height: 1px;
+      margin-left: 180px;
+    }
+  }
+  button {
+    background-color: @AspiCharcoal !important;
+    border-color: @AspiCharcoal !important;
+  }
+  .form-control {
+    background-color: transparent !important;
+    border: 1px dotted #ccc !important;
+  }
+  .form-actions {
+    text-align: center;
+    padding-top: 15px;
+  }
+  .captcha {
+    clear: both;
+    float: left;
+    padding-left: 15px;
+  }
+}
+
+#block-webform {
+  .block-title {
+    font-family: 'minion-pro' !important;
+    font-style: normal !important;
+    font-weight: 400 !important;
+    font-size: 18px;
+    border-bottom: solid 2px @AspiGrey;
+    text-align: center;
+  }
+}
+
+@media screen and (max-height: 575px){
+  #rc-imageselect, .g-recaptcha {
+    transform:scale(0.77);
+    -webkit-transform:scale(0.77);
+    transform-origin:0 0;
+    -webkit-transform-origin:0 0;
+  }
+}
+
+@media (max-width: @screen-sm-max) {
+  .captcha {
+    padding-top: 15px;
+  }
+}

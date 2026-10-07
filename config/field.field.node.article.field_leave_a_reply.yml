@@ -1,0 +1,24 @@
+uuid: a814dfcc-5387-4ca0-a95f-5e3dbed3353f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_leave_a_reply
+    - node.type.article
+  module:
+    - disqus
+id: node.article.field_leave_a_reply
+field_name: field_leave_a_reply
+entity_type: node
+bundle: article
+label: 'Leave A Reply'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    status: 1
+    identifier: ''
+default_value_callback: ''
+settings: {  }
+field_type: disqus_comment

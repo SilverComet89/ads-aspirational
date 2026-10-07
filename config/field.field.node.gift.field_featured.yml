@@ -1,0 +1,28 @@
+uuid: 90033913-2289-4f02-b738-28bc184818f2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_featured
+    - node.type.gift
+    - taxonomy.vocabulary.featured_gift
+id: node.gift.field_featured
+field_name: field_featured
+entity_type: node
+bundle: gift
+label: Featured
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      featured_gift: featured_gift
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

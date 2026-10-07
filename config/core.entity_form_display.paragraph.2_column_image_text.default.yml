@@ -1,0 +1,43 @@
+uuid: 788dc749-b8d6-4f34-b9e7-569dd9332259
+langcode: en
+status: true
+dependencies:
+  config:
+    - entity_browser.browser.browse_files
+    - field.field.paragraph.2_column_image_text.field_image_left
+    - field.field.paragraph.2_column_image_text.field_text_right
+    - paragraphs.paragraphs_type.2_column_image_text
+  module:
+    - entity_browser
+    - text
+id: paragraph.2_column_image_text.default
+targetEntityType: paragraph
+bundle: 2_column_image_text
+mode: default
+content:
+  field_image_left:
+    weight: 0
+    settings:
+      entity_browser: browse_files
+      field_widget_remove: true
+      selection_mode: selection_append
+      preview_image_style: thumbnail
+      field_widget_edit: true
+      open: false
+      view_mode: default
+    third_party_settings: {  }
+    type: entity_browser_file
+    region: content
+  field_text_right:
+    weight: 1
+    settings:
+      rows: 9
+      summary_rows: 3
+      placeholder: ''
+    third_party_settings: {  }
+    type: text_textarea_with_summary
+    region: content
+hidden:
+  created: true
+  status: true
+  uid: true

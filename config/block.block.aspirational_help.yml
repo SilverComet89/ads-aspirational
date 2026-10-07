@@ -1,0 +1,22 @@
+uuid: 6c0d2adc-2dfe-499d-8eb1-48d004ef673a
+langcode: en
+status: false
+dependencies:
+  module:
+    - help
+  theme:
+    - aspirational
+_core:
+  default_config_hash: 8I8iACSa0sKO3k3jlvUG1ge52rfcKX7USJAQYnzuBgg
+id: aspirational_help
+theme: aspirational
+region: navigation
+weight: -21
+provider: null
+plugin: help_block
+settings:
+  id: help_block
+  label: Help
+  provider: help
+  label_display: '0'
+visibility: {  }

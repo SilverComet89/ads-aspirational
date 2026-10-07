@@ -1,0 +1,182 @@
+.gift-guide-block {
+  img {
+    display: inline;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .hover {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 160px;
+    width: 160px;
+    margin: -80px 0 0 -80px;
+    opacity: 0;
+    transition: .5s ease;
+    background: fade(@AspiBrown, 80%);
+    color: white;
+  }
+  .background {
+    height: 240px;
+    width: 240px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -120px 0 0 -120px;
+    z-index: -2;
+    background: @AspiCream;
+  }
+  .views-row {
+    position: relative;
+    height: 350px;
+    text-align: center;
+    a {
+      color: white;
+      text-decoration: none;
+    }
+  }
+  .views-row:hover .hover {
+    opacity: 1;
+  }
+  .views-field-field-price {
+    border-top: dotted 2px white;
+    font-size: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5px;
+    width: 82px;
+  }
+  .views-field-field-brand {
+    font-size: 18px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .views-field-body {
+    font-size: 12px;
+  }
+  .views-field-title {
+    font-size: 13px;
+  }
+  .info-fields {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+  }
+  .pager__item {
+    a {
+      color: white !important;
+      background-color: @AspiCharcoal !important;
+    }
+  }
+}
+
+.node--type-gift {
+  height: 100%;
+  margin: 0 !important;
+  .field--name-field-purchase-url {
+     &::before {
+       content: 'Buy at '
+     }
+  }
+  .field--name-field-image {
+    min-height: 300px;
+    background-color: white;
+    .field--item {
+      &:nth-child(1) {
+        img {
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+      }
+      &:nth-child(1n+2) {
+        img {
+          width: 100px;
+          background-color: white;
+        }
+      }
+    }
+    img {
+      position: absolute;
+    }
+  }
+  .field--name-field-brand {
+    font-size: 20px;
+    padding-top: 50px;
+  }
+  .field--name-field-price {
+    font-size: 35px;
+  }
+  .field--name-body {
+    border-bottom: 1px dotted @AspiGrey;
+  }
+  .field--name-node-title {
+    p {
+      font-weight: bold;
+    }
+  }
+  .bs-region--right {
+    height: 100%;
+  }
+}
+
+.page-node-7 {
+  #colorbox {
+    -webkit-box-shadow: 0px 0px 13px -3px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 13px -3px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 13px -3px rgba(0,0,0,0.75);
+  }
+  #cboxWrapper, #cboxContent {
+    background-color: @AspiCream;
+  }
+  #block-views-block-gift-guide-block-1 {
+    display: none;
+  }
+  .region-content {
+    h2  {
+      display: table;
+      white-space: nowrap;
+      color: @AspiCharcoal;
+      text-transform: uppercase;
+      font-family: 'minion-pro' !important;
+      font-style: normal !important;
+      font-weight: 400 !important;
+      width: 100%;
+      text-align: center;
+      &:before, &:after {
+        border-top: 1px dotted @AspiCharcoal;
+        content: '';
+        display: table-cell;
+        position: relative;
+        top: 0.5em;
+        width: 45%;
+      }
+      &:before { right: 1.5%; }
+      &:after { left: 1.5%; }
+    }
+    .field--name-body {
+      text-align: center;
+      span {
+        color: @AspiGrey;
+        text-decoration: none;
+        cursor: pointer;
+        &:not(:last-child) {
+          border-right: 1px solid black;
+          padding-right: 7px;
+          padding-left: 5px;
+        }
+        &:last-child {
+          padding-left: 5px;
+        }
+      }
+    }
+    .gift-navigation {
+      width: 50%;
+      margin: 0 auto;
+      border-bottom: solid 1px @AspiGrey;
+      padding-bottom: 5px;
+    }
+  }
+}

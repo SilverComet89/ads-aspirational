@@ -1,0 +1,7 @@
+uuid: 43ec3134-0170-409a-9e98-86c204c85a3b
+langcode: en
+status: true
+dependencies: {  }
+id: 3_column_text
+label: '3 Column Text'
+behavior_plugins: {  }

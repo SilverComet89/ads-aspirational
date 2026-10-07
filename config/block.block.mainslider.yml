@@ -1,0 +1,30 @@
+uuid: 0ee64667-74f6-43f5-95b0-c50a27dbc3e2
+langcode: en
+status: true
+dependencies:
+  module:
+    - block_class
+    - md_slider
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'no-gutter col-md-12'
+id: mainslider
+theme: aspirational
+region: highlighted
+weight: -35
+provider: null
+plugin: 'md_slider_block:main_slider'
+settings:
+  id: 'md_slider_block:main_slider'
+  label: 'Main Slider'
+  provider: md_slider
+  label_display: '0'
+visibility:
+  request_path:
+    id: request_path
+    pages: '<front>'
+    negate: false
+    context_mapping: {  }

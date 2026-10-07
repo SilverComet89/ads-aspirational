@@ -1,0 +1,22 @@
+uuid: c64be835-f0ab-4d44-992b-81a274a9deb1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_text_right
+    - paragraphs.paragraphs_type.2_column_image_text
+  module:
+    - text
+id: paragraph.2_column_image_text.field_text_right
+field_name: field_text_right
+entity_type: paragraph
+bundle: 2_column_image_text
+label: 'Text Right'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: false
+field_type: text_with_summary

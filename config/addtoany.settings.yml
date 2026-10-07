@@ -1,0 +1,10 @@
+buttons_size: 8
+additional_html: "<a class=\"a2a_button_facebook\">\r\n  <span class=\"fa-stack fa-lg\">\r\n    <i class=\"fa fa-circle fa-stack-2x\"></i>\r\n    <i class=\"fa fa-facebook fa-stack-1x fa-inverse\"></i>\r\n  </span>\r\n</a>\r\n<a class=\"a2a_button_twitter\">\r\n  <span class=\"fa-stack fa-lg\">\r\n    <i class=\"fa fa-circle fa-stack-2x\"></i>\r\n    <i class=\"fa fa-twitter fa-stack-1x fa-inverse\"></i>\r\n  </span>\r\n</a>\r\n<a class=\"a2a_button_pinterest\">\r\n  <span class=\"fa-stack fa-lg\">\r\n    <i class=\"fa fa-circle fa-stack-2x\"></i>\r\n    <i class=\"fa fa-pinterest-p fa-stack-1x fa-inverse\"></i>\r\n  </span>\r\n</a>\r\n"
+additional_css: ''
+additional_js: ''
+universal_button: none
+custom_universal_button: ''
+universal_button_placement: before
+no_3p: false
+_core:
+  default_config_hash: 8aJF-FDdnrk-N2gLGWFQcLZIpuJZA0BE9NtgXTVJfVk

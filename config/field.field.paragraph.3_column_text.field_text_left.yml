@@ -1,0 +1,22 @@
+uuid: 14f3cd44-e686-416c-a6ff-8a87379cba2a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_text_left
+    - paragraphs.paragraphs_type.3_column_text
+  module:
+    - text
+id: paragraph.3_column_text.field_text_left
+field_name: field_text_left
+entity_type: paragraph
+bundle: 3_column_text
+label: 'Text Left'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: false
+field_type: text_with_summary

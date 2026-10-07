@@ -1,0 +1,73 @@
+uuid: 088c80bd-6508-469b-91d3-d4725f9887e6
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.image_block_3_column_with_links_
+    - field.field.block_content.image_block_3_column_with_links_.field_image
+    - field.field.block_content.image_block_3_column_with_links_.field_image_2
+    - field.field.block_content.image_block_3_column_with_links_.field_image_3
+    - field.field.block_content.image_block_3_column_with_links_.field_image_link
+    - field.field.block_content.image_block_3_column_with_links_.field_image_link_2
+    - field.field.block_content.image_block_3_column_with_links_.field_image_link_3
+  module:
+    - field_formatter_class
+    - image
+    - linked_field
+id: block_content.image_block_3_column_with_links_.default
+targetEntityType: block_content
+bundle: image_block_3_column_with_links_
+mode: default
+content:
+  field_image:
+    weight: 0
+    label: hidden
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings:
+      field_formatter_class:
+        class: col-md-4
+      linked_field:
+        linked: '1'
+        type: field
+        destination: field_image_link
+        advanced: {  }
+    type: image
+    region: content
+  field_image_2:
+    weight: 1
+    label: hidden
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings:
+      field_formatter_class:
+        class: col-md-4
+      linked_field:
+        linked: '1'
+        type: field
+        destination: field_image_link_2
+        advanced: {  }
+    type: image
+    region: content
+  field_image_3:
+    weight: 2
+    label: hidden
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings:
+      field_formatter_class:
+        class: col-md-4
+      linked_field:
+        linked: '1'
+        type: field
+        destination: field_image_link_3
+        advanced: {  }
+    type: image
+    region: content
+hidden:
+  field_image_link: true
+  field_image_link_2: true
+  field_image_link_3: true

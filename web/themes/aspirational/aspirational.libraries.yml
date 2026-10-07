@@ -1,0 +1,42 @@
+global-styling:
+  css:
+    theme:
+      css/style.css: {}
+
+bootstrap-scripts:
+  js:
+    bootstrap/js/affix.js: {}
+    bootstrap/js/alert.js: {}
+    bootstrap/js/button.js: {}
+    bootstrap/js/carousel.js: {}
+    bootstrap/js/collapse.js: {}
+    bootstrap/js/dropdown.js: {}
+    bootstrap/js/modal.js: {}
+    bootstrap/js/tooltip.js: {}
+    bootstrap/js/popover.js: {}
+    bootstrap/js/scrollspy.js: {}
+    bootstrap/js/tab.js: {}
+    bootstrap/js/transition.js: {}
+
+gift-guide-filter:
+  js:
+    js/gift-guide.js: {}
+  dependencies:
+    - core/jquery
+
+responsive-image-map:
+  js:
+    /libraries/jquery.imagemaps/jquery.rwdImageMaps.js: {}
+    js/responsive-image-maps.js: {}
+  dependencies:
+    - core/jquery
+
+
+# instagram-block:
+#   css:
+#     theme:
+#       /modules/contrib/jcarousel/assets/vendor/jcarousel/skins/default/jcarousel-default.css: {}
+#   js:
+#     /modules/contrib/jcarousel/assets/vendor/jcarousel/jcarousel.js: {}
+#   dependencies:
+#     - core/jquery

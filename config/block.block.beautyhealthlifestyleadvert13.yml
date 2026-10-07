@@ -1,0 +1,29 @@
+uuid: d6bfd6fc-bdea-4676-90d9-8402ecf2f22e
+langcode: en
+status: false
+dependencies:
+  content:
+    - 'block_content:advert_block_1_3_column_:fdb70ddd-4978-41d6-8781-ae51ef0bcbc9'
+  module:
+    - block_class
+    - block_content
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: col-md-4
+id: beautyhealthlifestyleadvert13
+theme: aspirational
+region: content
+weight: -8
+provider: null
+plugin: 'block_content:fdb70ddd-4978-41d6-8781-ae51ef0bcbc9'
+settings:
+  id: 'block_content:fdb70ddd-4978-41d6-8781-ae51ef0bcbc9'
+  label: 'Beauty, Health & Lifestyle Advert 1/3'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

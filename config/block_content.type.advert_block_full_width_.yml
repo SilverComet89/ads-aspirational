@@ -1,0 +1,8 @@
+uuid: 8b7c2135-a7ed-4770-ab02-8de4d0c5b6a0
+langcode: en
+status: true
+dependencies: {  }
+id: advert_block_full_width_
+label: 'Advert Block (Full Width)'
+revision: 0
+description: 'Advert block in a full width configuration'

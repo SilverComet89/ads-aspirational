@@ -1,0 +1,23 @@
+uuid: 8db34807-2ec0-4d6e-8bc6-b4343d019da0
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_purchase_url
+    - node.type.gift
+  module:
+    - link
+id: node.gift.field_purchase_url
+field_name: field_purchase_url
+entity_type: node
+bundle: gift
+label: 'Purchase URL'
+description: 'Use link text for the name of the place it can be purchased from.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 17
+  title: 2
+field_type: link

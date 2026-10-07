@@ -1,0 +1,35 @@
+uuid: 34bc29f6-90a9-463f-916d-a2f867383c16
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:left_sidebar_adverts:4deb6754-5641-4864-a7ce-217590300519'
+  module:
+    - block_class
+    - block_content
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'hidden-sm hidden-xs hidden-md'
+id: househomegardenleftsidebar
+theme: aspirational
+region: content
+weight: 0
+provider: null
+plugin: 'block_content:4deb6754-5641-4864-a7ce-217590300519'
+settings:
+  id: 'block_content:4deb6754-5641-4864-a7ce-217590300519'
+  label: 'House, Home & Garden Left Sidebar'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /house-home-garden
+    negate: false
+    context_mapping: {  }

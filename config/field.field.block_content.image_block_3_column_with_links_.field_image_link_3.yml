@@ -1,0 +1,23 @@
+uuid: a5b29e4a-58fe-4ea6-aadd-d234ed8f3b06
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.image_block_3_column_with_links_
+    - field.storage.block_content.field_image_link_3
+  module:
+    - link
+id: block_content.image_block_3_column_with_links_.field_image_link_3
+field_name: field_image_link_3
+entity_type: block_content
+bundle: image_block_3_column_with_links_
+label: 'Image Link 3'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 17
+  title: 0
+field_type: link

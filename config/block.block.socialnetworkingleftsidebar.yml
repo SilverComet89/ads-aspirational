@@ -1,0 +1,35 @@
+uuid: bb8c4bb9-1501-4269-8888-df0342e08902
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:left_sidebar_adverts:a7cd1ddf-c1ac-4386-bda3-2ab97d969e08'
+  module:
+    - block_class
+    - block_content
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'hidden-sm hidden-xs hidden-md'
+id: socialnetworkingleftsidebar
+theme: aspirational
+region: content
+weight: 0
+provider: null
+plugin: 'block_content:a7cd1ddf-c1ac-4386-bda3-2ab97d969e08'
+settings:
+  id: 'block_content:a7cd1ddf-c1ac-4386-bda3-2ab97d969e08'
+  label: 'Social & Networking Left Sidebar'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /social-networking
+    negate: false
+    context_mapping: {  }

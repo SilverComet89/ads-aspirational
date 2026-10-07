@@ -1,0 +1,30 @@
+uuid: 8d9034c1-501b-46b2-b357-9757bd517cde
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.category_display_views
+  module:
+    - system
+    - views
+  theme:
+    - aspirational
+id: views_block__category_display_views_block_4
+theme: aspirational
+region: content
+weight: -13
+provider: null
+plugin: 'views_block:category_display_views-block_4'
+settings:
+  id: 'views_block:category_display_views-block_4'
+  label: ''
+  provider: views
+  label_display: visible
+  views_label: ''
+  items_per_page: none
+visibility:
+  request_path:
+    id: request_path
+    pages: /fine-dining-guide
+    negate: false
+    context_mapping: {  }

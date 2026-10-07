@@ -1,0 +1,28 @@
+uuid: 595a0c36-419f-471f-b630-cc0aa8bed101
+langcode: en
+status: true
+dependencies:
+  config:
+    - webform.webform.contact
+  module:
+    - block_class
+    - webform
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: col-md-8
+id: webform
+theme: aspirational
+region: contact
+weight: -12
+provider: null
+plugin: webform_block
+settings:
+  id: webform_block
+  label: 'WANT TO KNOW MORE? CONTACT US FOR ANY ADVERTISING QUESTIONS '
+  provider: webform
+  label_display: visible
+  webform_id: contact
+  default_data: ''
+visibility: {  }

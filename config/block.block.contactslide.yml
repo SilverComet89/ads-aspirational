@@ -1,0 +1,30 @@
+uuid: 984f381e-6f37-4bdb-8b0a-b015b566d3d8
+langcode: en
+status: true
+dependencies:
+  module:
+    - block_class
+    - md_slider
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'no-gutter col-md-12'
+id: contactslide
+theme: aspirational
+region: highlighted
+weight: -31
+provider: null
+plugin: 'md_slider_block:contact_slide'
+settings:
+  id: 'md_slider_block:contact_slide'
+  label: 'Contact Slide'
+  provider: md_slider
+  label_display: '0'
+visibility:
+  request_path:
+    id: request_path
+    pages: /contact
+    negate: false
+    context_mapping: {  }

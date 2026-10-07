@@ -1,0 +1,30 @@
+uuid: 7e2b6711-3783-44a3-b4c9-4b4791304fe3
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.category_display_views
+  module:
+    - system
+    - views
+  theme:
+    - aspirational
+id: views_block__category_display_views_block_1
+theme: aspirational
+region: content
+weight: -14
+provider: null
+plugin: 'views_block:category_display_views-block_1'
+settings:
+  id: 'views_block:category_display_views-block_1'
+  label: ''
+  provider: views
+  label_display: visible
+  views_label: ''
+  items_per_page: none
+visibility:
+  request_path:
+    id: request_path
+    pages: /house-home-garden
+    negate: false
+    context_mapping: {  }

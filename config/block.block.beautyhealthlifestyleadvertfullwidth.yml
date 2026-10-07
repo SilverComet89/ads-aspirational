@@ -1,0 +1,29 @@
+uuid: cfc54380-30c6-4b03-bf73-02e4d8522bae
+langcode: en
+status: false
+dependencies:
+  content:
+    - 'block_content:advert_block_full_width_:66d3d985-266d-4e25-9e44-60ff810b7c94'
+  module:
+    - block_class
+    - block_content
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: col-md-12
+id: beautyhealthlifestyleadvertfullwidth
+theme: aspirational
+region: content
+weight: -9
+provider: null
+plugin: 'block_content:66d3d985-266d-4e25-9e44-60ff810b7c94'
+settings:
+  id: 'block_content:66d3d985-266d-4e25-9e44-60ff810b7c94'
+  label: 'Beauty, Health & Lifestyle Advert Full Width'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

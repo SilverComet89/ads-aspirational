@@ -1,0 +1,60 @@
+uuid: 34ccee37-65a7-442c-8af2-3ad53ae29aa5
+langcode: en
+status: true
+dependencies:
+  config:
+    - entity_browser.browser.browse_files
+    - field.field.paragraph.3_column_image.field_image_left
+    - field.field.paragraph.3_column_image.field_image_middle
+    - field.field.paragraph.3_column_image.field_image_right
+    - paragraphs.paragraphs_type.3_column_image
+  module:
+    - entity_browser
+id: paragraph.3_column_image.default
+targetEntityType: paragraph
+bundle: 3_column_image
+mode: default
+content:
+  field_image_left:
+    weight: 0
+    settings:
+      entity_browser: browse_files
+      field_widget_remove: true
+      selection_mode: selection_append
+      preview_image_style: thumbnail
+      field_widget_edit: true
+      open: false
+      view_mode: default
+    third_party_settings: {  }
+    type: entity_browser_file
+    region: content
+  field_image_middle:
+    weight: 1
+    settings:
+      entity_browser: browse_files
+      field_widget_remove: true
+      selection_mode: selection_append
+      preview_image_style: thumbnail
+      field_widget_edit: true
+      open: false
+      view_mode: default
+    third_party_settings: {  }
+    type: entity_browser_file
+    region: content
+  field_image_right:
+    weight: 2
+    settings:
+      entity_browser: browse_files
+      field_widget_remove: true
+      selection_mode: selection_append
+      preview_image_style: thumbnail
+      field_widget_edit: true
+      open: false
+      view_mode: default
+    third_party_settings: {  }
+    type: entity_browser_file
+    region: content
+hidden:
+  created: true
+  status: true
+  uid: true

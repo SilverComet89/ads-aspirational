@@ -1,0 +1,146 @@
+uuid: 7a6d7a9e-9fd6-4464-a3fb-5ff5708875c2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.article.body
+    - field.field.node.article.comment
+    - field.field.node.article.field_article_category
+    - field.field.node.article.field_featured_section
+    - field.field.node.article.field_image
+    - field.field.node.article.field_layout_configuration
+    - field.field.node.article.field_leave_a_reply
+    - field.field.node.article.field_meta_tags
+    - field.field.node.article.field_tags
+    - node.type.article
+  module:
+    - disqus
+    - ds
+    - entity_reference_revisions
+    - field_formatter_class
+    - image
+    - metatag
+    - text
+    - user
+third_party_settings:
+  ds:
+    layout:
+      id: bs_1col
+      library: null
+      disable_css: false
+      entity_classes: all_classes
+      settings:
+        layout:
+          wrapper: div
+          classes:
+            row: row
+          add_layout_class: 1
+          attributes: ''
+        regions:
+          main:
+            wrapper: div
+            classes:
+              col-sm-12: col-sm-12
+            add_region_classes: 1
+            attributes: ''
+    regions:
+      main:
+        - node_title
+        - node_post_date
+        - field_image
+        - body
+        - field_tags
+        - links
+        - field_layout_configuration
+        - addtoany
+        - field_leave_a_reply
+        - field_meta_tags
+    fields:
+      node_post_date:
+        plugin_id: node_post_date
+        weight: 1
+        label: hidden
+        formatter: ds_post_date_short
+      node_title:
+        plugin_id: node_title
+        weight: 0
+        label: hidden
+        formatter: default
+        settings:
+          wrapper: h1
+          class: 'article-title font-lato-bold text-center'
+          link: false
+_core:
+  default_config_hash: 1x2VMLBhwpRPa-_Q_6J_ZN4QNazwCmP1dt01Zc-Iors
+id: node.article.default
+targetEntityType: node
+bundle: article
+mode: default
+content:
+  addtoany:
+    weight: 7
+    region: main
+    settings: {  }
+    third_party_settings: {  }
+  body:
+    type: text_default
+    weight: 3
+    settings: {  }
+    third_party_settings: {  }
+    label: hidden
+    region: main
+  field_image:
+    type: image
+    weight: 2
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings:
+      ds:
+        ds_limit: ''
+      field_formatter_class:
+        class: ''
+    label: hidden
+    region: main
+  field_layout_configuration:
+    type: entity_reference_revisions_entity_view
+    weight: 6
+    label: hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    region: main
+  field_leave_a_reply:
+    weight: 8
+    label: hidden
+    settings: {  }
+    third_party_settings:
+      field_formatter_class:
+        class: ''
+    type: disqus_comment
+    region: main
+  field_meta_tags:
+    weight: 9
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: metatag_empty_formatter
+    region: main
+  field_tags:
+    type: entity_reference_label
+    weight: 4
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    region: main
+  links:
+    weight: 5
+    region: main
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  comment: true
+  field_article_category: true
+  field_featured_section: true

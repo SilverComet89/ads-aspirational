@@ -1,0 +1,7 @@
+uuid: 186c18bc-5140-4922-914e-cda2682aec93
+langcode: en
+status: true
+dependencies: {  }
+id: 2_column_image_text
+label: '2 Column Image Text'
+behavior_plugins: {  }

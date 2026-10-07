@@ -1,0 +1,35 @@
+uuid: ac203f3d-0a42-4ed1-807e-bc0445400906
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:left_sidebar_adverts:b6547aed-1be4-4b62-8ddd-1a98c0338a9a'
+  module:
+    - block_class
+    - block_content
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'hidden-sm hidden-xs hidden-md'
+id: beautyhealthlifestyleleftsidebar
+theme: aspirational
+region: content
+weight: 0
+provider: null
+plugin: 'block_content:b6547aed-1be4-4b62-8ddd-1a98c0338a9a'
+settings:
+  id: 'block_content:b6547aed-1be4-4b62-8ddd-1a98c0338a9a'
+  label: 'Beauty, Health & Lifestyle Left Sidebar'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /beauty-health-lifestyle
+    negate: false
+    context_mapping: {  }

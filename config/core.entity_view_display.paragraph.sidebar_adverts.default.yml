@@ -1,0 +1,36 @@
+uuid: 9bad4d45-b3bf-4aea-a53c-1c911e23439b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.sidebar_adverts.field_advert_url
+    - field.field.paragraph.sidebar_adverts.field_image
+    - paragraphs.paragraphs_type.sidebar_adverts
+  module:
+    - field_formatter_class
+    - image
+    - linked_field
+id: paragraph.sidebar_adverts.default
+targetEntityType: paragraph
+bundle: sidebar_adverts
+mode: default
+content:
+  field_image:
+    weight: 0
+    label: hidden
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings:
+      field_formatter_class:
+        class: ''
+      linked_field:
+        linked: '1'
+        type: field
+        destination: field_advert_url
+        advanced:
+          target: _blank
+    type: image
+    region: content
+hidden:
+  field_advert_url: true

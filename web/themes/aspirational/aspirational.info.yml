@@ -1,0 +1,27 @@
+core: 8.x
+screenshot: screenshot.png
+type: theme
+base theme: bootstrap
+
+name: 'Aspirational'
+description: 'Uses the Bootstrap framework LESS source files and must be compiled (not for beginners).'
+package: 'Bootstrap'
+
+regions:
+  navigation: 'Navigation'
+  navigation_collapsible: 'Navigation (Collapsible)'
+  extra_header: 'Extra Top Bar'
+  header: 'Top Bar'
+  highlighted: 'Highlighted'
+  help: 'Help'
+  content: 'Content'
+  sidebar_first: 'Primary'
+  sidebar_second: 'Secondary'
+  contact: 'Contact'
+  footer: 'Footer'
+  page_top: 'Page top'
+  page_bottom: 'Page bottom'
+
+libraries:
+  - 'aspirational/global-styling'
+  - 'aspirational/bootstrap-scripts'

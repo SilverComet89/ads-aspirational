@@ -1,0 +1,32 @@
+uuid: fde0a005-0906-4c54-a173-58678ac785de
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.image_block_with_link_
+    - field.field.block_content.image_block_with_link_.field_image
+    - field.field.block_content.image_block_with_link_.field_image_link
+  module:
+    - image
+    - linked_field
+id: block_content.image_block_with_link_.default
+targetEntityType: block_content
+bundle: image_block_with_link_
+mode: default
+content:
+  field_image:
+    weight: 1
+    label: hidden
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings:
+      linked_field:
+        linked: '1'
+        type: field
+        destination: field_image_link
+        advanced: {  }
+    type: image
+    region: content
+hidden:
+  field_image_link: true

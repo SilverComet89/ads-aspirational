@@ -1,0 +1,29 @@
+uuid: 29863f02-3587-4668-a999-574fe2d1d146
+langcode: en
+status: false
+dependencies:
+  content:
+    - 'block_content:advert_block_1_3_column_:960c7262-a170-4bc7-ad90-b6c859d7053e'
+  module:
+    - block_class
+    - block_content
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: col-md-4
+id: itsamansworldadvert13
+theme: aspirational
+region: content
+weight: -6
+provider: null
+plugin: 'block_content:960c7262-a170-4bc7-ad90-b6c859d7053e'
+settings:
+  id: 'block_content:960c7262-a170-4bc7-ad90-b6c859d7053e'
+  label: 'It''s A Man''s World Advert 1/3'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

@@ -1,0 +1,14 @@
+uuid: 0fc89f5c-dd81-40ca-bbd7-38ab93085c71
+langcode: en
+status: true
+dependencies: {  }
+name: 'Custom HTML'
+format: custom_html
+weight: 0
+filters:
+  filter_htmlcorrector:
+    id: filter_htmlcorrector
+    provider: filter
+    status: true
+    weight: 10
+    settings: {  }

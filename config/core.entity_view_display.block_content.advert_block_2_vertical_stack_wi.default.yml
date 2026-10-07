@@ -1,0 +1,65 @@
+uuid: d9660d1f-04b3-4439-8b0e-0afd9eb4a6c0
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.advert_block_2_vertical_stack_wi
+    - field.field.block_content.advert_block_2_vertical_stack_wi.body
+    - field.field.block_content.advert_block_2_vertical_stack_wi.field_first_advert
+    - field.field.block_content.advert_block_2_vertical_stack_wi.field_first_advert_link
+    - field.field.block_content.advert_block_2_vertical_stack_wi.field_second_advert
+    - field.field.block_content.advert_block_2_vertical_stack_wi.field_second_advert_link
+  module:
+    - field_formatter_class
+    - image
+    - linked_field
+    - text
+id: block_content.advert_block_2_vertical_stack_wi.default
+targetEntityType: block_content
+bundle: advert_block_2_vertical_stack_wi
+mode: default
+content:
+  body:
+    label: hidden
+    type: text_default
+    weight: 1
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  field_first_advert:
+    weight: 0
+    label: hidden
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings:
+      field_formatter_class:
+        class: ''
+      linked_field:
+        linked: '1'
+        type: field
+        destination: field_first_advert_link
+        advanced:
+          target: _blank
+    type: image
+    region: content
+  field_second_advert:
+    weight: 2
+    label: hidden
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings:
+      field_formatter_class:
+        class: ''
+      linked_field:
+        linked: '1'
+        type: field
+        destination: field_second_advert_link
+        advanced:
+          target: _blank
+    type: image
+    region: content
+hidden:
+  field_first_advert_link: true
+  field_second_advert_link: true

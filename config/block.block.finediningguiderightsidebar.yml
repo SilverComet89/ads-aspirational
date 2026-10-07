@@ -1,0 +1,35 @@
+uuid: 5e653058-e68c-411f-9d44-29036e0fce2d
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:right_sidebar_adverts:fd00368c-9dc8-4fef-b6e4-3c15efafe274'
+  module:
+    - block_class
+    - block_content
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'hidden-sm hidden-xs hidden-md'
+id: finediningguiderightsidebar
+theme: aspirational
+region: content
+weight: 0
+provider: null
+plugin: 'block_content:fd00368c-9dc8-4fef-b6e4-3c15efafe274'
+settings:
+  id: 'block_content:fd00368c-9dc8-4fef-b6e4-3c15efafe274'
+  label: 'Fine Dining Guide Right Sidebar'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /fine-dining-guide
+    negate: false
+    context_mapping: {  }

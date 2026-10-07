@@ -1,0 +1,139 @@
+// Top bar Section
+
+#block-phonenumber {
+  text-align: center;
+}
+#block-logo {
+  text-align: center;
+  padding: 10px;
+}
+#block-responsivemenumobileicon {
+  a {
+    margin-left: auto;
+  }
+  .responsive-menu-toggle-icon::before, .responsive-menu-toggle-icon::after, .icon {
+    background: black;
+  }
+}
+
+nav {
+  .active {
+    a {
+      color: black;
+      font-weight: bold;
+    }
+  }
+  .is-active {
+    color: black;
+    font-weight: bold;
+  }
+}
+
+div[role=extra-heading] {
+  border-bottom: 1px dotted @AspiCharcoal;
+  margin-bottom: 20px;
+  .search-block-form {
+    height: 20px;
+    padding-top: 16px;
+    input {
+      font-size: 13px !important;
+      height: 20px !important;
+      padding: 0px 12px;
+    }
+  }
+}
+
+#block-extratopmenu {
+  padding-top: 20px;
+  li {
+    display: inline-block !important;
+    position: relative !important;
+    font-size: 12px;
+  }
+  a {
+    padding: 0px 5px 0px 2px;
+    color: @AspiDarkGrey;
+    text-transform: uppercase;
+    &:hover {
+      color: @AspiGrey;
+      text-decoration: none;
+      background-color: transparent;
+    }
+  }
+}
+#block-horizontalmenu {
+  padding: 15px 0px 15px 0px;
+  li {
+    text-align: center;
+    border-right: solid 2px @AspiGrey;
+    font-size: 12px;
+    &:nth-child(1) {
+      width: 108px;
+    }
+    &:nth-child(2) {
+      width: 82px;
+    }
+    &:nth-child(3) {
+      width: 94px;
+    }
+    &:nth-child(4) {
+      width: 88px;
+    }
+    &:nth-child(5) {
+      width: 78px;
+    }
+    &:nth-child(6) {
+      width: 98px;
+    }
+    &:nth-child(7) {
+      width: 49px;
+    }
+    &:nth-child(n+8):nth-child(-n+11) {
+      display: none;
+    }
+  }
+  a {
+    padding: 0px 5px 0px 2px;
+    color: @AspiDarkGrey;
+    text-transform: uppercase;
+    &:hover {
+      color: @AspiGrey;
+    }
+    &:link {
+      text-decoration: none;
+    }
+  }
+}
+
+#block-aspirational-search {
+  button {
+    display: none;
+  }
+  input {
+    border-radius: 3px !important;
+  }
+}
+
+// Media queries for responsive layout
+
+@media (max-width: @screen-xs-max) {
+  #block-phonenumber-2 {
+    text-align: left !important;
+  }
+  .block-md-slider-blockmain-slider {
+    margin: 0px -15px 0px -15px;
+  }
+  #block-logo {
+    margin: 0px -15px 0px -15px;
+    border-top: dotted 2px black;
+  }
+}
+
+@media(min-width: @screen-md-min) {
+  .horizontal-menu {
+    // margin-left: 50px;
+  }
+}  /* deprecated: @screen-desktop, or @screen-md */
+
+@media(min-width: @screen-sm-max){}  /* deprecated: @screen-tablet, or @screen-sm */
+@media(min-width: @screen-lg-min){}  /* deprecated: @screen-lg-desktop, or @screen-lg */

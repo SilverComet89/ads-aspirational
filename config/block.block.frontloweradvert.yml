@@ -1,0 +1,35 @@
+uuid: d4653e3f-ec1c-4841-8b0f-2cc80f8f0d6a
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:advert_block_full_width_:2b3dbfca-120c-4052-ab4e-83da6f5804b3'
+  module:
+    - block_class
+    - block_content
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: col-md-12
+id: frontloweradvert
+theme: aspirational
+region: content
+weight: -22
+provider: null
+plugin: 'block_content:2b3dbfca-120c-4052-ab4e-83da6f5804b3'
+settings:
+  id: 'block_content:2b3dbfca-120c-4052-ab4e-83da6f5804b3'
+  label: 'Front Lower Advert'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: '<front>'
+    negate: false
+    context_mapping: {  }

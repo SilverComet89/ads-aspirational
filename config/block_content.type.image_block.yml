@@ -1,0 +1,8 @@
+uuid: 2371a9c1-d05f-4b16-bd96-076e39ea89b3
+langcode: en
+status: true
+dependencies: {  }
+id: image_block
+label: 'Image block'
+revision: 0
+description: 'Basic block with title and image field'

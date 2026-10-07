@@ -1,0 +1,7 @@
+uuid: fa215375-a6f5-4775-8679-17dc3144df1b
+langcode: en
+status: true
+dependencies: {  }
+id: 3_column_image
+label: '3 Column Image'
+behavior_plugins: {  }

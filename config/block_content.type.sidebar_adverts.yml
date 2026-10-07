@@ -1,0 +1,8 @@
+uuid: f2237605-1edf-45e0-8cca-27452570035d
+langcode: en
+status: true
+dependencies: {  }
+id: sidebar_adverts
+label: 'Sidebar Adverts'
+revision: 0
+description: 'Block for sidebar adverts'

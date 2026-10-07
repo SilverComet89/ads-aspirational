@@ -1,0 +1,34 @@
+uuid: 509d46d1-0527-4c5b-b7a5-b03b5861d257
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.category_display_views
+  module:
+    - block_class
+    - system
+    - views
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: col-md-12
+id: views_block__category_display_views_block_5
+theme: aspirational
+region: content
+weight: -12
+provider: null
+plugin: 'views_block:category_display_views-block_5'
+settings:
+  id: 'views_block:category_display_views-block_5'
+  label: ''
+  provider: views
+  label_display: visible
+  views_label: ''
+  items_per_page: none
+visibility:
+  request_path:
+    id: request_path
+    pages: /business-finance
+    negate: false
+    context_mapping: {  }

@@ -1,0 +1,8 @@
+uuid: 7b39762e-500e-4c42-8481-692099330fb1
+langcode: en
+status: true
+dependencies: {  }
+id: 2_vertical_stack
+label: 'Advert block (2 vertical stack)'
+revision: 0
+description: 'Advert block in a 2 vertical stack configuration'

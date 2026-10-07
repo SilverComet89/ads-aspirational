@@ -1,0 +1,22 @@
+uuid: 83412ba8-a0ca-46bf-b3f8-11933cc7453f
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: gift
+label: Gift
+type: 'canonical_entities:node'
+pattern: 'gift/[node:title]'
+selection_criteria:
+  715df942-8364-40cd-94c3-480fc2b7f117:
+    id: node_type
+    bundles:
+      gift: gift
+    negate: false
+    context_mapping:
+      node: node
+    uuid: 715df942-8364-40cd-94c3-480fc2b7f117
+selection_logic: and
+weight: -5
+relationships: {  }

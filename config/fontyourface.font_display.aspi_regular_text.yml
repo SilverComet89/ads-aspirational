@@ -1,0 +1,10 @@
+uuid: dadc7788-b116-41ff-98c3-a5a54daa2326
+langcode: en
+status: true
+dependencies: {  }
+id: aspi_regular_text
+label: 'Aspi Regular Text'
+font_url: 'http://www.google.com/webfonts/family?family=Lato&subset=latin#regular'
+fallback: ''
+selectors: '.fontyourface p, .fontyourface div'
+theme: aspirational

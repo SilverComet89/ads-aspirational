@@ -1,0 +1,174 @@
+langcode: en
+status: open
+dependencies:
+  enforced:
+    module:
+      - webform_examples
+open: null
+close: null
+weight: 0
+uid: null
+template: false
+archive: false
+id: example_elements
+title: 'Example: Elements'
+description: 'Examples of every supported <a href="https://api.drupal.org/api/drupal/elements">webform element</a>.'
+category: ''
+elements: "basic_elements:\n  '#type': details\n  '#title': 'Basic elements'\n  '#open': true\n  checkbox:\n    '#type': checkbox\n    '#title': Checkbox\n  hidden:\n    '#type': hidden\n    '#title': Hidden\n  password:\n    '#type': password\n    '#title': Password\n  textarea:\n    '#type': textarea\n    '#title': Textarea\n  textfield:\n    '#type': textfield\n    '#title': 'Text field'\n  textfield_multiple:\n    '#type': textfield\n    '#title': 'Text field multiple'\n    '#multiple': true\nadvanced_elements:\n  '#type': details\n  '#title': 'Advanced elements'\n  '#open': true\n  webform_autocomplete:\n    '#type': webform_autocomplete\n    '#title': Autocomplete\n    '#autocomplete_items': country_names\n  webform_autocomplete_multiple:\n    '#type': webform_autocomplete\n    '#title': 'Autocomplete multiple'\n    '#autocomplete_items': country_names\n    '#multiple': true\n  captcha:\n    '#type': captcha\n    '#title': CAPTCHA\n  webform_codemirror:\n    '#type': webform_codemirror\n    '#title': CodeMirror\n    '#mode': yaml\n  color:\n    '#type': color\n    '#title': Color\n  webform_creditcard_number:\n    '#type': webform_creditcard_number\n    '#title': 'Credit card number'\n  email:\n    '#type': email\n    '#title': Email\n  email_multiple:\n    '#type': email\n    '#title': 'Email multiple'\n    '#multiple': true\n  webform_email_confirm:\n    '#type': webform_email_confirm\n    '#title': 'Email confirm'\n  webform_email_multiple:\n    '#type': webform_email_multiple\n    '#title': 'Email multiple'\n  number:\n    '#type': number\n    '#title': Number\n    '#min': 0\n    '#max': 10\n    '#step': 1\n  number_multiple:\n    '#type': number\n    '#title': 'Number multiple'\n    '#min': 0\n    '#max': 10\n    '#step': 1\n    '#multiple': true\n  password_confirm:\n    '#type': password_confirm\n    '#title': 'Password confirm'\n    '#description': '<b>Known Issues:</b><br/><a href=\"https://www.drupal.org/node/1427838\">Issue #1427838: password and password_confirm children do not pick up #states or #attributes</a>'\n  range:\n    '#type': range\n    '#title': Range\n    '#min': 0\n    '#max': 100\n    '#step': 1\n    '#output': right\n    '#output__field_prefix': $\n    '#output__field_suffix': '.00'\n  webform_rating:\n    '#type': webform_rating\n    '#title': Rating\n  search:\n    '#type': search\n    '#title': Search\n  webform_signature:\n    '#type': webform_signature\n    '#title': Signature\n  tel:\n    '#type': tel\n    '#title': Telephone\n    '#international': true\n  tel_multiple:\n    '#type': tel\n    '#title': 'Telephone multiple'\n    '#international': true\n    '#multiple': true\n  text_format:\n    '#type': text_format\n    '#title': 'Text format'\n    '#description': '<b>Known Issues:</b><br/><a href=\"https://www.drupal.org/node/997826\">Issue #997826: #states doesn''t work correctly with type text_format</a><br/><a href=\"https://www.drupal.org/node/2625128\">Issue #2625128: Text format selection stays visible when using editor and a hidden webform state</a><br/><a href=\"https://www.drupal.org/node/1954968\">Issue #1954968: Required CKEditor fields always fail HTML5 validation</a>'\n  webform_toggle:\n    '#type': webform_toggle\n    '#title': Toggle\n  url:\n    '#type': url\n    '#title': URL\n  url_multiple:\n    '#type': url\n    '#title': 'URL multiple'\n    '#multiple': true\n  value:\n    '#type': value\n    '#title': Value\nmarkup_elements:\n  '#type': details\n  '#title': 'Markup elements'\n  '#open': true\n  processed_text:\n    '#type': processed_text\n    '#title': 'Advanced HTML/Text'\n    processed_text_content:\n      '#markup': 'This is a Advanced HTML/Text container.'\n  webform_markup:\n    '#type': webform_markup\n    '#title': 'Basic HTML'\n    '#description': '<b>Known Issues:</b><br/><a href=\"https://www.drupal.org/node/2700667\">Issue #2700667: Notice: Undefined index: #type in drupal_process_states()</a>'\n    webform_markup_content:\n      '#markup': 'This is a Basic HTML container.'\n  webform_message:\n    '#type': webform_message\n    '#title': Message\n    '#description': '<b>Known Issues:</b><br/><a href=\"https://www.drupal.org/node/77245\">Issue #77245: A place for JavaScript status messages</a>'\n    '#message_type': warning\n    '#message_message': 'This is a <strong>warning</strong> message.'\n    webform_message_content:\n      '#markup': 'This is a Message container.'\nfile_upload_elements:\n  '#type': details\n  '#title': 'File upload elements'\n  '#open': true\n  webform_audio_file:\n    '#type': webform_audio_file\n    '#title': 'Audio file'\n  webform_audio_file_multiple:\n    '#type': webform_audio_file\n    '#title': 'Audio file multiple'\n    '#multiple': true\n  webform_document_file:\n    '#type': webform_document_file\n    '#title': 'Document file'\n  webform_document_file_multiple:\n    '#type': webform_document_file\n    '#title': 'Document file multiple'\n    '#multiple': true\n  managed_file:\n    '#type': managed_file\n    '#title': File\n    '#description': '<b>Known Issues:</b><br/><a href=\"https://www.drupal.org/node/2705471\">Issue #2705471: Webform states managed file fields</a><br/><a href=\"https://www.drupal.org/node/2113931\">Issue #2113931: File Field design update</a>'\n  managed_file_multiple:\n    '#type': managed_file\n    '#title': 'File multiple'\n    '#multiple': true\n  webform_image_file:\n    '#type': webform_image_file\n    '#title': 'Image file'\n  webform_image_file_multiple:\n    '#type': webform_image_file\n    '#title': 'Image file multiple'\n    '#multiple': true\n  webform_video_file:\n    '#type': webform_video_file\n    '#title': 'Video file'\n  webform_video_file_multiple:\n    '#type': webform_video_file\n    '#title': 'Video file multiple'\n    '#multiple': true\noptions_elements:\n  '#type': details\n  '#title': 'Options elements'\n  '#open': true\n  webform_buttons:\n    '#type': webform_buttons\n    '#title': Buttons\n    '#options':\n      one: One\n      two: Two\n      three: Three\n      four: Four\n      five: Five\n  webform_buttons_other:\n    '#type': webform_buttons_other\n    '#title': 'Buttons other'\n    '#options':\n      one: One\n      two: Two\n      three: Three\n      four: Four\n      five: Five\n  checkboxes:\n    '#type': checkboxes\n    '#title': Checkboxes\n    '#description': '<b>Known Issues:</b><br/><a href=\"https://www.drupal.org/node/994360\">Issue #994360: #states cannot disable/enable radios and checkboxes</a><br/><a href=\"https://www.drupal.org/node/2836364\">Issue #2836364: Wrapper attributes are not supported by composite elements, this includes radios, checkboxes, and buttons.</a>'\n    '#options':\n      one: One\n      two: Two\n      three: Three\n      four: Four\n      five: Five\n  webform_checkboxes_other:\n    '#type': webform_checkboxes_other\n    '#title': 'Checkboxes other'\n    '#options':\n      one: One\n      two: Two\n      three: Three\n      four: Four\n      five: Five\n  webform_likert:\n    '#type': webform_likert\n    '#title': Likert\n    '#questions':\n      q1: 'Please answer question 1?'\n      q2: 'How about now answering question 2?'\n      q3: 'Finally, here is question 3?'\n    '#answers':\n      1: 1\n      2: 2\n      3: 3\n      4: 4\n      5: 5\n  radios:\n    '#type': radios\n    '#title': Radios\n    '#description': '<b>Known Issues:</b><br/><a href=\"https://www.drupal.org/node/2731991\">Issue #2731991: Setting required on radios marks all options required</a><br/><a href=\"https://www.drupal.org/node/994360\">Issue #994360: #states cannot disable/enable radios and checkboxes</a><br/><a href=\"https://www.drupal.org/node/2836364\">Issue #2836364: Wrapper attributes are not supported by composite elements, this includes radios, checkboxes, and buttons.</a>'\n    '#options':\n      one: One\n      two: Two\n      three: Three\n      four: Four\n      five: Five\n  webform_radios_other:\n    '#type': webform_radios_other\n    '#title': 'Radios other'\n    '#options':\n      one: One\n      two: Two\n      three: Three\n      four: Four\n      five: Five\n  select:\n    '#type': select\n    '#title': Select\n    '#description': '<b>Known Issues:</b><br/><a href=\"https://www.drupal.org/node/1426646\">Issue #1426646: \"-Select-\" option is lost when webform elements uses ''#states''</a><br/><a href=\"https://www.drupal.org/node/1149078\">Issue #1149078: States API doesn''t work with multiple select fields</a><br/><a href=\"https://www.drupal.org/node/2791741\">Issue #2791741: FAPI states: fields aren''t hidden initially when depending on multi-value selection</a>'\n    '#options':\n      one: One\n      two: Two\n      three: Three\n      four: Four\n      five: Five\n  select_multiple:\n    '#type': select\n    '#title': 'Select multiple'\n    '#options':\n      one: One\n      two: Two\n      three: Three\n      four: Four\n      five: Five\n    '#multiple': true\n    '#select2': true\n  webform_select_other:\n    '#type': webform_select_other\n    '#title': 'Select other'\n    '#options':\n      one: One\n      two: Two\n      three: Three\n      four: Four\n      five: Five\n  webform_select_other_multiple:\n    '#type': webform_select_other\n    '#title': 'Select other multiple'\n    '#options':\n      one: One\n      two: Two\n      three: Three\n      four: Four\n      five: Five\n    '#multiple': true\n    '#select2': true\n  tableselect:\n    '#type': tableselect\n    '#title': 'Table select'\n    '#options':\n      one: One\n      two: Two\n      three: Three\n      four: Four\n      five: Five\n  webform_tableselect_sort:\n    '#type': webform_tableselect_sort\n    '#title': 'Tableselect sort'\n    '#options':\n      one: One\n      two: Two\n      three: Three\n      four: Four\n      five: Five\n  webform_table_sort:\n    '#type': webform_table_sort\n    '#title': 'Table sort'\n    '#options':\n      one: One\n      two: Two\n      three: Three\n      four: Four\n      five: Five\n  webform_toggles:\n    '#type': webform_toggles\n    '#title': Toggles\n    '#options':\n      one: One\n      two: Two\n      three: Three\n      four: Four\n      five: Five\ncontainers:\n  '#type': details\n  '#title': Containers\n  '#open': true\n  container:\n    '#type': container\n    '#title': Container\n    container_content:\n      '#markup': 'This is a Container container.'\n  details:\n    '#type': details\n    '#title': Details\n    '#description': '<b>Known Issues:</b><br/><a href=\"https://www.drupal.org/node/2348851\">Issue #2348851: Regression: Allow HTML tags inside detail summary</a>'\n    details_content:\n      '#markup': 'This is a Details container.'\n  fieldset:\n    '#type': fieldset\n    '#title': Fieldset\n    fieldset_content:\n      '#markup': 'This is a Fieldset container.'\n  item:\n    '#type': item\n    '#title': Item\n    '#description': '<b>Known Issues:</b><br/><a href=\"https://www.drupal.org/node/783438\">Issue #783438: #states doesn''t work for #type item</a>'\n    '#markup': '{markup}'\n    '#field_prefix': '{field_prefix}'\n    '#field_suffix': '{field_suffix}'\n    item_content:\n      '#markup': 'This is a Item container.'\n  label:\n    '#type': label\n    '#title': Label\n    label_content:\n      '#markup': 'This is a Label container.'\ndate_time_elements:\n  '#type': details\n  '#title': 'Date/time elements'\n  '#open': true\n  date:\n    '#type': date\n    '#title': Date\n  date_multiple:\n    '#type': date\n    '#title': 'Date multiple'\n    '#multiple': true\n  datetime:\n    '#type': datetime\n    '#title': Date/time\n    '#description': '<b>Known Issues:</b><br/><a href=\"https://www.drupal.org/node/2419131\">Issue #2419131: #states attribute does not work on #type datetime</a>'\n  datetime_multiple:\n    '#type': datetime\n    '#title': 'Date/time multiple'\n    '#multiple': true\n  datelist:\n    '#type': datelist\n    '#title': 'Date list'\n  datelist_multiple:\n    '#type': datelist\n    '#title': 'Date list multiple'\n    '#multiple': true\n  webform_time:\n    '#type': webform_time\n    '#title': Time\n    '#description': '<b>Known Issues:</b><br/><a href=\"https://www.drupal.org/node/1838234\">Issue #1838234: Add jQuery Timepicker for the Time element of the datetime field</a>'\n  webform_time_multiple:\n    '#type': webform_time\n    '#title': 'Time multiple'\n    '#multiple': true\nentity_reference_elements:\n  '#type': details\n  '#title': 'Entity reference elements'\n  '#open': true\n  entity_autocomplete:\n    '#type': entity_autocomplete\n    '#title': 'Entity autocomplete'\n    '#description': '<b>Known Issues:</b><br/><a href=\"https://www.drupal.org/node/2826451\">Issue #2826451: TermSelection returning HTML characters in select list</a>'\n    '#target_type': user\n    '#selection_handler': 'default:user'\n    '#selection_settings':\n      include_anonymous: true\n  entity_autocomplete_tags:\n    '#type': entity_autocomplete\n    '#title': 'Entity autocomplete tags'\n    '#target_type': user\n    '#selection_handler': 'default:user'\n    '#selection_settings':\n      include_anonymous: true\n    '#tags': true\n  entity_autocomplete_multiple:\n    '#type': entity_autocomplete\n    '#title': 'Entity autocomplete multiple'\n    '#target_type': user\n    '#selection_handler': 'default:user'\n    '#selection_settings':\n      include_anonymous: true\n    '#multiple': true\n  webform_entity_checkboxes:\n    '#type': webform_entity_checkboxes\n    '#title': 'Entity checkboxes'\n    '#target_type': user\n    '#selection_handler': 'default:user'\n    '#selection_settings':\n      include_anonymous: true\n    '#options':\n      1: Administrator\n      0: Anonymous\n  webform_entity_radios:\n    '#type': webform_entity_radios\n    '#title': 'Entity radios'\n    '#target_type': user\n    '#selection_handler': 'default:user'\n    '#selection_settings':\n      include_anonymous: true\n    '#options': null\n  webform_entity_select:\n    '#type': webform_entity_select\n    '#title': 'Entity select'\n    '#target_type': user\n    '#selection_handler': 'default:user'\n    '#selection_settings':\n      include_anonymous: true\n  webform_entity_select_multiple:\n    '#type': webform_entity_select\n    '#title': 'Entity select multiple'\n    '#target_type': user\n    '#selection_handler': 'default:user'\n    '#selection_settings':\n      include_anonymous: true\n    '#multiple': true\n    '#select2': true\n  webform_term_select:\n    '#type': webform_term_select\n    '#title': 'Term select'\n    '#vocabulary': tags\n  webform_term_select_multiple:\n    '#type': webform_term_select\n    '#title': 'Term select multiple'\n    '#vocabulary': tags\n    '#multiple': true\n    '#select2': true\nother_elements:\n  '#type': details\n  '#title': 'Other elements'\n  '#open': true\n  webform_element:\n    '#type': webform_element\n    '#title': 'Generic element'\n  language_select:\n    '#type': language_select\n    '#title': 'Language select'\n    '#languages': 3\n  machine_name:\n    '#type': machine_name\n    '#title': 'Machine name'\n"
+css: ''
+javascript: ''
+settings:
+  ajax: false
+  ajax_scroll_top: form
+  page: true
+  page_submit_path: ''
+  page_confirm_path: ''
+  form_title: both
+  form_submit_once: false
+  form_exception_message: ''
+  form_open_message: ''
+  form_close_message: ''
+  form_previous_submissions: true
+  form_confidential: false
+  form_confidential_message: ''
+  form_remote_addr: true
+  form_convert_anonymous: false
+  form_prepopulate: false
+  form_prepopulate_source_entity: false
+  form_prepopulate_source_entity_required: false
+  form_prepopulate_source_entity_type: ''
+  form_reset: false
+  form_disable_autocomplete: false
+  form_novalidate: false
+  form_disable_inline_errors: false
+  form_required: false
+  form_unsaved: false
+  form_disable_back: false
+  form_submit_back: false
+  form_autofocus: false
+  form_details_toggle: false
+  form_access_denied: default
+  form_access_denied_title: ''
+  form_access_denied_message: ''
+  form_access_denied_attributes: {  }
+  form_file_limit: ''
+  submission_label: ''
+  submission_log: false
+  submission_views: {  }
+  submission_views_replace: {  }
+  submission_user_columns: {  }
+  submission_user_duplicate: false
+  submission_access_denied: default
+  submission_access_denied_title: ''
+  submission_access_denied_message: ''
+  submission_access_denied_attributes: {  }
+  submission_exception_message: ''
+  submission_locked_message: ''
+  submission_excluded_elements: {  }
+  submission_exclude_empty: false
+  submission_exclude_empty_checkbox: false
+  previous_submission_message: ''
+  previous_submissions_message: ''
+  autofill: false
+  autofill_message: ''
+  autofill_excluded_elements: {  }
+  wizard_progress_bar: true
+  wizard_progress_pages: false
+  wizard_progress_percentage: false
+  wizard_progress_link: false
+  wizard_start_label: ''
+  wizard_preview_link: false
+  wizard_confirmation: true
+  wizard_confirmation_label: ''
+  wizard_track: ''
+  preview: 0
+  preview_label: ''
+  preview_title: ''
+  preview_message: ''
+  preview_attributes: {  }
+  preview_excluded_elements: {  }
+  preview_exclude_empty: true
+  preview_exclude_empty_checkbox: false
+  draft: none
+  draft_multiple: false
+  draft_auto_save: false
+  draft_saved_message: ''
+  draft_loaded_message: ''
+  confirmation_type: page
+  confirmation_title: ''
+  confirmation_message: ''
+  confirmation_url: ''
+  confirmation_attributes: {  }
+  confirmation_back: true
+  confirmation_back_label: ''
+  confirmation_back_attributes: {  }
+  confirmation_exclude_query: false
+  confirmation_exclude_token: false
+  limit_total: null
+  limit_total_interval: null
+  limit_total_message: ''
+  limit_total_unique: false
+  limit_user: null
+  limit_user_interval: null
+  limit_user_message: ''
+  limit_user_unique: false
+  entity_limit_total: null
+  entity_limit_total_interval: null
+  entity_limit_user: null
+  entity_limit_user_interval: null
+  purge: none
+  purge_days: null
+  results_disabled: false
+  results_disabled_ignore: false
+  token_update: false
+access:
+  create:
+    roles:
+      - anonymous
+      - authenticated
+    users: {  }
+    permissions: {  }
+  view_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  update_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  delete_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  purge_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  view_own:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  update_own:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  delete_own:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  administer:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  test:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  configuration:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+handlers: {  }
+uuid: 4820fb98-9e75-43b2-bdaf-805ac2e977f1
+_core:
+  default_config_hash: R4QH8SK4CCaedQcUNmyt9BvbgrAgteoLyJYMjVHnCgs

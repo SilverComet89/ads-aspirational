@@ -1,0 +1,29 @@
+uuid: 074cbbef-ae98-4d31-bfd7-ea7bd3a83b24
+langcode: en
+status: false
+dependencies:
+  module:
+    - system
+  theme:
+    - aspirational
+_core:
+  default_config_hash: X9I1OB0W3WlWtrK-CNcg6hNWwa8wficanpH8pYnDZDE
+id: aspirational_local_tasks
+theme: aspirational
+region: navigation
+weight: -16
+provider: null
+plugin: local_tasks_block
+settings:
+  id: local_tasks_block
+  label: Tabs
+  provider: core
+  label_display: '0'
+  primary: true
+  secondary: true
+visibility:
+  request_path:
+    id: request_path
+    pages: ''
+    negate: true
+    context_mapping: {  }

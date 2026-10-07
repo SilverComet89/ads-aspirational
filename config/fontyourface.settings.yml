@@ -1,0 +1,13 @@
+enabled_fonts:
+  - 'http://www.google.com/webfonts/family?family=Lato&subset=latin#regular'
+  - 'http://typekit.com/fonts/minion-pro#n4'
+  - 'http://typekit.com/fonts/minion-pro#i4'
+  - 'http://typekit.com/fonts/minion-pro#n7'
+  - 'http://typekit.com/fonts/minion-pro#i7'
+  - 'http://www.google.com/webfonts/family?family=Lato&subset=latin#300'
+  - 'http://www.google.com/webfonts/family?family=Lato&subset=latin#700'
+  - 'http://typekit.com/fonts/ltc-bodoni-175#n4'
+  - 'http://typekit.com/fonts/ltc-bodoni-175#i4'
+load_all_enabled_fonts: 1
+_core:
+  default_config_hash: r8uAx4mTBwCkgDFbdKCmhjgbb91BQ4HbWSYRKrlowMY

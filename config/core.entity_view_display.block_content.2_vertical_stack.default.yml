@@ -1,0 +1,56 @@
+uuid: 4bfdcbb8-22e6-46b2-923d-c48c27c7c6ff
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.2_vertical_stack
+    - field.field.block_content.2_vertical_stack.field_first_advert
+    - field.field.block_content.2_vertical_stack.field_first_advert_link
+    - field.field.block_content.2_vertical_stack.field_second_advert
+    - field.field.block_content.2_vertical_stack.field_second_advert_link
+  module:
+    - field_formatter_class
+    - image
+    - linked_field
+id: block_content.2_vertical_stack.default
+targetEntityType: block_content
+bundle: 2_vertical_stack
+mode: default
+content:
+  field_first_advert:
+    weight: 0
+    label: hidden
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings:
+      field_formatter_class:
+        class: ''
+      linked_field:
+        linked: '1'
+        type: field
+        destination: field_first_advert_link
+        advanced:
+          target: _blank
+    type: image
+    region: content
+  field_second_advert:
+    weight: 2
+    label: hidden
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings:
+      field_formatter_class:
+        class: ''
+      linked_field:
+        linked: '1'
+        type: field
+        destination: field_second_advert_link
+        advanced:
+          target: _blank
+    type: image
+    region: content
+hidden:
+  field_first_advert_link: true
+  field_second_advert_link: true

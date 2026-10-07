@@ -1,0 +1,35 @@
+uuid: c2a50fd3-ecb8-42ed-83e3-567c3932e35f
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:left_sidebar_adverts:85078770-f8bb-4f4a-96ca-9c27991e72ea'
+  module:
+    - block_class
+    - block_content
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'hidden-sm hidden-xs hidden-md'
+id: businessfinanceleftsidebar
+theme: aspirational
+region: content
+weight: 0
+provider: null
+plugin: 'block_content:85078770-f8bb-4f4a-96ca-9c27991e72ea'
+settings:
+  id: 'block_content:85078770-f8bb-4f4a-96ca-9c27991e72ea'
+  label: 'Business & Finance Left Sidebar'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /business-finance
+    negate: false
+    context_mapping: {  }

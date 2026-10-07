@@ -1,0 +1,23 @@
+uuid: 875f62d6-b77a-4ef2-bd36-7dd6b08f7e27
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.advert_block_2_vertical_stack_wi
+    - field.storage.block_content.field_second_advert_link
+  module:
+    - link
+id: block_content.advert_block_2_vertical_stack_wi.field_second_advert_link
+field_name: field_second_advert_link
+entity_type: block_content
+bundle: advert_block_2_vertical_stack_wi
+label: 'Second advert link'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 17
+  title: 1
+field_type: link

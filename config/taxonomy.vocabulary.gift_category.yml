@@ -1,0 +1,8 @@
+uuid: 95c8ec35-4cb9-41f3-a56e-e5f9ba9ca2ea
+langcode: en
+status: true
+dependencies: {  }
+name: 'Gift Category'
+vid: gift_category
+description: ''
+weight: 0

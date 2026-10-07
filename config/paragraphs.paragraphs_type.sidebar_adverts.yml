@@ -1,0 +1,7 @@
+uuid: fdf3c1a2-b42e-4e19-9d0c-4ccc43564739
+langcode: en
+status: true
+dependencies: {  }
+id: sidebar_adverts
+label: 'Sidebar Adverts'
+behavior_plugins: {  }

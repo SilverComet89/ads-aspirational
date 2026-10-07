@@ -1,0 +1,15 @@
+uuid: 09e7fe2d-cec0-4321-8bcc-aa29630da389
+langcode: en
+status: true
+dependencies: {  }
+name: category_image_thumbnaiu
+label: 'Category Image Thumbnail'
+effects:
+  e45415c9-e107-4af7-b857-f892e671fe2c:
+    uuid: e45415c9-e107-4af7-b857-f892e671fe2c
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 560
+      height: 373
+      anchor: center-center

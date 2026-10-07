@@ -1,0 +1,8 @@
+uuid: c985b51a-a514-4ea5-a180-c0bd0624b367
+langcode: en
+status: true
+dependencies: {  }
+id: image_block_with_link_
+label: 'Image block (With Link)'
+revision: 0
+description: 'Basic block with title and image field wrapped in an "a" tag'

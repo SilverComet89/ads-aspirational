@@ -1,0 +1,23 @@
+uuid: cf0befe2-4ee2-4746-bb39-48a6fe34a27e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_magazine_url
+    - node.type.magazine
+  module:
+    - link
+id: node.magazine.field_magazine_url
+field_name: field_magazine_url
+entity_type: node
+bundle: magazine
+label: 'Magazine URL'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 17
+  title: 1
+field_type: link

@@ -1,0 +1,31 @@
+uuid: bbbfad4d-dd93-452e-bb02-1a259dfb1ad1
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:image_block:3e816208-7e07-411e-bc13-8be7aec003b5'
+  module:
+    - block_content
+    - system
+  theme:
+    - aspirational
+id: inprint
+theme: aspirational
+region: content
+weight: -34
+provider: null
+plugin: 'block_content:3e816208-7e07-411e-bc13-8be7aec003b5'
+settings:
+  id: 'block_content:3e816208-7e07-411e-bc13-8be7aec003b5'
+  label: 'In Print'
+  provider: block_content
+  label_display: visible
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /advertise-us
+    negate: false
+    context_mapping: {  }

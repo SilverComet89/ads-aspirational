@@ -1,0 +1,23 @@
+uuid: 164e7d7e-d541-416e-97e9-a9ae436beba0
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.advert_block_full_width_
+    - field.storage.block_content.field_link
+  module:
+    - link
+id: block_content.advert_block_full_width_.field_link
+field_name: field_link
+entity_type: block_content
+bundle: advert_block_full_width_
+label: Link
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 17
+  title: 1
+field_type: link

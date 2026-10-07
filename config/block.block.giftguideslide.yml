@@ -1,0 +1,30 @@
+uuid: c38992a7-b6be-4673-94c1-32505ed1d3ed
+langcode: en
+status: true
+dependencies:
+  module:
+    - block_class
+    - md_slider
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'no-gutter col-md-12'
+id: giftguideslide
+theme: aspirational
+region: highlighted
+weight: 0
+provider: null
+plugin: 'md_slider_block:gift_guide_slide'
+settings:
+  id: 'md_slider_block:gift_guide_slide'
+  label: 'Gift Guide Slide'
+  provider: md_slider
+  label_display: '0'
+visibility:
+  request_path:
+    id: request_path
+    pages: /gift-guide
+    negate: false
+    context_mapping: {  }

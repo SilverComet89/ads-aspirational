@@ -1,0 +1,29 @@
+uuid: 48758990-e2fc-460a-b439-f17404d53cfe
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:167525be-eba6-4068-90ce-05f4c5c2796e'
+  module:
+    - block_class
+    - block_content
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'col-xs-6 visible-xs visible-sm'
+id: phonenumber_2
+theme: aspirational
+region: header
+weight: -22
+provider: null
+plugin: 'block_content:167525be-eba6-4068-90ce-05f4c5c2796e'
+settings:
+  id: 'block_content:167525be-eba6-4068-90ce-05f4c5c2796e'
+  label: 'Phone Number'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

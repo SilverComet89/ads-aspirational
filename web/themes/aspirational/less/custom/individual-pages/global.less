@@ -1,0 +1,107 @@
+#block-ourcoverage, #block-views-block-gift-guide-block-1, .node--type-article {
+  h2  {
+    display: table;
+    white-space: nowrap;
+    color: @AspiCharcoal;
+    text-transform: uppercase;
+    font-family: 'minion-pro' !important;
+    font-style: normal !important;
+    font-weight: 400 !important;
+    &:before, &:after {
+      border-top: 1px dotted @AspiCharcoal;
+      content: '';
+      display: table-cell;
+      position: relative;
+      top: 0.5em;
+      width: 45%;
+    }
+    &:before { right: 1.5%; }
+    &:after { left: 1.5%; }
+  }
+}
+
+h1:not(.article-title)  {
+  border-bottom: 0px !important;
+  display: table;
+  white-space: nowrap;
+  color: @AspiCharcoal;
+  text-transform: uppercase;
+  font-family: 'minion-pro' !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  &:before, &:after {
+    border-top: 1px dotted @AspiCharcoal;
+    content: '';
+    display: table-cell;
+    position: relative;
+    top: 0.5em;
+    width: 45%;
+  }
+  &:before { right: 1.5%; }
+  &:after { left: 1.5%; }
+}
+
+#block-socialmediaicons, #block-socialmediaicons-2 {
+  padding-right: 0px;
+  padding-left: 0px;
+  padding-top: 17px;
+  .fa-lg {
+    font-size: 1em;
+  }
+  a {
+    color: @AspiDarkGrey;
+  }
+}
+
+.view-id-news_articles, .view-category-display-views {
+  .views-field-body {
+    p {
+      color: @AspiDarkGrey;
+      text-align: left !important;
+      font-weight: normal !important;
+    }
+    font-size: 13px;
+    .views-more-link {
+      display: block;
+      text-align: right;
+      color: @AspiGrey;
+      text-decoration: none;
+    }
+  }
+  .views-field-title {
+    text-transform: uppercase;
+    a {
+      color: @AspiCharcoal;
+    }
+  }
+}
+
+.google-maps {
+    position: relative;
+    padding-bottom: 75%; // This is the aspect ratio
+    height: 0;
+    overflow: hidden;
+}
+.google-maps iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+.mm-listview {
+  li {
+    width: 100%;
+  }
+}
+
+@media (max-width: @screen-xs-max) {
+  h1:not(.article-title) {
+    white-space: normal !important;
+    text-align: center;
+  }
+  h2 {
+    white-space: normal !important;
+    text-align: center;
+  }
+}

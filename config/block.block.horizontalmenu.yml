@@ -1,0 +1,24 @@
+uuid: 3becaedb-2608-4e67-9ee6-b7fd9f9042e7
+langcode: en
+status: true
+dependencies:
+  module:
+    - block_class
+    - responsive_menu
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'col-md-7 text-center'
+id: horizontalmenu
+theme: aspirational
+region: header
+weight: -19
+provider: null
+plugin: responsive_menu_horizontal_menu
+settings:
+  id: responsive_menu_horizontal_menu
+  label: 'Horizontal menu'
+  provider: responsive_menu
+  label_display: '0'
+visibility: {  }

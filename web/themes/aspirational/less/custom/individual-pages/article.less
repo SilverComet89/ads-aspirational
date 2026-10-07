@@ -1,0 +1,73 @@
+.node--type-article {
+  img {
+    margin: auto;
+  }
+  h1 {
+    font-size: 20px !important;
+    color: @AspiGold;
+    text-transform: uppercase;
+  }
+  .field--name-node-post-date {
+    text-align: center;
+    color: @AspiGold;
+    text-transform: uppercase;
+  }
+  .paragraph {
+    .field {
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }
+  }
+  .field--name-body {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+  .addtoany_list {
+    display: block;
+    clear: both;
+    width: 100%;
+    text-align: right;
+    a {
+      color: @AspiDarkGrey;
+      font-size: 12px !important;
+    }
+  }
+  .field--name-field-leave-a-reply {
+    border-top: 1px dotted @AspiGrey;
+    padding-top: 10px;
+    margin-top: 10px;
+    clear: both;
+  }
+}
+
+
+@media(min-width: @screen-md-min){
+  .node--type-article {
+    .paragraph--type--_-column-image-text, .paragraph--type--_-column-text-image {
+      .field--name-field-text-right {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 0;
+      }
+      .field--name-field-text-left {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        left: 0;
+      }
+      .field--name-field-image-right {
+        float: right;
+      }
+    }
+  }
+}  /* deprecated: @screen-desktop, or @screen-md */
+
+@media(min-width: @screen-md-min){
+  .node--type-article {
+    .field--name-body {
+      width: 70%;
+      margin: auto;
+    }
+  }
+}

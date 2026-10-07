@@ -1,0 +1,15 @@
+uuid: aa21f2df-a094-439d-a625-f8594773bf5f
+langcode: en
+status: true
+dependencies: {  }
+name: featured_front
+label: 'Featured Front'
+effects:
+  046c6c1b-28ca-4253-b75a-83baec8e701f:
+    uuid: 046c6c1b-28ca-4253-b75a-83baec8e701f
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 383
+      height: 383
+      anchor: center-center

@@ -1,0 +1,23 @@
+uuid: dbac05f9-6cec-47c1-acd0-48cd1c96d7d2
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.advert_block_2_vertical_stack_wi
+    - field.storage.block_content.field_first_advert_link
+  module:
+    - link
+id: block_content.advert_block_2_vertical_stack_wi.field_first_advert_link
+field_name: field_first_advert_link
+entity_type: block_content
+bundle: advert_block_2_vertical_stack_wi
+label: 'First advert link'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 17
+  title: 1
+field_type: link

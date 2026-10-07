@@ -1,0 +1,80 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a block.
+ *
+ * Available variables:
+ * - $block->subject: Block title.
+ * - $content: Block content.
+ * - $block->module: Module that generated the block.
+ * - $block->delta: An ID for the block, unique within each module.
+ * - $block->region: The block region embedding the current block.
+ * - $classes: String of classes that can be used to style contextually through
+ *   CSS. It can be manipulated through the variable $classes_array from
+ *   preprocess functions. The default values can be one or more of the
+ *   following:
+ *   - block: The current template type, i.e., "theming hook".
+ *   - block-[module]: The module generating the block. For example, the user
+ *     module is responsible for handling the default user navigation block. In
+ *     that case the class would be 'block-user'.
+ * - $title_prefix (array): An array containing additional output populated by
+ *   modules, intended to be displayed in front of the main title tag that
+ *   appears in the template.
+ * - $title_suffix (array): An array containing additional output populated by
+ *   modules, intended to be displayed after the main title tag that appears in
+ *   the template.
+ *
+ * Helper variables:
+ * - $classes_array: Array of html class attribute values. It is flattened
+ *   into a string within the variable $classes.
+ * - $block_zebra: Outputs 'odd' and 'even' dependent on each block region.
+ * - $zebra: Same output as $block_zebra but independent of any block region.
+ * - $block_id: Counter dependent on each block region.
+ * - $id: Same output as $block_id but independent of any block region.
+ * - $is_front: Flags true when presented in the front page.
+ * - $logged_in: Flags true when the current user is a logged-in member.
+ * - $is_admin: Flags true when the current user is an administrator.
+ * - $block_html_id: A valid HTML ID and guaranteed unique.
+ *
+ * @ingroup templates
+ *
+ * @see bootstrap_preprocess_block()
+ * @see template_preprocess()
+ * @see template_preprocess_block()
+ * @see bootstrap_process_block()
+ * @see template_process()
+ */
+#}
+{{ attach_library('aspirational/responsive-image-map') }}
+{%
+  set classes = [
+    'block',
+    'block-' ~ configuration.provider|clean_class,
+    'block-' ~ plugin_id|clean_class,
+    'clearfix',
+  ]
+%}
+<section{{ attributes.addClass(classes) }}>
+  {{ title_prefix }}
+  {% if label %}
+    <h2{{ title_attributes.addClass('block-title') }}>{{ label }}</h2>
+  {% endif %}
+  {{ title_suffix }}
+
+  <map name="firstImage">
+    <area shape="poly" coords="306,290,311,298,324,335,312,348,286,345,279,353,268,343,272,316,276,310,272,305,275,299" href="https://inspirational.uk.com" alt="Inspi Birmingham" title="Inspi Birmingham"/>
+    <area shape="poly" coords="346,273,364,283,371,305,362,313,368,319,346,323,349,332,330,350,321,352,319,342,322,331,308,280,312,276,324,287,332,287" href="http://aspirational.uk.com/" alt="Aspi" title="Aspi"/>
+    <area shape="poly" coords="345,358,353,360,354,370,361,373,353,387,341,384,336,375,338,367,344,368" href="https://inspirational.london/" alt="Inspi London" title="Inspi London"/>
+  </map>
+  <map name="secondImage">
+    <area shape="poly" coords="220,109,239,126,242,156,230,166,228,185,254,203,254,211,248,216,241,225,255,244,257,258,306,323,292,326,298,339,267,376,255,381,249,397,222,390,214,372,198,378,201,391,199,394,189,383,155,388,155,387,159,380,153,379,153,381,153,390,131,394,121,380,116,385,110,378,110,408,76,420,52,396,39,393,18,333,39,307,44,309,50,289,17,258,53,242,53,237,34,243,34,242,34,228,58,194,51,181,41,179,46,155,74,142,95,163,106,159,110,143,115,142,128,154,146,153,167,131,199,109,208,114" href="https://inspirational.uk.com" alt="Inspi Birmingham" title="Inspi Birmingham"/>
+    <area shape="poly" coords="299,329,311,321,296,290,264,258,268,242,256,223,268,208,258,196,233,184,233,176,249,156,243,118,223,106,222,55,243,31,274,69,280,90,292,93,309,89,309,94,322,93,328,100,351,75,369,70,388,40,407,48,419,18,430,15,440,26,462,24,496,52,537,100,551,137,545,180,504,211,496,206,499,215,506,221,528,246,508,263,493,271,463,275,453,268,447,273,441,267,415,271,415,286,423,288,430,315,405,336,405,337,410,343,410,346,392,362,385,355,379,357,378,373,344,385,349,400,336,408,331,396,302,401,302,409,293,415,280,411,278,383,288,379,281,366,287,364,293,355,304,336" href="http://aspirational.uk.com/" alt="Aspi" title="Aspi"/>
+  </map>
+  <map name="thirdImage">
+    <area shape="poly" coords="519,200,500,200,483,218,483,202,481,203,458,233,451,209,389,198,389,200,386,210,363,213,366,216,366,218,395,215,401,208,441,239,434,244,450,260,450,261,448,272,429,273,428,280,413,287,413,325,408,320,404,318,394,362,383,362,366,406,341,406,311,359,293,352,288,369,245,398,222,386,222,360,214,343,187,353,197,326,189,316,179,317,178,309,163,308,163,316,136,352,131,347,125,342,150,297,144,291,134,291,125,272,106,271,107,254,99,254,70,236,70,217,43,208,53,181,63,173,66,138,73,137,64,87,72,54,88,73,118,84,136,81,194,58,206,56,259,40,263,23,351,41,350,66,342,75,344,75,367,92,358,101,359,103,369,111,378,110,384,119,386,119,418,108,473,108,499,155,516,169" href="https://inspirational.london/" alt="Inspi London Single" title="Inspi London Single"/>
+  </map>
+
+  {% block content %}
+    {{ content }}
+  {% endblock %}
+</section>

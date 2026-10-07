@@ -1,0 +1,29 @@
+uuid: 10a070ed-1f3d-4296-b5aa-ccf41ae257fa
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.extra-top-menu
+  module:
+    - block_class
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'col-md-5 col-md-offset-6 hidden-sm hidden-xs'
+id: extratopmenu
+theme: aspirational
+region: extra_header
+weight: -22
+provider: null
+plugin: 'system_menu_block:extra-top-menu'
+settings:
+  id: 'system_menu_block:extra-top-menu'
+  label: 'Extra Top Menu'
+  provider: system
+  label_display: '0'
+  level: 1
+  depth: 0
+  expand_all_items: false
+visibility: {  }

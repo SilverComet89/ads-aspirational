@@ -1,0 +1,24 @@
+uuid: f97b33db-9712-4d96-86c7-05e9bac6bde9
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.magazine.field_cover_image
+    - field.field.node.magazine.field_magazine_url
+    - node.type.magazine
+  module:
+    - user
+id: node.magazine.teaser
+targetEntityType: node
+bundle: magazine
+mode: teaser
+content:
+  links:
+    weight: 100
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  field_cover_image: true
+  field_magazine_url: true

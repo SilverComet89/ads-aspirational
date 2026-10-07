@@ -1,0 +1,34 @@
+uuid: 73ee68bc-2463-4bc6-a2ca-5b811fc9e6f4
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.featured
+  module:
+    - block_class
+    - system
+    - views
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'col-md-4 col-sm-6'
+id: views_block__featured_block_1
+theme: aspirational
+region: highlighted
+weight: -30
+provider: null
+plugin: 'views_block:featured-block_1'
+settings:
+  id: 'views_block:featured-block_1'
+  label: ''
+  provider: views
+  label_display: '0'
+  views_label: ''
+  items_per_page: none
+visibility:
+  request_path:
+    id: request_path
+    pages: '<front>'
+    negate: false
+    context_mapping: {  }

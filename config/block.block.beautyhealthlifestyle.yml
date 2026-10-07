@@ -1,0 +1,30 @@
+uuid: eb87e601-3a31-43cd-9606-3bf52089ea46
+langcode: en
+status: true
+dependencies:
+  module:
+    - block_class
+    - md_slider
+    - system
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'no-gutter col-md-12'
+id: beautyhealthlifestyle
+theme: aspirational
+region: highlighted
+weight: 0
+provider: null
+plugin: 'md_slider_block:beauty_health_lifestyle'
+settings:
+  id: 'md_slider_block:beauty_health_lifestyle'
+  label: 'Beauty, Health & Lifestyle'
+  provider: md_slider
+  label_display: '0'
+visibility:
+  request_path:
+    id: request_path
+    pages: /beauty-health-lifestyle
+    negate: false
+    context_mapping: {  }

@@ -1,0 +1,29 @@
+uuid: f1a53d57-654f-4dd4-b6ef-2410dec28bc9
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:image_block_with_link_:6ca260d1-9952-4fbd-8c83-be98769c8526'
+  module:
+    - block_class
+    - block_content
+  theme:
+    - aspirational
+third_party_settings:
+  block_class:
+    classes: 'col-md-3 overflow'
+id: logo
+theme: aspirational
+region: header
+weight: -20
+provider: null
+plugin: 'block_content:6ca260d1-9952-4fbd-8c83-be98769c8526'
+settings:
+  id: 'block_content:6ca260d1-9952-4fbd-8c83-be98769c8526'
+  label: Logo
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }
