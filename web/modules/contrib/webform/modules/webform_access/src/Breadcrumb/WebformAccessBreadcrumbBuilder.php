@@ -2,8 +2,8 @@
 
 namespace Drupal\webform_access\Breadcrumb;
 
-use Drupal\Core\Breadcrumb\BreadcrumbBuilderInterface;
 use Drupal\Core\Breadcrumb\Breadcrumb;
+use Drupal\Core\Breadcrumb\BreadcrumbBuilderInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -25,7 +25,7 @@ class WebformAccessBreadcrumbBuilder implements BreadcrumbBuilderInterface {
   protected $type;
 
   /**
-   * Constructs a WebformAccessBreadcrumbBuilder.
+   * Constructs a WebformAccessBreadcrumbBuilder object.
    *
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    *   The string translation service.
@@ -43,6 +43,11 @@ class WebformAccessBreadcrumbBuilder implements BreadcrumbBuilderInterface {
     if (strpos($route_name, 'webform_access') === FALSE) {
       return FALSE;
     }
+
+    if (!$route_match->getRouteObject()) {
+      return FALSE;
+    }
+
     $path = Url::fromRouteMatch($route_match)->toString();
 
     if (strpos($path, 'admin/structure/webform/access/') === FALSE) {

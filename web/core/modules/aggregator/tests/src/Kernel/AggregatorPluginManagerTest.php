@@ -8,6 +8,7 @@ use Drupal\KernelTests\KernelTestBase;
  * Tests the aggregator plugin manager.
  *
  * @group aggregator
+ * @group legacy
  */
 class AggregatorPluginManagerTest extends KernelTestBase {
 
@@ -16,7 +17,7 @@ class AggregatorPluginManagerTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['aggregator', 'aggregator_test'];
+  protected static $modules = ['aggregator', 'aggregator_test'];
 
   /**
    * Tests that the fetcher info alter hook works.
@@ -35,7 +36,7 @@ class AggregatorPluginManagerTest extends KernelTestBase {
     $widget_definition = \Drupal::service('plugin.manager.aggregator.parser')->getDefinition('aggregator_test_parser');
 
     // Test if hook_aggregator_parser_info_alter is being called.
-    $this->assertTrue($widget_definition['definition_altered'], "The 'aggregator_test_parser' plugin definition was updated in in `hook_aggregator_parser_info_alter()`");
+    $this->assertTrue($widget_definition['definition_altered'], "The 'aggregator_test_parser' plugin definition was updated in `hook_aggregator_parser_info_alter()`");
   }
 
   /**
@@ -45,7 +46,7 @@ class AggregatorPluginManagerTest extends KernelTestBase {
     $widget_definition = \Drupal::service('plugin.manager.aggregator.processor')->getDefinition('aggregator_test_processor');
 
     // Test if hook_aggregator_processor_info_alter is being called.
-    $this->assertTrue($widget_definition['definition_altered'], "The 'aggregator_test_processor' plugin definition was updated in in `hook_aggregator_processor_info_alter()`");
+    $this->assertTrue($widget_definition['definition_altered'], "The 'aggregator_test_processor' plugin definition was updated in `hook_aggregator_processor_info_alter()`");
   }
 
 }

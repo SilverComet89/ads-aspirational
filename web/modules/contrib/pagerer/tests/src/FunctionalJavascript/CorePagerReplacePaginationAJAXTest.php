@@ -11,6 +11,11 @@ use Drupal\Tests\views\FunctionalJavascript\PaginationAJAXTest;
  */
 class CorePagerReplacePaginationAJAXTest extends PaginationAJAXTest {
 
+  /**
+   * The URL for Pagerer admin UI page.
+   *
+   * @var string
+   */
   protected $pagererAdmin = 'admin/config/user-interface/pagerer';
 
   /**
@@ -21,18 +26,19 @@ class CorePagerReplacePaginationAJAXTest extends PaginationAJAXTest {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
-    $edit = [
+    // Add a 'core_replace' pagerer preset.
+    $this->drupalGet($this->pagererAdmin . '/preset/add');
+    $this->submitForm([
       'label' => 'core_replace',
-      'id' => 'core_replace',
-    ];
-    $this->drupalPostForm($this->pagererAdmin . '/preset/add', $edit, 'Create');
-    $edit = [
-      'core_override_preset' => 'core_replace',
-    ];
-    $this->drupalPostForm($this->pagererAdmin, $edit, 'Save configuration');
+    ], t('Create'));
+
+    // Make 'core_replace' pagerer preset the global pager replacement.
+    \Drupal::configFactory()->getEditable('pagerer.settings')
+      ->set('core_override_preset', 'core_replace')
+      ->save();
   }
 
 }

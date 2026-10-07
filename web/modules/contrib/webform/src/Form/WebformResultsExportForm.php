@@ -4,7 +4,6 @@ namespace Drupal\webform\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\webform\WebformSubmissionExporterInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -27,22 +26,12 @@ class WebformResultsExportForm extends FormBase {
   protected $submissionExporter;
 
   /**
-   * Constructs a WebformResultsExportForm object.
-   *
-   * @param \Drupal\webform\WebformSubmissionExporterInterface $webform_submission_exporter
-   *   The webform submission exported.
-   */
-  public function __construct(WebformSubmissionExporterInterface $webform_submission_exporter) {
-    $this->submissionExporter = $webform_submission_exporter;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('webform_submission.exporter')
-    );
+    $instance = parent::create($container);
+    $instance->submissionExporter = $container->get('webform_submission.exporter');
+    return $instance;
   }
 
   /**
@@ -100,14 +89,18 @@ class WebformResultsExportForm extends FormBase {
         $export_options[$key] = implode(',', $value);
       }
     }
+    $webform = $this->submissionExporter->getWebform();
     if ($source_entity = $this->submissionExporter->getSourceEntity()) {
       $entity_type = $source_entity->getEntityTypeId();
       $entity_id = $source_entity->id();
       $route_parameters = [$entity_type => $entity_id];
+      if ($webform) {
+        $route_parameters['webform'] = $webform->id();
+      }
       $route_options = ['query' => $export_options];
       $form_state->setRedirect('entity.' . $entity_type . '.webform.results_export', $route_parameters, $route_options);
     }
-    elseif ($webform = $this->submissionExporter->getWebform()) {
+    elseif ($webform) {
       $route_parameters = ['webform' => $webform->id()];
       $route_options = ['query' => $export_options];
       $form_state->setRedirect('entity.webform.results_export', $route_parameters, $route_options);

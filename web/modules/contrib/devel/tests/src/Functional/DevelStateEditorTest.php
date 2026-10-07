@@ -3,19 +3,13 @@
 namespace Drupal\Tests\devel\Functional;
 
 use Behat\Mink\Element\NodeElement;
-use Drupal\Tests\BrowserTestBase;
 
 /**
  * Tests devel state editor.
  *
  * @group devel
  */
-class DevelStateEditorTest extends BrowserTestBase {
-
-  /**
-   * {@inheritdoc}
-   */
-  public static $modules = ['devel', 'block'];
+class DevelStateEditorTest extends DevelBrowserTestBase {
 
   /**
    * The state store.
@@ -25,31 +19,12 @@ class DevelStateEditorTest extends BrowserTestBase {
   protected $state;
 
   /**
-   * The user for tests.
-   *
-   * @var \Drupal\user\UserInterface
-   */
-  protected $develUser;
-
-  /**
-   * The user for tests.
-   *
-   * @var \Drupal\user\UserInterface
-   */
-  protected $adminUser;
-
-  /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  public function setUp(): void {
     parent::setUp();
-
     $this->state = $this->container->get('state');
-
     $this->drupalPlaceBlock('page_title_block');
-
-    $this->develUser = $this->drupalCreateUser(['access devel information']);
-    $this->adminUser = $this->drupalCreateUser(['access devel information', 'administer site configuration']);
   }
 
   /**
@@ -153,7 +128,7 @@ class DevelStateEditorTest extends BrowserTestBase {
     $this->assertFalse($button->hasAttribute('disabled'));
 
     $edit = ['new_value' => 1];
-    $this->drupalPostForm('devel/state/edit/devel.simple', $edit, 'Save');
+    $this->submitForm($edit, 'Save');
     $this->assertSession()->pageTextContains(strtr('Variable @name was successfully edited.', ['@name' => 'devel.simple']));
     $this->assertEquals(1, $this->state->get('devel.simple'));
 
@@ -169,11 +144,11 @@ class DevelStateEditorTest extends BrowserTestBase {
 
     // Try to save an invalid yaml input.
     $edit = ['new_value' => 'devel: \'value updated'];
-    $this->drupalPostForm('devel/state/edit/devel.array', $edit, 'Save');
+    $this->submitForm($edit, 'Save');
     $this->assertSession()->pageTextContains('Invalid input:');
 
     $edit = ['new_value' => 'devel: \'value updated\''];
-    $this->drupalPostForm('devel/state/edit/devel.array', $edit, 'Save');
+    $this->submitForm($edit, 'Save');
     $this->assertSession()->pageTextContains(strtr('Variable @name was successfully edited.', ['@name' => 'devel.array']));
     $this->assertEquals(['devel' => 'value updated'], $this->state->get('devel.array'));
 

@@ -31,9 +31,7 @@ class DelimitedWebformExporter extends TabularBaseWebformExporter {
    */
   public function setConfiguration(array $configuration) {
     parent::setConfiguration($configuration);
-    if ($this->configuration['delimiter'] == '\t') {
-      $this->configuration['delimiter'] = "\t";
-    }
+    $this->configuration['delimiter'] = ($this->configuration['delimiter'] === '\t') ? "\t" : $this->configuration['delimiter'];
     return $this;
   }
 
@@ -42,10 +40,15 @@ class DelimitedWebformExporter extends TabularBaseWebformExporter {
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildConfigurationForm($form, $form_state);
+    $t_args = [
+      '%type' => $this->label(),
+      ':injection_href' => 'https://www.google.com/search?q=spreadsheet+formula+injection',
+      ':excel_href' => 'https://www.drupal.org/project/webform_xlsx_export',
+    ];
     $form['warning'] = [
       '#type' => 'webform_message',
       '#message_type' => 'warning',
-      '#message_message' => $this->t('<strong>Warning:</strong> Opening delimited text files with spreadsheet applications may expose you to <a href=":href">formula injection</a> or other security vulnerabilities. When the submissions contain data from untrusted users and the downloaded file will be used with Microsoft Excel, use \'HTML table\' format.', [':href' => 'https://www.google.com/search?q=spreadsheet+formula+injection']),
+      '#message_message' => $this->t('<strong>Warning:</strong> Opening %type files with spreadsheet applications may expose you to <a href=":injection_href">formula injection</a> or other security vulnerabilities. When the submissions contain data from untrusted users and the downloaded file will be used with Microsoft Excel, use the <a href=":excel_href">Webform XLSX export</a> module.', $t_args),
     ];
     $form['delimiter'] = [
       '#type' => 'select',
@@ -61,12 +64,12 @@ class DelimitedWebformExporter extends TabularBaseWebformExporter {
         '.'  => $this->t('Period (.)'),
         ' '  => $this->t('Space ( )'),
       ],
-      '#default_value' => $this->configuration['delimiter'],
+      '#default_value' => ($this->configuration['delimiter'] === "\t") ? '\t' : $this->configuration['delimiter'],
     ];
     $form['excel'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Generate Excel compatible file'),
-      '#description' => $this->t("If checked, the generated file's carriage returns will be compatible with Excel."),
+      '#description' => $this->t("If checked, the generated file's carriage returns will be compatible with Excel and a marker flagging the data as UTF-8 will be added at the beginning."),
       '#return_value' => TRUE,
       '#default_value' => $this->configuration['excel'],
     ];
@@ -90,6 +93,9 @@ class DelimitedWebformExporter extends TabularBaseWebformExporter {
    * {@inheritdoc}
    */
   public function writeHeader() {
+    if ($this->configuration['excel']) {
+      fwrite($this->fileHandle, "\xEF\xBB\xBF");
+    }
     $header = $this->buildHeader();
     fputcsv($this->fileHandle, $header, $this->configuration['delimiter']);
   }

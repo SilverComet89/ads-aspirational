@@ -50,7 +50,7 @@ function responsive_menu_update_8004() {
 }
 
 /**
- * Add new config for page wrappers.
+ * Add new config for keyboard extension.
  */
 function responsive_menu_update_8005() {
   \Drupal::configFactory()
@@ -70,6 +70,66 @@ function responsive_menu_update_8006() {
 }
 
 /**
+ * Delete keyboard extension config.
+ */
+function responsive_menu_update_8007() {
+  \Drupal::configFactory()
+    ->getEditable('responsive_menu.settings')
+    ->clear('extension_keyboard')
+    ->save();
+}
+
+/**
+ * Delete hammerjs config.
+ */
+function responsive_menu_update_84000() {
+  \Drupal::configFactory()
+    ->getEditable('responsive_menu.settings')
+    ->clear('hammerjs')
+    ->save();
+}
+
+/**
+ * Add new config for the drag setting.
+ */
+function responsive_menu_update_84001() {
+  \Drupal::configFactory()
+    ->getEditable('responsive_menu.settings')
+    ->set('drag', FALSE)
+    ->save(TRUE);
+}
+
+/**
+ * Add new config for the IE11 polyfills.
+ */
+function responsive_menu_update_84002() {
+  \Drupal::configFactory()
+    ->getEditable('responsive_menu.settings')
+    ->set('use_polyfills', FALSE)
+    ->save(TRUE);
+}
+
+/**
+ * Add new config to dynamically modify the viewport to fix Chrome bug.
+ */
+function responsive_menu_update_84300() {
+  \Drupal::configFactory()
+    ->getEditable('responsive_menu.settings')
+    ->set('modify_viewport', TRUE)
+    ->save(TRUE);
+}
+
+/**
+ * Add new config to dynamically modify the viewport to fix Chrome bug.
+ */
+function responsive_menu_update_84301() {
+  \Drupal::configFactory()
+    ->getEditable('responsive_menu.settings')
+    ->set('use_bootstrap', FALSE)
+    ->save(TRUE);
+}
+
+/**
  * Implements hook_requirements().
  */
 function responsive_menu_requirements($phase) {
@@ -83,34 +143,35 @@ function responsive_menu_requirements($phase) {
   $libraries = [
     'mmenu' => [
       'title' => 'mmenu library',
-      'version' => '6.1.4',
       'path' => '/libraries/mmenu',
-      'version_path' => '/libraries/mmenu/bower.json',
       'severity' => REQUIREMENT_ERROR,
-      'download_url' => 'https://api.github.com/repos/FrDH/jQuery.mmenu/zipball',
+      'download_url' => 'https://github.com/FrDH/mmenu-js/releases/latest',
       'homepage_url' => 'http://mmenu.frebsite.nl',
     ],
     'superfish' => [
       'title' => 'superfish library',
-      'version' => '1.7.0',
       'path' => '/libraries/superfish',
-      'version_path' => '/libraries/superfish/bower.json',
       'severity' => REQUIREMENT_WARNING,
       'download_url' => 'https://api.github.com/repos/joeldbirch/superfish/zipball',
       'homepage_url' => 'https://superfish.joelbirch.co',
     ],
-    'hammerjs' => [
-      'title' => 'hammerjs library',
-      'version' => '2.0.7',
-      'path' => '/libraries/hammerjs',
-      'version_path' => '/libraries/hammerjs/hammer.min.js',
-      'severity' => REQUIREMENT_WARNING,
-      'download_url' => 'https://api.github.com/repos/hammerjs/hammer.js/zipball',
-      'homepage_url' => 'http://hammerjs.github.io',
-    ],
   ];
 
   foreach ($libraries as $key => $library) {
+    if (\Drupal::hasService('library.libraries_directory_file_finder')) {
+      $library_finder = \Drupal::service('library.libraries_directory_file_finder');
+      $library_path = $library_finder->find($key);
+      if (is_file($library_path . '/package.json')) {
+        if ($key == 'mmenu') {
+          $library['version'] = '8.4.0';
+          $library['version_path'] = '/libraries/mmenu/package.json';
+        }
+        if ($key == 'superfish') {
+          $library['version'] = '1.7.0';
+          $library['version_path'] = '/libraries/superfish/package.json';
+        }
+      }
+    }
     if (isset($library['version'])) {
       $version = responsive_menu_get_library_version($library['version_path']);
     }
@@ -126,10 +187,10 @@ function responsive_menu_requirements($phase) {
       ':homepage_href' => $library['homepage_url'],
     ];
     // Does this library exist?
-    $library_exists = (file_exists(DRUPAL_ROOT . $library['path'])) ? TRUE : FALSE;
+    $library_exists = file_exists(DRUPAL_ROOT . $library['path']);
     // Does the library meet the version requirements?
     if (isset($library['version'])) {
-      $library_installed = $library_exists && responsive_menu_check_library_version($version, $library['version']) ? TRUE : FALSE;
+      $library_installed = $library_exists && responsive_menu_check_library_version($version, $library['version']);
     }
     else {
       $library_installed = $library_exists;
@@ -167,20 +228,13 @@ function responsive_menu_get_library_version($version_path) {
   if (!file_exists(DRUPAL_ROOT . $version_path)) {
     return '0';
   }
-  // The hammerjs library does not contain the version number in the
-  // bower.json file.
-  if (strpos($version_path, '.json') === FALSE) {
-    preg_match('/\sv(.+?)\s/', file_get_contents(DRUPAL_ROOT . $version_path), $matches);
-    return isset($matches[1]) ? $matches[1] : '0';
-  }
-  // Otherwise load the bower.json file and process.
   $json = file_get_contents(DRUPAL_ROOT . $version_path);
   if (!$json) {
     return '0';
   }
-  $bower_array = json_decode($json, TRUE);
-  if (isset($bower_array['version'])) {
-    return $bower_array['version'];
+  $json_array = json_decode($json, TRUE);
+  if (isset($json_array['version'])) {
+    return $json_array['version'];
   }
   return '0';
 }

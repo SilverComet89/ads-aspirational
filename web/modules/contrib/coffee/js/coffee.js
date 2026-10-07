@@ -54,10 +54,11 @@
    * @todo get most of it out of the behavior in dedicated functions.
    */
   Drupal.behaviors.coffee = {
-    attach: function () {
-      $('body').once('coffee').each(function () {
-        var body = $(this);
-        DrupalCoffee.bg.appendTo(body).hide();
+    attach: function (context) {
+      const body = once('coffee', 'body', context);
+      body.forEach((body) => {
+        var $body = $(body);
+        DrupalCoffee.bg.appendTo($body).hide();
         DrupalCoffee.wrapper.appendTo('body').addClass('hide-form');
         DrupalCoffee.form
           .append(DrupalCoffee.label)
@@ -73,8 +74,15 @@
 
         var autocomplete_data_element = 'ui-autocomplete';
 
+        var url;
+        if (drupalSettings.coffee.dataPath) {
+          url = drupalSettings.coffee.dataPath;
+        }
+        else {
+          url = Drupal.url('admin/coffee/get-data');
+        }
         $.ajax({
-          url: Drupal.url('admin/coffee/get-data'),
+          url: url,
           dataType: 'json',
           success: function (data) {
             DrupalCoffee.dataset = data;
@@ -91,7 +99,7 @@
                 DrupalCoffee.isItemSelected = false;
               },
               select: function (event, ui) {
-                DrupalCoffee.redirect(ui.item.value, event.metaKey);
+                DrupalCoffee.redirect(ui.item.value, event.metaKey || event.ctrlKey);
                 event.preventDefault();
                 return false;
               },
@@ -124,7 +132,7 @@
               if (event.keyCode === 13) {
                 var openInNewWindow = false;
 
-                if (event.metaKey) {
+                if (event.metaKey || event.ctrlKey) {
                   openInNewWindow = true;
                 }
 
@@ -216,7 +224,7 @@
    *
    * @todo use Drupal.theme.
    */
-  DrupalCoffee.label = $('<label for="coffee-q" class="hidden" />').text(Drupal.t('Query', '', ''));
+  DrupalCoffee.label = $('<label for="coffee-q" class="visually-hidden" />').text(Drupal.t('Query', '', ''));
   DrupalCoffee.results = $('<div id="coffee-results" />');
   DrupalCoffee.wrapper = $('<div class="coffee-form-wrapper" />');
   DrupalCoffee.form = $('<form id="coffee-form" action="#" />');

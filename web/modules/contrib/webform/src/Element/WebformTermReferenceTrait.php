@@ -2,6 +2,8 @@
 
 namespace Drupal\webform\Element;
 
+use Drupal\Component\Utility\NestedArray;
+
 /**
  * Trait for term reference elements.
  */
@@ -15,21 +17,30 @@ trait WebformTermReferenceTrait {
    */
   public static function setOptions(array &$element) {
     $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
-    if (!empty($element['#options'])) {
-      return;
-    }
-
-    if (!\Drupal::moduleHandler()->moduleExists('taxonomy') || empty($element['#vocabulary'])) {
+    $vocabulary_id = $element['#vocabulary'];
+    if (empty($vocabulary_id) || !\Drupal::moduleHandler()->moduleExists('taxonomy')) {
       $element['#options'] = [];
       return;
     }
 
+    $vocabulary_list_cache_tag = "taxonomy_term_list:{$vocabulary_id}";
+    // Only initialize the term options once by checking the cache tags.
+    $cache_tags = NestedArray::getValue($element, ['#cache', 'tags']) ?? [];
+    if (in_array($vocabulary_list_cache_tag, $cache_tags)) {
+      return;
+    }
+
+    $element['#options'] = $element['#options'] ?? [];
+
     if (!empty($element['#breadcrumb'])) {
-      $element['#options'] = static::getOptionsBreadcrumb($element, $language);
+      $element['#options'] = static::getOptionsBreadcrumb($element, $language) + $element['#options'];
     }
     else {
-      $element['#options'] = static::getOptionsTree($element, $language);
+      $element['#options'] = static::getOptionsTree($element, $language) + $element['#options'];
     }
+
+    // Add vocabulary-specific cache tag for targeted cache invalidation.
+    $element['#cache']['tags'][] = $vocabulary_list_cache_tag;
   }
 
   /**
@@ -56,6 +67,15 @@ trait WebformTermReferenceTrait {
     foreach ($tree as $item) {
       // Set the item in the correct language for display.
       $item = $entity_repository->getTranslationFromContext($item);
+      if (!$item->access('view')) {
+        continue;
+      }
+
+      // Check depth.
+      if (!empty($element['#depth']) && $item->depth >= $element['#depth']) {
+        continue;
+      }
+
       $breadcrumb[$item->depth] = $item->getName();
       $breadcrumb = array_slice($breadcrumb, 0, $item->depth + 1);
       $options[$item->id()] = implode($element['#breadcrumb_delimiter'], $breadcrumb);
@@ -86,6 +106,15 @@ trait WebformTermReferenceTrait {
     foreach ($tree as $item) {
       // Set the item in the correct language for display.
       $item = $entity_repository->getTranslationFromContext($item);
+      if (!$item->access('view')) {
+        continue;
+      }
+
+      // Check depth.
+      if (!empty($element['#depth']) && $item->depth >= $element['#depth']) {
+        continue;
+      }
+
       $options[$item->id()] = str_repeat($element['#tree_delimiter'], $item->depth) . $item->getName();
     }
     return $options;

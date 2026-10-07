@@ -54,7 +54,7 @@ class XmlSitemapListBuilder extends ConfigEntityListBuilder {
   public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
     return new static(
       $entity_type,
-      $container->get('entity.manager')->getStorage($entity_type->id()),
+      $container->get('entity_type.manager')->getStorage($entity_type->id()),
       $container->get('module_handler'),
       $container->get('language_manager')
     );
@@ -72,7 +72,7 @@ class XmlSitemapListBuilder extends ConfigEntityListBuilder {
    * {@inheritdoc}
    */
   public function buildHeader() {
-    $header['label'] = $this->t('XmlSitemap');
+    $header['label'] = $this->t('XML Sitemap');
     if ($this->moduleHandler->moduleExists('language')) {
       $header['language'] = $this->t('Language');
     }

@@ -2,10 +2,13 @@
 
 namespace Drupal\ctools\Event;
 
+use Drupal\Component\EventDispatcher\Event;
 use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\ctools\Plugin\BlockVariantInterface;
-use Symfony\Component\EventDispatcher\Event;
 
+/**
+ * An event for interacting with block variants.
+ */
 class BlockVariantEvent extends Event {
 
   /**
@@ -39,6 +42,7 @@ class BlockVariantEvent extends Event {
    * Gets the block plugin.
    *
    * @return \Drupal\Core\Block\BlockPluginInterface
+   *   The block plugin.
    */
   public function getBlock() {
     return $this->block;
@@ -48,6 +52,7 @@ class BlockVariantEvent extends Event {
    * Gets the variant plugin.
    *
    * @return \Drupal\ctools\Plugin\BlockVariantInterface
+   *   The variant plugin.
    */
   public function getVariant() {
     return $this->variant;

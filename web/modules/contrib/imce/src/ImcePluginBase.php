@@ -2,9 +2,9 @@
 
 namespace Drupal\imce;
 
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\PluginBase;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\imce\Entity\ImceProfile;
 
 /**
@@ -46,4 +46,11 @@ abstract class ImcePluginBase extends PluginBase implements ImcePluginInterface 
    */
   public function buildPage(array &$page, ImceFM $fm) {
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function alterJsResponse(array &$data, ImceFM $fm) {
+  }
+
 }

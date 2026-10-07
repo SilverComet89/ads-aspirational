@@ -18,7 +18,7 @@ class WebformConditionTest extends EntityKernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['webform'];
+  protected static $modules = ['webform'];
 
   /**
    * Tests conditions.
@@ -26,7 +26,7 @@ class WebformConditionTest extends EntityKernelTestBase {
   public function testConditions() {
     $this->installSchema('webform', ['webform']);
 
-    $manager = $this->container->get('plugin.manager.condition', $this->container->get('container.namespaces'));
+    $manager = $this->container->get('plugin.manager.condition');
     $this->createUser();
 
     // Get some nodes of various types to check against.
@@ -59,8 +59,9 @@ class WebformConditionTest extends EntityKernelTestBase {
     $this->assertEquals('The webform is not_test, test or other_test', $condition->summary());
 
     // Test Constructor injection.
-    $condition = $manager->createInstance('webform', ['webforms' => ['test' => 'test'], 'context' => ['webform' => $webform]]);
-    $this->assertTrue($condition->execute(), 'Constructor injection of context and configuration working as anticipated.');
+    $condition = $manager->createInstance('webform', ['webforms' => ['test' => 'test']])
+      ->setContextValue('webform', $webform);
+    $this->assertTrue($condition->execute(), 'Constructor injection of configuration working as anticipated.');
 
     // Check webform_submission context.
     /** @var \Drupal\webform\WebformSubmissionInterface $webform_submission */

@@ -1,13 +1,13 @@
-name: 'Disqus'
+name: Disqus
 type: module
-description: 'Uses the Disqus web service to enhance comments.'
-# core: 8.x
+description: 'Integrated the Disqus web service to enhance comments in Drupal.'
+core_version_requirement: ^9 || ^10 || ^11
 configure: disqus.settings
 dependencies:
-  - field
+  - drupal:file
+  - drupal:field
 
-# Information added by Drupal.org packaging script on 2019-08-09
-version: '8.x-1.0-rc4'
-core: '8.x'
+# Information added by Drupal.org packaging script on 2025-06-10
+version: '2.0.2'
 project: 'disqus'
-datestamp: 1565393587
+datestamp: 1749585684

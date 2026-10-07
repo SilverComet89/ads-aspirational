@@ -4,13 +4,15 @@ namespace Drupal\webform\Plugin\WebformElement;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Mail\MailFormatHelper;
-use Drupal\webform\Element\WebformComputedTwig as WebformComputedTwigElement;
 use Drupal\webform\Element\WebformComputedBase as WebformComputedBaseElement;
+use Drupal\webform\Element\WebformComputedTwig as WebformComputedTwigElement;
+use Drupal\webform\Element\WebformMessage as WebformMessageElement;
 use Drupal\webform\Plugin\WebformElementBase;
 use Drupal\webform\Plugin\WebformElementComputedInterface;
 use Drupal\webform\Plugin\WebformElementDisplayOnInterface;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a base class for 'webform_computed' elements.
@@ -20,14 +22,30 @@ abstract class WebformComputedBase extends WebformElementBase implements Webform
   use WebformDisplayOnTrait;
 
   /**
+   * The database connection.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected $database;
+
+  /**
    * {@inheritdoc}
    */
-  public function getDefaultProperties() {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    $instance->database = $container->get('database');
+    return $instance;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function defineDefaultProperties() {
     return [
       // Element settings.
       'title' => '',
       // Markup settings.
-      'display_on' => static::DISPLAY_ON_BOTH,
+      'display_on' => WebformElementDisplayOnInterface::DISPLAY_ON_BOTH,
       // Description/Help.
       'help' => '',
       'help_title' => '',
@@ -44,10 +62,13 @@ abstract class WebformComputedBase extends WebformElementBase implements Webform
       'store' => FALSE,
       'ajax' => FALSE,
       // Attributes.
+      'attributes' => [],
       'wrapper_attributes' => [],
       'label_attributes' => [],
-    ] + $this->getDefaultBaseProperties();
+    ] + $this->defineDefaultBaseProperties();
   }
+
+  /* ************************************************************************ */
 
   /**
    * {@inheritdoc}
@@ -71,7 +92,7 @@ abstract class WebformComputedBase extends WebformElementBase implements Webform
     parent::prepare($element, $webform_submission);
 
     // Hide element if it should not be displayed on 'form'.
-    if (!$this->isDisplayOn($element, static::DISPLAY_ON_FORM)) {
+    if (!$this->isDisplayOn($element, WebformElementDisplayOnInterface::DISPLAY_ON_FORM)) {
       $element['#access'] = FALSE;
     }
   }
@@ -154,9 +175,21 @@ abstract class WebformComputedBase extends WebformElementBase implements Webform
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
 
+    // Change the 'Element attributes' label to reflect that the hidden element
+    // attributes are being defined.
+    $form['element_attributes']['#title'] = $this->t('Hidden element attributes');
+
     $form['computed'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Computed settings'),
+    ];
+    $form['computed']['warning'] = [
+      '#type' => 'webform_message',
+      '#message_message' => $this->t('Computing complex or multiple values with or without Ajax can be resource intensive and may have performance implications. When possible try limiting or combining computations or consider using custom Twig functions, JavaScript, or PHP.'),
+      '#message_type' => 'warning',
+      '#message_close' => TRUE,
+      '#message_storage' => WebformMessageElement::STORAGE_SESSION,
+      '#access' => TRUE,
     ];
     $form['computed']['display_on'] = [
       '#type' => 'select',
@@ -176,9 +209,9 @@ abstract class WebformComputedBase extends WebformElementBase implements Webform
       '#type' => 'select',
       '#title' => $this->t('Mode'),
       '#options' => [
-        WebformComputedBaseElement::MODE_AUTO => t('Auto-detect'),
-        WebformComputedBaseElement::MODE_HTML => t('HTML'),
-        WebformComputedBaseElement::MODE_TEXT => t('Plain text'),
+        WebformComputedBaseElement::MODE_AUTO => $this->t('Auto-detect'),
+        WebformComputedBaseElement::MODE_HTML => $this->t('HTML'),
+        WebformComputedBaseElement::MODE_TEXT => $this->t('Plain text'),
       ],
     ];
     $form['computed']['template'] = [
@@ -257,7 +290,7 @@ abstract class WebformComputedBase extends WebformElementBase implements Webform
       'delta' => 0,
       'value' => $value,
     ];
-    \Drupal::database()->update('webform_submission_data')
+    $this->database->update('webform_submission_data')
       ->fields($fields)
       ->condition('webform_id', $fields['webform_id'])
       ->condition('sid', $fields['sid'])
@@ -275,7 +308,8 @@ abstract class WebformComputedBase extends WebformElementBase implements Webform
    *   The type of markup, HTML or plain-text.
    */
   protected function getMode(array $element) {
-    return WebformComputedBaseElement::getMode($element);
+    $class = $this->getFormElementClassDefinition();
+    return $class::getMode($element);
   }
 
   /**

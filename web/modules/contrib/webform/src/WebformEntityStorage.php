@@ -2,16 +2,10 @@
 
 namespace Drupal\webform;
 
-use Drupal\Component\Uuid\UuidInterface;
 use Drupal\Core\Cache\Cache;
-use Drupal\Core\Cache\MemoryCache\MemoryCacheInterface;
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\Entity\ConfigEntityStorage;
-use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -35,6 +29,27 @@ class WebformEntityStorage extends ConfigEntityStorage implements WebformEntityS
   protected $entityTypeManager;
 
   /**
+   * The file system service.
+   *
+   * @var \Drupal\Core\File\FileSystemInterface
+   */
+  protected $fileSystem;
+
+  /**
+   * The cache backend service.
+   *
+   * @var \Drupal\Core\Cache\CacheBackendInterface
+   */
+  protected $cacheBackend;
+
+  /**
+   * The language manager.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected $languageManager;
+
+  /**
    * Associative array container total results for all webforms.
    *
    * @var array
@@ -42,44 +57,16 @@ class WebformEntityStorage extends ConfigEntityStorage implements WebformEntityS
   protected $totals;
 
   /**
-   * Constructs a WebformEntityStorage object.
-   *
-   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
-   *   The entity type definition.
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The config factory service.
-   * @param \Drupal\Component\Uuid\UuidInterface $uuid_service
-   *   The UUID service.
-   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
-   *   The language manager.
-   * @param \Drupal\Core\Database\Connection $database
-   *   The database connection to be used.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity type manager service.
-   * @param \Drupal\Core\Cache\MemoryCache\MemoryCacheInterface $memory_cache
-   *   The memory cache.
-   *
-   * @todo Webform 8.x-6.x: Move $memory_cache right after $language_manager.
-   */
-  public function __construct(EntityTypeInterface $entity_type, ConfigFactoryInterface $config_factory, UuidInterface $uuid_service, LanguageManagerInterface $language_manager, Connection $database, EntityTypeManagerInterface $entity_type_manager, MemoryCacheInterface $memory_cache = NULL) {
-    parent::__construct($entity_type, $config_factory, $uuid_service, $language_manager, $memory_cache);
-    $this->database = $database;
-    $this->entityTypeManager = $entity_type_manager;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
-    return new static(
-      $entity_type,
-      $container->get('config.factory'),
-      $container->get('uuid'),
-      $container->get('language_manager'),
-      $container->get('database'),
-      $container->get('entity_type.manager'),
-      $container->get('entity.memory_cache')
-    );
+    $instance = parent::createInstance($container, $entity_type);
+    $instance->database = $container->get('database');
+    $instance->entityTypeManager = $container->get('entity_type.manager');
+    $instance->fileSystem = $container->get('file_system');
+    $instance->cacheBackend = $container->get('cache.default');
+    $instance->languageManager = $container->get('language_manager');
+    return $instance;
   }
 
   /**
@@ -103,7 +90,7 @@ class WebformEntityStorage extends ConfigEntityStorage implements WebformEntityS
    * {@inheritdoc}
    */
   protected function doPostSave(EntityInterface $entity, $update) {
-    if ($update && $entity->getAccessRules() != $entity->original->getAccessRules()) {
+    if ($update && $entity->getAccessRules() !== $entity->original->getAccessRules()) {
       // Invalidate webform_submission listing cache tags because due to the
       // change in access rules of this webform, some listings might have
       // changed for users.
@@ -161,37 +148,100 @@ class WebformEntityStorage extends ConfigEntityStorage implements WebformEntityS
       foreach ($stream_wrappers as $stream_wrapper) {
         $file_directory = $stream_wrapper . '://webform/' . $entity->id();
 
-        // Clear all signature files.
-        // @see \Drupal\webform\Plugin\WebformElement\WebformSignature::getImageUrl
-        $files = file_scan_directory($file_directory, '/^signature-.*/');
-        foreach (array_keys($files) as $uri) {
-          file_unmanaged_delete($uri);
-        }
+        if (file_exists($file_directory)) {
+          // Clear all signature files.
+          // @see \Drupal\webform\Plugin\WebformElement\WebformSignature::getImageUrl
+          $files = $this->fileSystem->scanDirectory($file_directory, '/^signature-.*/');
+          foreach (array_keys($files) as $uri) {
+            $this->fileSystem->delete($uri);
+          }
 
-        // Clear empty webform directory.
-        if (file_exists($file_directory) && empty(file_scan_directory($file_directory, '/.*/'))) {
-          file_unmanaged_delete_recursive($file_directory);
+          // Clear empty webform directory.
+          if (empty($this->fileSystem->scanDirectory($file_directory, '/.*/'))) {
+            $this->fileSystem->deleteRecursive($file_directory);
+          }
         }
       }
     }
+
+    $this->resetCategoriesCache();
+  }
+
+  /**
+   * Get all webform ids.
+   *
+   * @return array
+   *   An array containing all webform ids.
+   */
+  public function getWebformIds() {
+    if ($cache = $this->cacheBackend->get('webform_ids')) {
+      return $cache->data;
+    }
+    $webform_ids = array_values($this->getQuery()->execute());
+    $this->cacheBackend->get('webform_ids', $webform_ids, Cache::PERMANENT, ['config:webform_list']);
+    return $webform_ids;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getCategories($template = NULL) {
-    $webforms = $this->loadMultiple();
+  public function getCategories($template = NULL, $default = FALSE) {
+    // Get categories cache key which includes langcode and template type.
+    $cache_key = $this->languageManager->getCurrentLanguage()->getId();
+    if ($template === FALSE) {
+      $cache_key .= '.forms';
+    }
+    elseif ($template === TRUE) {
+      $cache_key .= '.templates';
+    }
+    else {
+      $cache_key .= '.all';
+    }
+    if ($default) {
+      $cache_key .= '.default';
+    }
+
+    // Get categories cached data.
+    $cache = $this->cacheBackend->get('webform.categories');
+    $cache_data = ($cache) ? $cache->data : [];
+    if (isset($cache_data[$cache_key])) {
+      return $cache_data[$cache_key];
+    }
+
     $categories = [];
+
+    // Append default categories.
+    if ($default) {
+      $default_categories = $this->configFactory->get('webform.settings')
+        ->get('settings.default_categories');
+      if ($default_categories) {
+        $categories += array_combine($default_categories, $default_categories);
+      }
+    }
+
+    // Append selected categories.
+    $webforms = $this->loadMultiple();
     foreach ($webforms as $webform) {
-      if ($template !== NULL && $webform->get('template') != $template) {
+      if ($template !== NULL && $webform->get('template') !== $template) {
         continue;
       }
-      if ($category = $webform->get('category')) {
-        $categories[$category] = $category;
+      if ($webform_categories = $webform->get('categories')) {
+        $categories += array_combine($webform_categories, $webform_categories);
       }
     }
     ksort($categories);
+
+    // Add to categories cached data.
+    $this->cacheBackend->set('webform.categories', [$cache_key => $categories] + $cache_data);
+
     return $categories;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resetCategoriesCache() {
+    $this->cacheBackend->delete('webform.categories');
   }
 
   /**
@@ -206,7 +256,7 @@ class WebformEntityStorage extends ConfigEntityStorage implements WebformEntityS
     $categorized_options = [];
     foreach ($webforms as $id => $webform) {
       // Skip templates.
-      if ($template !== NULL && $webform->get('template') != $template) {
+      if ($template !== NULL && $webform->get('template') !== $template) {
         continue;
       }
       // Skip archived.
@@ -214,8 +264,8 @@ class WebformEntityStorage extends ConfigEntityStorage implements WebformEntityS
         continue;
       }
 
-      if ($category = $webform->get('category')) {
-        $categorized_options[$category][$id] = $webform->label();
+      if ($categories = $webform->get('categories')) {
+        $categorized_options[reset($categories)][$id] = $webform->label();
       }
       else {
         $uncategorized_options[$id] = $webform->label();
@@ -273,6 +323,7 @@ class WebformEntityStorage extends ConfigEntityStorage implements WebformEntityS
     // The transaction will commit when $transaction goes out-of-scope.
     //
     // @see \Drupal\Core\Database\Transaction
+    // phpcs:ignore DrupalPractice.CodeAnalysis.VariableAnalysis.UnusedVariable
     $transaction = $this->database->startTransaction();
 
     // Get the next_serial value.
@@ -307,30 +358,21 @@ class WebformEntityStorage extends ConfigEntityStorage implements WebformEntityS
   }
 
   /**
-   * Get total number of results for specified webform or all webforms.
-   *
-   * @param string|null $webform_id
-   *   (optional) A webform id.
-   *
-   * @return array|int
-   *   If no webform id is passed, an associative array keyed by webform id
-   *   contains total results for all webforms, otherwise the total number of
-   *   results for specified webform
+   * {@inheritdoc}
    */
   public function getTotalNumberOfResults($webform_id = NULL) {
-    if (!isset($this->totals)) {
+    if ($webform_id) {
+      $query = $this->database->select('webform_submission', 'ws');
+      $query->condition('webform_id', $webform_id);
+      $query->addExpression('COUNT(sid)', 'results');
+      return $query->execute()->fetchField() ?: 0;
+    }
+    else {
       $query = $this->database->select('webform_submission', 'ws');
       $query->fields('ws', ['webform_id']);
       $query->addExpression('COUNT(sid)', 'results');
       $query->groupBy('webform_id');
-      $this->totals = array_map('intval', $query->execute()->fetchAllKeyed());
-    }
-
-    if ($webform_id) {
-      return (isset($this->totals[$webform_id])) ? $this->totals[$webform_id] : 0;
-    }
-    else {
-      return $this->totals;
+      return array_map('intval', $query->execute()->fetchAllKeyed());
     }
   }
 

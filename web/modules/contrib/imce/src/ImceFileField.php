@@ -2,14 +2,22 @@
 
 namespace Drupal\imce;
 
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\WidgetInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Url;
 
 /**
  * Defines methods for integrating Imce into file field widgets.
  */
-class ImceFileField {
+class ImceFileField implements TrustedCallbackInterface {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function trustedCallbacks() {
+    return ['preRenderWidget'];
+  }
 
   /**
    * Returns a list of supported widgets.
@@ -39,7 +47,10 @@ class ImceFileField {
     if (static::isWidgetSupported($widget)) {
       $form['enabled'] = [
         '#type' => 'checkbox',
-        '#title' => t('Allow users to select files from <a href=":url">Imce File Manager</a> for this field.', [':url' => Url::fromRoute('imce.admin')->toString()]),
+        '#title' => t(
+          'Allow users to select files from <a href=":url">Imce File Manager</a> for this field.',
+          [':url' => Url::fromRoute('imce.admin')->toString()]
+        ),
         '#default_value' => $widget->getThirdPartySetting('imce', 'enabled'),
       ];
     }
@@ -61,17 +72,17 @@ class ImceFileField {
    * Processes widget form.
    */
   public static function processWidget($element, FormStateInterface $form_state, $form) {
-    // Path input
+    // Path input.
     $element['imce_paths'] = [
       '#type' => 'hidden',
       '#attributes' => [
         'class' => ['imce-filefield-paths'],
         'data-imce-url' => Url::fromRoute('imce.page', ['scheme' => $element['#scheme']])->toString(),
       ],
-      // Reset value to prevent consistent errors
+      // Reset value to prevent consistent errors.
       '#value' => '',
     ];
-    // Library
+    // Library.
     $element['#attached']['library'][] = 'imce/drupal.imce.filefield';
     // Set the pre-renderer to conditionally disable the elements.
     $element['#pre_render'][] = [get_called_class(), 'preRenderWidget'];
@@ -91,6 +102,7 @@ class ImceFileField {
 
   /**
    * Sets widget file id values by validating and processing the submitted data.
+   *
    * Runs before processor callbacks.
    */
   public static function setWidgetValue($element, &$input, FormStateInterface $form_state) {
@@ -105,16 +117,18 @@ class ImceFileField {
       $paths = array_slice($paths, 0, $element['#cardinality']);
     }
     // Check if paths are accessible by the current user with Imce.
-    if (!$paths = Imce::accessFilePaths($paths, \Drupal::currentUser(), $element['#scheme'])) {
+    $paths = Imce::accessFilePaths($paths, Imce::currentUser(), $element['#scheme']);
+    if (!$paths) {
       return;
     }
     // Validate paths as file entities.
-    $file_usage = \Drupal::service('file.usage');
+    $file_usage = Imce::service('file.usage');
     $errors = [];
     foreach ($paths as $path) {
-      // Get entity by uri
+      // Get entity by uri.
       $file = Imce::getFileEntity($element['#scheme'] . '://' . $path, TRUE);
-      if ($new_errors = file_validate($file, $element['#upload_validators'])) {
+      $new_errors = Imce::runValidators($file, $element['#upload_validators']);
+      if ($new_errors) {
         $errors = array_merge($errors, $new_errors);
       }
       else {
@@ -122,7 +136,8 @@ class ImceFileField {
         if ($file->isNew()) {
           $file->save();
         }
-        if ($fid = $file->id()) {
+        $fid = $file->id();
+        if ($fid) {
           // Make sure the file has usage otherwise it will be denied.
           if (!$file_usage->listUsage($file)) {
             $file_usage->add($file, 'imce', 'file', $fid);
@@ -136,13 +151,13 @@ class ImceFileField {
       $errors = array_unique($errors);
       if (count($errors) > 1) {
         $errors = ['#theme' => 'item_list', '#items' => $errors];
-        $message = \Drupal::service('renderer')->render($errors);
+        $message = Imce::service('renderer')->render($errors);
       }
       else {
         $message = array_pop($errors);
       }
       // May break the widget flow if set as a form error.
-      drupal_set_message($message, 'error');
+      Imce::messenger()->addMessage($message, 'error');
     }
   }
 

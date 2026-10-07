@@ -4,7 +4,6 @@ namespace Drupal\Tests\entity_reference_revisions\Kernel\Plugin\Derivative;
 
 use Drupal\entity_reference_revisions\Plugin\migrate\destination\EntityReferenceRevisions;
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\migrate\Plugin\MigrationPluginManager;
 use Drupal\migrate\Plugin\MigrateDestinationPluginManager;
 
 /**
@@ -18,14 +17,14 @@ class EntityReferenceRevisionsDeriverTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['migrate', 'entity_reference_revisions', 'entity_composite_relationship_test'];
+  protected static $modules = ['migrate', 'entity_reference_revisions', 'entity_composite_relationship_test'];
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
-    $this->installConfig($this->modules);
+    $this->installConfig(static::$modules);
   }
 
   /**

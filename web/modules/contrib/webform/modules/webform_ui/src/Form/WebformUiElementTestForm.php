@@ -2,9 +2,9 @@
 
 namespace Drupal\webform_ui\Form;
 
-use Drupal\Core\Serialization\Yaml;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\webform\Entity\Webform;
 use Drupal\webform\Entity\WebformSubmission;
@@ -133,6 +133,7 @@ class WebformUiElementTestForm extends WebformUiElementFormBase {
       '#value' => '',
     ];
 
+    $form_state->set('element', $this->element);
     $form['properties'] = $webform_element->buildConfigurationForm(['#tabs' => FALSE], $form_state);
     $form['properties']['#tree'] = TRUE;
     $form['properties']['custom']['#open'] = TRUE;

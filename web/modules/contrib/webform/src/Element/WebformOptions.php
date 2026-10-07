@@ -4,9 +4,9 @@ namespace Drupal\webform\Element;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Unicode;
-use Drupal\Core\Serialization\Yaml;
-use Drupal\Core\Render\Element\FormElement;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element\FormElement;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\webform\Utility\WebformElementHelper;
 use Drupal\webform\Utility\WebformOptionsHelper;
 use Drupal\webform\Utility\WebformYaml;
@@ -29,13 +29,13 @@ class WebformOptions extends FormElement {
     return [
       '#input' => TRUE,
       '#yaml' => FALSE,
-      '#label' => t('option'),
-      '#labels' => t('options'),
+      '#label' => $this->t('option'),
+      '#labels' => $this->t('options'),
       '#min_items' => 3,
       '#empty_items' => 1,
       '#add_more_items' => 1,
-      '#options_value_maxlength' => 255,
-      '#options_text_maxlength' => 255,
+      '#options_value_maxlength' => 512,
+      '#options_text_maxlength' => 512,
       '#options_description' => FALSE,
       '#options_description_maxlength' => NULL,
       '#process' => [
@@ -103,7 +103,7 @@ class WebformOptions extends FormElement {
         '#header' => TRUE,
         '#key' => 'value',
         '#default_value' => (isset($element['#default_value'])) ? static::convertOptionsToValues($element['#default_value'], $element['#options_description']) : [],
-        '#add_more_input_label' => t('more options'),
+        '#add_more_input_label' => t('more @options', ['@options' => $element['#labels']]),
       ];
 
       if ($element['#options_description']) {
@@ -210,9 +210,9 @@ class WebformOptions extends FormElement {
     $form_state->setValueForElement($element, $options);
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Helper functions.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * Convert values from yamform_multiple element to options.
@@ -262,8 +262,8 @@ class WebformOptions extends FormElement {
   public static function convertOptionsToValues(array $options = [], $options_description = FALSE) {
     $values = [];
     foreach ($options as $value => $text) {
-      if ($options_description && strpos($text, WebformOptionsHelper::DESCRIPTION_DELIMITER) !== FALSE) {
-        list($text, $description) = explode(WebformOptionsHelper::DESCRIPTION_DELIMITER, $text);
+      if ($options_description && WebformOptionsHelper::hasOptionDescription($text)) {
+        [$text, $description] = WebformOptionsHelper::splitOption($text);
         $values[$value] = ['text' => $text, 'description' => $description];
       }
       else {

@@ -3,6 +3,8 @@
 namespace Drupal\media_library;
 
 use Drupal\Component\Utility\Crypt;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheableDependencyInterface;
 use Drupal\Core\Site\Settings;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,13 +38,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * with them either.
  *
  * @see \Drupal\media_library\MediaLibraryOpenerInterface
- *
- * @internal
- *   Media Library is an experimental module and its internal code may be
- *   subject to change in minor releases. External code should not instantiate
- *   or extend this class.
  */
-class MediaLibraryState extends ParameterBag {
+class MediaLibraryState extends ParameterBag implements CacheableDependencyInterface {
 
   /**
    * {@inheritdoc}
@@ -71,7 +68,7 @@ class MediaLibraryState extends ParameterBag {
    * @param array $opener_parameters
    *   (optional) Any additional opener-specific parameter values.
    *
-   * @return \Drupal\media_library\MediaLibraryState
+   * @return static
    *   A state object.
    */
   public static function create($opener_id, array $allowed_media_type_ids, $selected_type_id, $remaining_slots, array $opener_parameters = []) {
@@ -91,7 +88,7 @@ class MediaLibraryState extends ParameterBag {
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The request.
    *
-   * @return \Drupal\media_library\MediaLibraryState
+   * @return static
    *   A state object.
    *
    * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
@@ -104,10 +101,10 @@ class MediaLibraryState extends ParameterBag {
     // all validation runs.
     $state = static::create(
       $query->get('media_library_opener_id'),
-      $query->get('media_library_allowed_types', []),
+      $query->all('media_library_allowed_types'),
       $query->get('media_library_selected_type'),
       $query->get('media_library_remaining'),
-      $query->get('media_library_opener_parameters', [])
+      $query->all('media_library_opener_parameters')
     );
 
     // The request parameters need to contain a valid hash to prevent a
@@ -179,13 +176,19 @@ class MediaLibraryState extends ParameterBag {
    */
   public function getHash() {
     // Create a hash from the required state parameters and the serialized
-    // optional opener-specific parameters.
+    // optional opener-specific parameters. Sort the allowed types and
+    // opener parameters so that differences in order do not result in
+    // different hashes.
+    $allowed_media_type_ids = array_values($this->getAllowedTypeIds());
+    sort($allowed_media_type_ids);
+    $opener_parameters = $this->getOpenerParameters();
+    ksort($opener_parameters);
     $hash = implode(':', [
       $this->getOpenerId(),
-      implode(':', $this->getAllowedTypeIds()),
+      implode(':', $allowed_media_type_ids),
       $this->getSelectedTypeId(),
       $this->getAvailableSlots(),
-      serialize($this->getOpenerParameters()),
+      serialize($opener_parameters),
     ]);
 
     return Crypt::hmacBase64($hash, \Drupal::service('private_key')->get() . Settings::getHashSalt());
@@ -201,7 +204,7 @@ class MediaLibraryState extends ParameterBag {
    *   The hashed parameters.
    */
   public function isValidHash($hash) {
-    return Crypt::hashEquals($this->getHash(), $hash);
+    return hash_equals($this->getHash(), $hash);
   }
 
   /**
@@ -221,7 +224,7 @@ class MediaLibraryState extends ParameterBag {
    *   The media type IDs.
    */
   public function getAllowedTypeIds() {
-    return $this->get('media_library_allowed_types');
+    return $this->all('media_library_allowed_types');
   }
 
   /**
@@ -265,7 +268,53 @@ class MediaLibraryState extends ParameterBag {
    *   An associative array of all opener-specific parameter values.
    */
   public function getOpenerParameters() {
-    return $this->get('media_library_opener_parameters', []);
+    return $this->all('media_library_opener_parameters');
+  }
+
+  /**
+   * Returns the parameters.
+   *
+   * @param string|null $key
+   *   The name of the parameter to return or null to get them all.
+   *
+   * @return array
+   *   An array of parameters.
+   *
+   * @todo Remove this when Symfony 4 is no longer supported.
+   *   See https://www.drupal.org/node/3162981
+   */
+  public function all(string $key = NULL): array {
+    if ($key === NULL) {
+      return $this->parameters;
+    }
+
+    $value = $this->parameters[$key] ?? [];
+    if (!is_array($value)) {
+      throw new \UnexpectedValueException(sprintf('Unexpected value for parameter "%s": expecting "array", got "%s".', $key, get_debug_type($value)));
+    }
+
+    return $value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheContexts() {
+    return ['url.query_args'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheMaxAge() {
+    return Cache::PERMANENT;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheTags() {
+    return [];
   }
 
 }

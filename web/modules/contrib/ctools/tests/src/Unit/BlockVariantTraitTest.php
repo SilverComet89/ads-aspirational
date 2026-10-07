@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\ctools\Unit;
 
+use Prophecy\PhpUnit\ProphecyTrait;
 use Drupal\Component\Uuid\UuidInterface;
 use Drupal\ctools\Plugin\BlockPluginCollection;
 use Drupal\ctools\Plugin\BlockVariantTrait;
@@ -15,6 +16,8 @@ use Drupal\Tests\UnitTestCase;
  * @group CTools
  */
 class BlockVariantTraitTest extends UnitTestCase {
+
+  use ProphecyTrait;
 
   /**
    * Tests the getRegionAssignments() method.
@@ -35,7 +38,10 @@ class BlockVariantTraitTest extends UnitTestCase {
     $this->assertSame($expected, $display_variant->getRegionAssignments());
   }
 
-  public function providerTestGetRegionAssignments() {
+  /**
+   * Provides test data for getRegionAssignments test.
+   */
+  public static function providerTestGetRegionAssignments() {
     return [
       [
         [
@@ -75,22 +81,31 @@ class BlockVariantTraitTest extends UnitTestCase {
   }
 
 }
-
+/**
+ * Test class for BlockVariantTrait.
+ */
 class TestBlockVariantTrait {
   use BlockVariantTrait;
 
   /**
+   * The block configuration.
+   *
    * @var array
    */
   protected $blockConfig = [];
 
   /**
+   * The UUID generator.
+   *
    * @var \Drupal\Component\Uuid\UuidInterface
    */
   protected $uuidGenerator;
 
   /**
-   * @param BlockPluginCollection $block_plugin_collection
+   * Sets the block plugin collection.
+   *
+   * @param \Drupal\ctools\Plugin\BlockPluginCollection $block_plugin_collection
+   *   The block plugin collection.
    *
    * @return $this
    */
@@ -100,7 +115,10 @@ class TestBlockVariantTrait {
   }
 
   /**
+   * Sets the UUID generator.
+   *
    * @param \Drupal\Component\Uuid\UuidInterface $uuid_generator
+   *   The UUID generator.
    *
    * @return $this
    */

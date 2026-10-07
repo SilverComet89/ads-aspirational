@@ -3,8 +3,10 @@
 namespace Drupal\webform\Plugin\WebformElement;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\webform\Element\WebformHtmlEditor;
 use Drupal\webform\Plugin\WebformElementBase;
 use Drupal\webform\Utility\WebformElementHelper;
+use Drupal\webform\Utility\WebformHtmlHelper;
 use Drupal\webform\Utility\WebformTextHelper;
 use Drupal\webform\WebformSubmissionInterface;
 
@@ -18,25 +20,27 @@ abstract class TextBase extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function getDefaultProperties() {
+  protected function defineDefaultProperties() {
     return [
       'readonly' => FALSE,
-      'size' => '',
-      'minlength' => '',
-      'maxlength' => '',
+      'size' => NULL,
+      'minlength' => NULL,
+      'maxlength' => NULL,
       'placeholder' => '',
       'autocomplete' => 'on',
       'pattern' => '',
       'pattern_error' => '',
-    ] + parent::getDefaultProperties();
+    ] + parent::defineDefaultProperties();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getTranslatableProperties() {
-    return array_merge(parent::getTranslatableProperties(), ['counter_minimum_message', 'counter_maximum_message', 'pattern_error']);
+  protected function defineTranslatableProperties() {
+    return array_merge(parent::defineTranslatableProperties(), ['default_value', 'counter_minimum_message', 'counter_maximum_message', 'pattern_error']);
   }
+
+  /* ************************************************************************ */
 
   /**
    * {@inheritdoc}
@@ -50,7 +54,7 @@ abstract class TextBase extends WebformElementBase {
       && $this->librariesManager->isIncluded('jquery.textcounter')) {
 
       // Apply character min/max to min/max length.
-      if ($element['#counter_type'] == 'character') {
+      if ($element['#counter_type'] === 'character') {
         if (!empty($element['#counter_minimum'])) {
           $element['#minlength'] = $element['#counter_minimum'];
         }
@@ -68,9 +72,16 @@ abstract class TextBase extends WebformElementBase {
         'counter_maximum_message',
       ];
       foreach ($data_attributes as $data_attribute) {
-        if (!empty($element['#' . $data_attribute])) {
-          $element['#attributes']['data-' . str_replace('_', '-', $data_attribute)] = $element['#' . $data_attribute];
+        if (empty($element['#' . $data_attribute])) {
+          continue;
         }
+
+        $data_attribute_name = 'data-' . str_replace('_', '-', $data_attribute);
+        $data_attribute_value = $element['#' . $data_attribute];
+        if (in_array($data_attribute, ['counter_minimum_message', 'counter_maximum_message'])) {
+          $data_attribute_value = WebformHtmlEditor::stripTags($data_attribute_value);
+        }
+        $element['#attributes'][$data_attribute_name] = $data_attribute_value;
       }
 
       $element['#attributes']['class'][] = 'js-webform-counter';
@@ -121,8 +132,13 @@ abstract class TextBase extends WebformElementBase {
       // @see Drupal.behaviors.webformRequiredError
       // @see webform.form.js
       if (!empty($element['#pattern_error'])) {
-        $element['#attributes']['data-webform-pattern-error'] = $element['#pattern_error'];
+        $element['#attributes']['data-webform-pattern-error'] = WebformHtmlHelper::toPlainText($element['#pattern_error']);
       }
+    }
+
+    // Minlength attribute.
+    if (isset($element['#minlength'])) {
+      $element['#attributes']['minlength'] = $element['#minlength'];
     }
   }
 
@@ -159,13 +175,15 @@ abstract class TextBase extends WebformElementBase {
     $form['validation']['pattern'] = [
       '#type' => 'webform_checkbox_value',
       '#title' => $this->t('Pattern'),
-      '#description' => $this->t('A <a href=":href">regular expression</a> that the element\'s value is checked against.', [':href' => 'http://www.w3schools.com/js/js_regexp.asp']),
+      '#description' => $this->t('A <a href=":href">regular expression</a> that the element\'s value is checked against.', [':href' => 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions']),
       '#value__title' => $this->t('Pattern regular expression'),
+      '#value__description' => $this->t('Enter a <a href=":href">regular expression</a> that the element\'s value should match.', [':href' => 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions']),
+      '#value__maxlength' => NULL,
     ];
     $form['validation']['pattern_error'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Pattern message'),
-      '#description' => $this->t('If set, this message will be used when a pattern is not matched, instead of the default "@message" message.', ['@message' => t('%name field is not in the right format.')]),
+      '#description' => $this->t('If set, this message will be used when a pattern is not matched, instead of the default "@message" message.', ['@message' => $this->t('%name field is not in the right format.')]),
       '#states' => [
         'visible' => [
           ':input[name="properties[pattern][checkbox]"]' => ['checked' => TRUE],
@@ -204,10 +222,8 @@ abstract class TextBase extends WebformElementBase {
     // Display error.
     // @see \Drupal\Core\Form\FormValidator::performRequiredValidation
     $t_args = [
-      '@type' => ($type == 'character') ? t('characters') : t('words'),
+      '@type' => ($type === 'character') ? t('characters') : t('words'),
       '@name' => $element['#title'],
-      '%max' => $max,
-      '%min' => $min,
     ];
 
     // Get character/word count.
@@ -223,9 +239,11 @@ abstract class TextBase extends WebformElementBase {
 
     // Validate character/word count.
     if ($max && $length > $max) {
+      $t_args['%max'] = $max;
       $form_state->setError($element, t('@name cannot be longer than %max @type but is currently %length @type long.', $t_args));
     }
     elseif ($min && $length < $min) {
+      $t_args['%min'] = $min;
       $form_state->setError($element, t('@name must be longer than %min @type but is currently %length @type long.', $t_args));
     }
   }
@@ -251,8 +269,8 @@ abstract class TextBase extends WebformElementBase {
    *
    * @param array $element
    *   An element.
-   * @param $value
-   *   A value
+   * @param string $value
+   *   A value.
    *
    * @return bool
    *   TRUE if an element's value is the input mask's default value.
@@ -265,6 +283,8 @@ abstract class TextBase extends WebformElementBase {
     $input_mask = $element['#input_mask'];
     $input_masks = [
       "'alias': 'currency'" => '$ 0.00',
+      "'alias': 'currency_negative'" => '-$ 0.00',
+      "'alias': 'currency_positive_negative'" => '$ 0.00',
     ];
     return (isset($input_masks[$input_mask]) && $input_masks[$input_mask] === $value) ? TRUE : FALSE;
   }
@@ -283,7 +303,7 @@ abstract class TextBase extends WebformElementBase {
       $pattern = '{^(?:' . $pcre_pattern . ')$}u';
       if (!preg_match($pattern, $element['#value'])) {
         if (!empty($element['#pattern_error'])) {
-          $form_state->setError($element, $element['#pattern_error']);
+          $form_state->setError($element, WebformHtmlHelper::toHtmlMarkup($element['#pattern_error']));
         }
         else {
           $form_state->setError($element, t('%name field is not in the right format.', ['%name' => $element['#title']]));
@@ -311,7 +331,7 @@ abstract class TextBase extends WebformElementBase {
       $pcre_pattern = preg_replace('/\\\\u([a-fA-F0-9]{4})/', '\\x{\\1}', $properties['#pattern']);
 
       if (preg_match('{^(?:' . $pcre_pattern . ')$}u', NULL) === FALSE) {
-        $form_state->setErrorByName('pattern', t('Pattern %pattern is not a valid regular expression.', ['%pattern' => $properties['#pattern']]));
+        $form_state->setErrorByName('pattern', $this->t('Pattern %pattern is not a valid regular expression.', ['%pattern' => $properties['#pattern']]));
       }
 
       set_error_handler('_drupal_error_handler');
@@ -319,14 +339,14 @@ abstract class TextBase extends WebformElementBase {
 
     // Validate #counter_maximum.
     if (!empty($properties['#counter_type']) && empty($properties['#counter_maximum']) && empty($properties['#counter_minimum'])) {
-      $form_state->setErrorByName('counter_minimum', t('Counter minimum or maximum is required.'));
-      $form_state->setErrorByName('counter_maximum', t('Counter minimum or maximum is required.'));
+      $form_state->setErrorByName('counter_minimum', $this->t('Counter minimum or maximum is required.'));
+      $form_state->setErrorByName('counter_maximum', $this->t('Counter minimum or maximum is required.'));
     }
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Input masks.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * Get input masks.
@@ -336,11 +356,21 @@ abstract class TextBase extends WebformElementBase {
    *   example, and patterh.
    */
   protected function getInputMasks() {
-    return [
+    $input_masks = [
       "'alias': 'currency'" => [
-        'title' => $this->t('Currency'),
+        'title' => $this->t('Currency (+)'),
         'example' => '$ 9.99',
         'pattern' => '^\$ [0-9]{1,3}(,[0-9]{3})*.\d\d$',
+      ],
+      "'alias': 'currency_negative'" => [
+        'title' => $this->t('Currency (-)'),
+        'example' => '-$ 9.99',
+        'pattern' => '^(-\$ [0-9]{1,3}(,[0-9]{3})*.\d\d|\$ 0.00)$',
+      ],
+      "'alias': 'currency_positive_negative'" => [
+        'title' => $this->t('Currency (+/-)'),
+        'example' => '$ 9.99',
+        'pattern' => '^[-]?\$ [0-9]{1,3}(,[0-9]{3})*.\d\d$',
       ],
       "'alias': 'datetime'" => [
         'title' => $this->t('Date'),
@@ -398,10 +428,21 @@ abstract class TextBase extends WebformElementBase {
         'example' => 'UPPERCASE',
       ],
       "'casing': 'lower'" => [
-        'title' => $this->t('Lowercase '),
+        'title' => $this->t('Lowercase'),
         'example' => 'lowercase',
       ],
     ];
+
+    // Get input masks, use ModuleHandler::invokeAllWith() to ensure that
+    // numeric keys are not lost.
+    $this->moduleHandler->invokeAllWith('webform_element_input_masks', function (callable $hook, string $module_name) use (&$input_masks) {
+      $input_masks += $hook();
+    });
+
+    // Alter input masks.
+    $this->moduleHandler->alter('webform_element_input_masks', $input_masks);
+
+    return $input_masks;
   }
 
   /**

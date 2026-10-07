@@ -9,7 +9,6 @@ use Drupal\webform\Element\WebformMessage;
 use Drupal\webform\Utility\WebformDateHelper;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionStorageInterface;
-use Drupal\webform\WebformTokenManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -25,22 +24,12 @@ class WebformEntitySettingsSubmissionsForm extends WebformEntitySettingsBaseForm
   protected $tokenManager;
 
   /**
-   * Constructs a WebformEntitySettingsForm.
-   *
-   * @param \Drupal\webform\WebformTokenManagerInterface $token_manager
-   *   The webform token manager.
-   */
-  public function __construct(WebformTokenManagerInterface $token_manager) {
-    $this->tokenManager = $token_manager;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('webform.token_manager')
-    );
+    $instance = parent::create($container);
+    $instance->tokenManager = $container->get('webform.token_manager');
+    return $instance;
   }
 
   /**
@@ -84,6 +73,7 @@ class WebformEntitySettingsSubmissionsForm extends WebformEntitySettingsBaseForm
     $form['submission_settings']['submission_label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Submission label'),
+      '#maxlength' => NULL,
       '#default_value' => $settings['submission_label'],
     ];
     $form['submission_settings']['submission_exception_message'] = [
@@ -116,6 +106,18 @@ class WebformEntitySettingsSubmissionsForm extends WebformEntitySettingsBaseForm
       '#description' => $this->t('The value of the next submission number. This is usually 1 when you start and will go up with each webform submission.'),
       '#min' => 1,
       '#default_value' => $webform_storage->getNextSerial($webform),
+      '#states' => [
+        'visible' => [
+          ':input[name="serial_disabled"]' => ['checked' => FALSE],
+        ],
+      ],
+    ];
+    $form['submission_settings']['serial_disabled'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Disable next submission number'),
+      '#description' => $this->t('If checked the next number will be automatically set to the internal submission id.'),
+      '#return_value' => TRUE,
+      '#default_value' => $settings['serial_disabled'],
     ];
     $form['submission_settings']['token_tree_link'] = $this->tokenManager->buildTreeElement();
     $form['submission_settings']['submission_container']['elements'] = [
@@ -168,19 +170,6 @@ class WebformEntitySettingsSubmissionsForm extends WebformEntitySettingsBaseForm
       ],
       '#weight' => -99,
     ];
-    $form['submission_behaviors']['form_remote_addr'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Track user IP address'),
-      '#description' => $this->t("If checked, a user's IP address will be recorded."),
-      '#return_value' => TRUE,
-      '#default_value' => $settings['form_remote_addr'],
-      '#states' => [
-        'visible' => [
-          ':input[name="form_confidential"]' => ['checked' => FALSE],
-        ],
-      ],
-      '#weight' => -98,
-    ];
     $form['submission_behaviors']['form_convert_anonymous'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Convert anonymous user drafts and submissions to authenticated user'),
@@ -200,32 +189,30 @@ class WebformEntitySettingsSubmissionsForm extends WebformEntitySettingsBaseForm
         'title' => $this->t('Show the notification about previous submissions'),
         'form_description' => $this->t('Show the previous submissions notification that appears when users have previously submitted this form.'),
       ],
-      'token_update' => [
-        'title' => $this->t('Allow users to update a submission using a secure token'),
-        'form_description' => $this->t("If checked users will be able to update a submission using the webform's URL appended with the submission's (secure) token.") . ' ' .
-          $this->t("The 'tokenized' URL to update a submission will be available when viewing a submission's information and can be inserted into an email using the [webform_submission:update-url] token.") . ' ' .
-          $this->t('Only webforms that are open to new submissions can be updated using the secure token.'),
-      ],
       // Global behaviors.
       // @see \Drupal\webform\Form\WebformAdminSettingsForm
+      'form_disable_remote_addr' => [
+        'title' => $this->t('Disable the tracking of user IP address'),
+        'all_description' => $this->t('User IP address tracking is disabled for all webforms.'),
+        'form_description' => $this->t("If checked, a user's IP address will not be recorded for this webform."),
+        'states' => [
+          'visible' => [
+            ':input[name="form_confidential"]' => ['checked' => FALSE],
+          ],
+        ],
+      ],
       'submission_log' => [
         'title' => $this->t('Log submission events'),
         'all_description' => $this->t('All submission event are being logged for all webforms'),
         'form_description' => $this->t('If checked, events will be logged for submissions to this webform.'),
       ],
+      'results_customize' => [
+        'title' => $this->t('Allow users to customize the submission results table'),
+        'all_description' => $this->t('Users can customize the submission results table for all webforms'),
+        'form_description' => $this->t('If checked, users can customize the submission results table for this webform.'),
+      ],
     ];
     $this->appendBehaviors($form['submission_behaviors'], $behavior_elements, $settings, $default_settings);
-    $form['submission_behaviors']['token_update_warning'] = [
-      '#type' => 'webform_message',
-      '#message_type' => 'warning',
-      '#message_message' => $this->t("Submissions accessed using the (secure) token will by-pass all webform submission access rules."),
-      '#states' => [
-        'visible' => [
-          ':input[name="token_update"]' => ['checked' => TRUE],
-        ],
-      ],
-      '#weight' => $form['submission_behaviors']['token_update']['#weight'] + 1,
-    ];
 
     // User settings.
     $form['submission_user_settings'] = [
@@ -276,6 +263,49 @@ class WebformEntitySettingsSubmissionsForm extends WebformEntitySettingsBaseForm
       '#options' => $columns_options,
       '#default_value' => $columns_default_value,
     ];
+
+    // Submission access.
+    $form['submission_access'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Submission access token settings'),
+      '#open' => TRUE,
+    ];
+    $form['submission_access']['token_update_warning'] = [
+      '#type' => 'webform_message',
+      '#message_type' => 'warning',
+      '#message_message' => $this->t("Submissions accessed using the (secure) token will by-pass all webform submission access rules."),
+      '#message_close' => TRUE,
+      '#message_storage' => WebformMessage::STORAGE_SESSION,
+      '#states' => [
+        'visible' => [
+          [':input[name="token_view"]' => ['checked' => TRUE]],
+          'or',
+          [':input[name="token_update"]' => ['checked' => TRUE]],
+          'or',
+          [':input[name="token_delete"]' => ['checked' => TRUE]],
+        ],
+      ],
+    ];
+    $behavior_elements = [
+      'token_view' => [
+        'title' => $this->t('Allow users to view a submission using a secure token'),
+        'form_description' => $this->t("If checked users will be able to view a submission using the webform submission's URL appended with the submission's (secure) token.") . ' ' .
+          $this->t("The 'tokenized' URL to view a submission will be available when viewing a submission's information and can be inserted into an email using the [webform_submission:token-view-url] token."),
+      ],
+      'token_update' => [
+        'title' => $this->t('Allow users to update a submission using a secure token'),
+        'form_description' => $this->t("If checked users will be able to update a submission using the webform's URL appended with the submission's (secure) token.") . ' ' .
+          $this->t("The 'tokenized' URL to update a submission will be available when viewing a submission's information and can be inserted into an email using the [webform_submission:token-update-url] token.") . ' ' .
+          $this->t('Only webforms that are open to new submissions can be updated using the secure token.'),
+      ],
+      'token_delete' => [
+        'title' => $this->t('Allow users to delete a submission using a secure token'),
+        'form_description' => $this->t("If checked users will be able to delete a submission using the webform's URL appended with the submission's (secure) token.") . ' ' .
+          $this->t("The 'tokenized' URL to delete a submission will be available when viewing a submission's information and can be inserted into an email using the [webform_submission:token-delete-url] token.") . ' ' .
+          $this->t('Only webforms that are open to new submissions can be deleted using the secure token.'),
+      ],
+    ];
+    $this->appendBehaviors($form['submission_access'], $behavior_elements, $settings, $default_settings);
 
     // Access denied.
     $form['access_denied'] = [
@@ -433,7 +463,7 @@ class WebformEntitySettingsSubmissionsForm extends WebformEntitySettingsBaseForm
     ];
     $form['submission_limits']['total']['limit_total_unique_warning'] = [
       '#type' => 'webform_message',
-      '#message_message' => $this->t("Please make sure users are allowed to 'edit any submission'."),
+      '#message_message' => $this->t("Please make sure users are allowed to 'view any submission' and 'edit any submission'."),
       '#message_type' => 'warning',
       '#message_close' => TRUE,
       '#message_storage' => WebformMessage::STORAGE_SESSION,
@@ -535,7 +565,7 @@ class WebformEntitySettingsSubmissionsForm extends WebformEntitySettingsBaseForm
     ];
     $form['submission_limits']['user']['limit_user_unique_warning'] = [
       '#type' => 'webform_message',
-      '#message_message' => $this->t("Please make sure users are allowed to 'edit own submission'."),
+      '#message_message' => $this->t("Please make sure authenticated users are allowed to 'view own submission' and 'edit own submission'."),
       '#message_type' => 'warning',
       '#message_close' => TRUE,
       '#message_storage' => WebformMessage::STORAGE_SESSION,
@@ -616,7 +646,7 @@ class WebformEntitySettingsSubmissionsForm extends WebformEntitySettingsBaseForm
     $form['draft_settings']['draft_container']['draft_multiple'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Allow users to save multiple drafts'),
-      "#description" => $this->t('If checked, users will be able save and resume multiple drafts.'),
+      "#description" => $this->t("If checked, users will be able save and resume multiple drafts. Please note: Authenticated user need to be able 'view own submissions' to access saved drafts."),
       '#return_value' => TRUE,
       '#default_value' => $settings['draft_multiple'],
     ];
@@ -644,8 +674,8 @@ class WebformEntitySettingsSubmissionsForm extends WebformEntitySettingsBaseForm
     ];
     $form['draft_settings']['draft_container']['draft_auto_save'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Automatically save as draft when paging, previewing, and when there are validation errors.'),
-      "#description" => $this->t('Automatically save partial submissions when users click the "Preview" button or when validation errors prevent a webform from being submitted.'),
+      '#title' => $this->t('Automatically save as draft when paging, previewing, and when there are validation errors'),
+      "#description" => $this->t('Automatically save partial submissions when users click the "Next Page", "Previous Page", or "Preview" buttons or when validation errors prevent a webform from being submitted.'),
       '#return_value' => TRUE,
       '#default_value' => $settings['draft_auto_save'],
     ];
@@ -698,6 +728,7 @@ class WebformEntitySettingsSubmissionsForm extends WebformEntitySettingsBaseForm
       '#type' => 'webform_excluded_elements',
       '#webform_id' => $this->getEntity()->id(),
       '#default_value' => $settings['autofill_excluded_elements'],
+      '#exclude_composite' => FALSE,
     ];
     $form['autofill_settings']['autofill_container']['token_tree_link'] = $this->tokenManager->buildTreeElement();
 
@@ -769,7 +800,7 @@ class WebformEntitySettingsSubmissionsForm extends WebformEntitySettingsBaseForm
 
     // Set customize submission user columns.
     $values['submission_user_columns'] = array_values($values['submission_user_columns']);
-    if ($values['submission_user_columns'] == $webform_submission_storage->getUserDefaultColumnNames($webform)) {
+    if ($values['submission_user_columns'] === $webform_submission_storage->getUserDefaultColumnNames($webform)) {
       $values['submission_user_columns'] = [];
     }
 

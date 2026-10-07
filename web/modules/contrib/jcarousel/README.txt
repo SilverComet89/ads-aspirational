@@ -8,10 +8,85 @@ http://sorgalla.com/jcarousel/
 
 Installation
 ------------
+
+-- INSTALLATION VIA COMPOSER --
+  It is assumed you are installing Drupal through Composer using the Drupal
+  Composer facade. See https://www.drupal.org/docs/develop/using-composer/using-composer-to-manage-drupal-site-dependencies#drupal-packagist
+
+  The jCarousel JavaScript library does not support composer so manual steps are
+  required in order to install it through this method.
+
+  First, copy the following snippet into your project's composer.json file so
+  the correct package is downloaded:
+
+  "repositories": [
+    {
+      "type": "package",
+      "package": {
+        "name": "jsor/jcarousel",
+        "version": "0.3.8",
+        "type": "drupal-library",
+        "dist": {
+          "url": "https://github.com/jsor/jcarousel/archive/0.3.8.zip",
+          "type": "zip"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "snake-345/jcarouselSwipe",
+        "version": "0.3.7",
+        "type": "drupal-library",
+        "dist": {
+          "url": "https://github.com/snake-345/jcarouselSwipe/archive/0.3.7.zip",
+          "type": "zip"
+        }
+      }
+    }
+  ]
+
+  Next, the following snippet must be added into your project's composer.json
+  file so the javascript library is installed into the correct location:
+
+  "extra": {
+      "installer-paths": {
+          "libraries/{$name}": ["type:drupal-library"]
+      }
+  }
+
+  If there are already 'repositories' and/or 'extra' entries in the
+  composer.json, merge these new entries with the already existing entries.
+
+  After that, run:
+
+  $ composer require jsor/jcarousel
+  $ composer require snake-345/jcarouselSwipe
+  $ composer require drupal/jcarousel
+
+  The first uses the manual entries you made to install the JavaScript library,
+  the second adds the Drupal module.
+
+  Note: the requirement on the library is not in the module's composer.json
+  because that would cause problems with automated testing.
+
+-- INSTALLATION VIA DRUSH --
+
+  A Drush command is provided for easy installation of the jCarousel plugin.
+
+  drush jcarousel-plugin
+  drush jcarousel-swipe-plugin
+
+  The command will download the plugin and unpack it in "libraries".
+  It is possible to add another path as an option to the command, but not
+  recommended unless you know what you are doing.
+
+-- MANUAL INSTALLATION --
 1) Place this module directory in your modules folder (this will usually be
    "modules/contrib").
-
-2) Enable the module within your Drupal site at Administration -> Extend (admin/modules).
+2) Download library https://github.com/jsor/jcarousel/archive/0.3.8.zip
+  and extract it to your libraries folder
+3) Enable the module within your Drupal site at Administration -> Extend (admin/modules).
 
 Usage
 -----
@@ -58,7 +133,7 @@ Please add file MYMODULE.jcarousel_skins.yml into module or MYTHEME.jcarousel_sk
 
 myskin:
   label: 'My Skin'
-  file: assets/vendor/jcarousel/skins/myskin/jcarousel-myskin.css
+  file: skins/myskin/jcarousel-myskin.css
   weight: 1
 
 The following code in module will add a vertical jCarousel to the page:

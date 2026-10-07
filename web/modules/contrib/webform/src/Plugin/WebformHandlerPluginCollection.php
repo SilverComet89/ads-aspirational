@@ -14,10 +14,17 @@ class WebformHandlerPluginCollection extends DefaultLazyPluginCollection {
    * {@inheritdoc}
    */
   public function sortHelper($a_id, $b_id) {
-    $a_weight = $this->get($a_id)->getWeight();
-    $b_weight = $this->get($b_id)->getWeight();
-    if ($a_weight == $b_weight) {
-      return 0;
+    /** @var \Drupal\webform\Plugin\WebformHandlerInterface $a */
+    $a = $this->get($a_id);
+    /** @var \Drupal\webform\Plugin\WebformHandlerInterface $b */
+    $b = $this->get($b_id);
+
+    $a_weight = $a->getWeight();
+    $b_weight = $b->getWeight();
+    if ($a_weight === $b_weight) {
+      $a_handler = $a->getHandlerId() ?? '';
+      $b_handler = $b->getHandlerId() ?? '';
+      return strnatcasecmp($a_handler, $b_handler);
     }
 
     return ($a_weight < $b_weight) ? -1 : 1;

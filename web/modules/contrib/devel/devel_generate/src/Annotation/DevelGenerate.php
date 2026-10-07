@@ -21,18 +21,18 @@ class DevelGenerate extends Plugin {
   /**
    * The human-readable name of the DevelGenerate type.
    *
-   * @ingroup plugin_translatable
-   *
    * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
    */
   public $label;
 
   /**
    * A short description of the DevelGenerate type.
    *
-   * @ingroup plugin_translatable
-   *
    * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
    */
   public $description;
 
@@ -60,19 +60,20 @@ class DevelGenerate extends Plugin {
   public $class;
 
   /**
-   * An array whose keys are the names of the settings available to the
-   * DevelGenerate settingsForm, and whose values are the default values for those settings.
+   * An array of settings passed to the DevelGenerate settingsForm.
+   *
+   * The keys are the names of the settings and the values are the default
+   * values for those settings.
    *
    * @var array
    */
-  public $settings = array();
+  public $settings = [];
 
   /**
-   * An array whose keys are the settings available to the
-   * DevelGenerate drush command: "suffix", "alias", "options" and "args".
+   * Modules that should be enabled in order to make the plugin discoverable.
    *
    * @var array
    */
-  public $drushSettings = array();
+  public $dependencies = [];
 
 }

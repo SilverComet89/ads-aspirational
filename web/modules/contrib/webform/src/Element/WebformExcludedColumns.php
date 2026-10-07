@@ -27,7 +27,11 @@ class WebformExcludedColumns extends WebformExcludedBase {
    */
   public static function getWebformExcludedOptions(array $element) {
     /** @var \Drupal\webform\WebformInterface $webform */
-    $webform = WebformEntity::load($element['#webform_id']);
+    $webform = WebformEntity::load($element['#webform_id'])
+      ?: \Drupal::service('webform.request')->getCurrentWebform();
+    if (!$webform) {
+      return [];
+    }
 
     $options = [];
 
@@ -51,9 +55,9 @@ class WebformExcludedColumns extends WebformExcludedBase {
 
     foreach ($elements as $key => $element) {
       $options[$key] = [
-        'title' => $element['#admin_title'] ?:$element['#title'] ?: $key,
+        'title' => $element['#admin_title'] ?: $element['#title'] ?: $key,
         'name' => $key,
-        'type' => isset($element['#type']) ? $element['#type'] : '',
+        'type' => $element['#type'] ?? '',
       ];
     }
     return $options;

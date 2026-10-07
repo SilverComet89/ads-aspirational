@@ -14,13 +14,42 @@ class EntityFieldBlockTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['block', 'ctools_block', 'ctools_block_field_test'];
+  protected static $modules = [
+    'block',
+    'ctools_block',
+    'ctools_block_field_test',
+  ];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * Creates a test node with a value in the field_body field.
+   *
+   * The field_body field is provided by the ctools_block_field_test module,
+   * rather than using the node body field, which is provided by different
+   * (optional) modules depending on the version of Drupal core.
+   *
+   * @return \Drupal\node\NodeInterface
+   *   The created node.
+   */
+  protected function createNodeWithBody() {
+    return $this->drupalCreateNode([
+      'type' => 'ctools_block_field_test',
+      'field_body' => [
+        'value' => $this->randomMachineName(32),
+        'format' => 'plain_text',
+      ],
+    ]);
+  }
 
   /**
    * Tests using the node body field in a block.
    */
   public function testBodyField() {
-    $block = $this->drupalPlaceBlock('entity_field:node:body', [
+    $block = $this->drupalPlaceBlock('entity_field:node:field_body', [
       'formatter' => [
         'type' => 'text_default',
       ],
@@ -28,13 +57,13 @@ class EntityFieldBlockTest extends BrowserTestBase {
         'entity' => '@node.node_route_context:node',
       ],
     ]);
-    $node = $this->drupalCreateNode(['type' => 'ctools_block_field_test']);
+    $node = $this->createNodeWithBody();
     $this->drupalGet('node/' . $node->id());
     $assert = $this->assertSession();
     $assert->pageTextContains($block->label());
-    $assert->pageTextContains($node->body->value);
+    $assert->pageTextContains($node->field_body->value);
 
-    $node->set('body', NULL)->save();
+    $node->set('field_body', NULL)->save();
     $this->getSession()->reload();
     // The block should not appear if there is no value in the field.
     $assert->pageTextNotContains($block->label());
@@ -44,20 +73,22 @@ class EntityFieldBlockTest extends BrowserTestBase {
    * Tests that empty image fields will still render their default value.
    */
   public function testEmptyImageField() {
-    $source = \Drupal::moduleHandler()->getModule('image')->getPath() . '/sample.png';
-    file_unmanaged_copy($source, 'public://sample.png');
+    $entityTypeManager = $this->container->get('entity_type.manager');
+    $source = $this->container->get('module_handler')->getModule('image')->getPath() . '/sample.png';
+
+    /** @var \Drupal\Core\File\FileSystemInterface $file_system */
+    $file_system = $this->container->get('file_system');
+    $file_system->copy($source, 'public://sample.png');
 
     /** @var \Drupal\file\FileInterface $file */
-    $file = \Drupal::entityTypeManager()
-      ->getStorage('file')
+    $file = $entityTypeManager->getStorage('file')
       ->create([
         'uri' => 'public://sample.png',
       ]);
     $file->save();
 
     /** @var \Drupal\field\FieldConfigInterface $field */
-    $field = \Drupal::entityTypeManager()
-      ->getStorage('field_config')
+    $field = $entityTypeManager->getStorage('field_config')
       ->load('node.ctools_block_field_test.field_image');
     $settings = $field->getSettings();
     $settings['default_image']['uuid'] = $file->uuid();
@@ -76,8 +107,8 @@ class EntityFieldBlockTest extends BrowserTestBase {
     $this->drupalGet('node/' . $node->id());
 
     $url = $file->getFileUri();
-    $url = file_create_url($url);
-    $url = file_url_transform_relative($url);
+    $url = $this->container->get('file_url_generator')->generateAbsoluteString($url);
+    $url = $this->container->get('file_url_generator')->transformRelative($url);
     $this->assertSession()->responseContains('src="' . $url . '"');
   }
 
@@ -104,7 +135,7 @@ class EntityFieldBlockTest extends BrowserTestBase {
    * Tests that we are setting the render cache metadata correctly.
    */
   public function testRenderCache() {
-    $this->drupalPlaceBlock('entity_field:node:body', [
+    $this->drupalPlaceBlock('entity_field:node:field_body', [
       'formatter' => [
         'type' => 'text_default',
       ],
@@ -112,18 +143,18 @@ class EntityFieldBlockTest extends BrowserTestBase {
         'entity' => '@node.node_route_context:node',
       ],
     ]);
-    $a = $this->drupalCreateNode(['type' => 'ctools_block_field_test']);
-    $b = $this->drupalCreateNode(['type' => 'ctools_block_field_test']);
+    $a = $this->createNodeWithBody();
+    $b = $this->createNodeWithBody();
 
     $assert = $this->assertSession();
     $this->drupalGet('node/' . $a->id());
-    $assert->pageTextContains($a->body->value);
+    $assert->pageTextContains($a->field_body->value);
     $this->drupalGet('node/' . $b->id());
-    $assert->pageTextNotContains($a->body->value);
-    $assert->pageTextContains($b->body->value);
+    $assert->pageTextNotContains($a->field_body->value);
+    $assert->pageTextContains($b->field_body->value);
 
     $text = 'This is my text. Are you not entertained?';
-    $a->body->value = $text;
+    $a->field_body->value = $text;
     $a->save();
     $this->drupalGet('node/' . $a->id());
     $assert->pageTextContains($text);

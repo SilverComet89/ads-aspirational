@@ -2,29 +2,29 @@
 
 namespace Drupal\Tests\token\Kernel;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Unicode;
 use Drupal\contact\Entity\ContactForm;
+use Drupal\contact\Entity\Message;
 use Drupal\Core\Entity\Entity\EntityViewMode;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Render\Markup;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItem;
 use Drupal\datetime_range\Plugin\Field\FieldType\DateRangeItem;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\filter\Entity\FilterFormat;
+use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
-use Drupal\contact\Entity\Message;
-use Drupal\Component\Utility\Html;
-use Drupal\Core\Field\FieldStorageDefinitionInterface;
-use Drupal\language\Entity\ConfigurableLanguage;
-use Drupal\Tests\taxonomy\Functional\TaxonomyTestTrait;
+use Drupal\Tests\taxonomy\Traits\TaxonomyTestTrait;
 
 /**
  * Tests field tokens.
  *
  * @group token
  */
-class FieldTest extends KernelTestBase {
+class FieldTest extends TokenKernelTestBase {
 
   use TaxonomyTestTrait;
 
@@ -42,16 +42,32 @@ class FieldTest extends KernelTestBase {
   protected $vocabulary;
 
   /**
-   * Modules to enable.
+   * The field used in this test class.
    *
-   * @var array
+   * @var \Drupal\field\Entity\FieldConfig
    */
-  public static $modules = ['node', 'text', 'field', 'filter', 'contact', 'options', 'taxonomy', 'language', 'datetime', 'datetime_range'];
+  protected $field;
 
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected static $modules = [
+    'node',
+    'text',
+    'field',
+    'filter',
+    'contact',
+    'options',
+    'taxonomy',
+    'language',
+    'datetime',
+    'datetime_range',
+  ];
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(): void {
     parent::setUp();
 
     $this->installEntitySchema('user');
@@ -97,6 +113,7 @@ class FieldTest extends KernelTestBase {
 
     $this->testFormat = FilterFormat::create([
       'format' => 'test',
+      'name' => 'Test format',
       'weight' => 1,
       'filters' => [
         'filter_html_escape' => ['status' => TRUE],
@@ -114,7 +131,7 @@ class FieldTest extends KernelTestBase {
         'allowed_values' => [
           'key1' => 'value1',
           'key2' => 'value2',
-        ]
+        ],
       ],
     ]);
     $field_storage->save();
@@ -219,6 +236,20 @@ class FieldTest extends KernelTestBase {
       'bundle' => 'article',
     ]);
     $field_daterange->save();
+
+    // Add a timestamp field.
+    $field_timestamp_storage = FieldStorageConfig::create([
+      'field_name' => 'field_timestamp',
+      'type' => 'timestamp',
+      'entity_type' => 'node',
+      'cardinality' => FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED,
+    ]);
+    $field_timestamp_storage->save();
+    $field_timestamp = FieldConfig::create([
+      'field_storage' => $field_timestamp_storage,
+      'bundle' => 'article',
+    ]);
+    $field_timestamp->save();
   }
 
   /**
@@ -262,12 +293,12 @@ class FieldTest extends KernelTestBase {
     // Test the test_list token metadata.
     $tokenService = \Drupal::service('token');
     $token_info = $tokenService->getTokenInfo('node', 'test_list');
-    $this->assertEqual($token_info['name'], 'test_list');
-    $this->assertEqual($token_info['module'], 'token');
-    $this->assertEqual($token_info['type'], 'list<node-test_list>');
+    $this->assertEquals('test_list', $token_info['name']);
+    $this->assertEquals('token', $token_info['module']);
+    $this->assertEquals('list<node-test_list>', $token_info['type']);
     $typeInfo = $tokenService->getTypeInfo('list<node-test_list>');
-    $this->assertEqual($typeInfo['name'], 'List of test_list values');
-    $this->assertEqual($typeInfo['type'], 'list<node-test_list>');
+    $this->assertEquals('List of test_list values', $typeInfo['name']);
+    $this->assertEquals('list<node-test_list>', $typeInfo['type']);
 
     // Create a node type that does not have test_field field.
     $node_type = NodeType::create([
@@ -304,11 +335,11 @@ class FieldTest extends KernelTestBase {
     /** @var \Drupal\token\Token $tokenService */
     $tokenService = \Drupal::service('token');
 
-    // Test the token info of the text field of the artcle content type.
+    // Test the token info of the text field of the article content type.
     $token_info = $tokenService->getTokenInfo('node', 'test_field');
-    $this->assertEqual($token_info['name'], 'Test field', 'The token info name is correct.');
-    $this->assertEqual($token_info['description'], 'Text (formatted) field.', 'The token info description is correct.');
-    $this->assertEqual($token_info['module'], 'token', 'The token info module is correct.');
+    $this->assertEquals('Test field', $token_info['name'], 'The token info name is correct.');
+    $this->assertEquals('Text (formatted) field.', $token_info['description'], 'The token info description is correct.');
+    $this->assertEquals('token', $token_info['module'], 'The token info module is correct.');
 
     // Now create two more content types that share the field but the last
     // of them sets a different label. This should show an alternative label
@@ -338,17 +369,17 @@ class FieldTest extends KernelTestBase {
     $field->save();
 
     $token_info = $tokenService->getTokenInfo('node', 'test_field');
-    $this->assertEqual($token_info['name'], 'Test field', 'The token info name is correct.');
-    $this->assertEqual((string) $token_info['description'], 'Text (formatted) field. Also known as <em class="placeholder">Different test field</em>.', 'When a field is used in several bundles with different labels, this is noted at the token info description.');
-    $this->assertEqual($token_info['module'], 'token', 'The token info module is correct.');
-    $this->assertEqual($token_info['type'], 'node-test_field', 'The field property token info type is correct.');
+    $this->assertEquals('Test field', $token_info['name'], 'The token info name is correct.');
+    $this->assertEquals('Text (formatted) field. Also known as <em class="placeholder">Different test field</em>.', (string) $token_info['description'], 'When a field is used in several bundles with different labels, this is noted at the token info description.');
+    $this->assertEquals('token', $token_info['module'], 'The token info module is correct.');
+    $this->assertEquals('node-test_field', $token_info['type'], 'The field property token info type is correct.');
 
     // Test field property token info.
     $token_info = $tokenService->getTokenInfo('node-test_field', 'value');
-    $this->assertEqual($token_info['name'], 'Text', 'The field property token info name is correct.');
+    $this->assertEquals('Text', $token_info['name'], 'The field property token info name is correct.');
     // This particular field property description happens to be empty.
-    $this->assertEqual((string) $token_info['description'], '', 'The field property token info description is correct.');
-    $this->assertEqual($token_info['module'], 'token', 'The field property token info module is correct.');
+    $this->assertEquals('', (string) $token_info['description'], 'The field property token info description is correct.');
+    $this->assertEquals('token', $token_info['module'], 'The field property token info module is correct.');
   }
 
   /**
@@ -387,12 +418,12 @@ class FieldTest extends KernelTestBase {
       'targetEntityType' => 'node',
     ]);
     $view_mode->save();
-    $entity_display = entity_get_display('node', 'article', 'token');
+    $entity_display = \Drupal::service('entity_display.repository')->getViewDisplay('node', 'article', 'token');
     $entity_display->setComponent('test_field', [
       'type' => 'text_trimmed',
       'settings' => [
         'trim_length' => 50,
-      ]
+      ],
     ]);
     $entity_display->save();
 
@@ -445,7 +476,7 @@ class FieldTest extends KernelTestBase {
     $this->assertNull($tokenService->getTokenInfo('node', 'uid'));
   }
 
-  /*
+  /**
    * Tests chaining entity reference tokens.
    */
   public function testEntityReferenceTokens() {
@@ -455,7 +486,7 @@ class FieldTest extends KernelTestBase {
       'test_field' => [
         'value' => 'foo',
         'format' => $this->testFormat->id(),
-      ]
+      ],
     ]);
     $reference->save();
     $term_reference_field_value = $this->randomString();
@@ -699,8 +730,8 @@ class FieldTest extends KernelTestBase {
 
     /** @var \Drupal\node\NodeInterface $node */
     $node = Node::create([
-        'title' => 'Node for daterange field',
-        'type' => 'article',
+      'title' => 'Node for daterange field',
+      'type' => 'article',
     ]);
 
     $node->get('field_daterange')->value = '2013-12-22T00:00:00';
@@ -725,6 +756,30 @@ class FieldTest extends KernelTestBase {
       'field_daterange:1:start_date:custom:Y' => '2014',
       'field_daterange:1:end_date:custom:Y' => '2017',
       'field_daterange:1:end_date' => $node->get('field_daterange')->get(1)->end_date->getTimestamp(),
+    ]);
+  }
+
+  /**
+   * Tests support for a timestamp fields.
+   */
+  public function testTimestampFieldTokens() {
+
+    $node = Node::create([
+      'title' => 'Node for timestamp field',
+      'type' => 'article',
+    ]);
+
+    $node->set('field_timestamp', ['1277540209', '1532593009'])->save();
+    $this->assertTokens('node', ['node' => $node], [
+      'field_timestamp:date:custom:Y' => '2010',
+      'field_timestamp:date:html_month' => '2010-06',
+      'field_timestamp:date' => $node->get('field_timestamp')->value,
+      'field_timestamp:0:date:custom:Y' => '2010',
+      'field_timestamp:0:date:html_month' => '2010-06',
+      'field_timestamp:0:date' => $node->get('field_timestamp')->value,
+      'field_timestamp:1:date:custom:Y' => '2018',
+      'field_timestamp:1:date:html_month' => '2018-07',
+      'field_timestamp:1:date' => $node->get('field_timestamp')->get(1)->value,
     ]);
   }
 

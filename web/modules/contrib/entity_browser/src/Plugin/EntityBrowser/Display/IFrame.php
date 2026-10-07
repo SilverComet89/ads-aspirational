@@ -2,24 +2,16 @@
 
 namespace Drupal\entity_browser\Plugin\EntityBrowser\Display;
 
-use Drupal\Component\Uuid\UuidInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\KeyValueStore\KeyValueStoreExpirableInterface;
-use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\entity_browser\DisplayBase;
 use Drupal\entity_browser\DisplayRouterInterface;
+use Drupal\entity_browser\Events\AlterEntityBrowserDisplayData;
 use Drupal\entity_browser\Events\Events;
 use Drupal\entity_browser\Events\RegisterJSCallbacks;
-use Drupal\entity_browser\Events\AlterEntityBrowserDisplayData;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Drupal\Core\Path\CurrentPathStack;
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
-use Symfony\Component\HttpFoundation\Request;
-use Drupal\Core\Render\RendererInterface;
-use Drupal\Core\Render\BareHtmlPageRendererInterface;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 
 /**
  * Presents entity browser in an iFrame.
@@ -69,57 +61,16 @@ class IFrame extends DisplayBase implements DisplayRouterInterface {
   protected $bareHtmlPageRenderer;
 
   /**
-   * Constructs display plugin.
-   *
-   * @param array $configuration
-   *   A configuration array containing information about the plugin instance.
-   * @param string $plugin_id
-   *   The plugin_id for the plugin instance.
-   * @param mixed $plugin_definition
-   *   The plugin implementation definition.
-   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
-   *   Event dispatcher service.
-   * @param \Drupal\Component\Uuid\UuidInterface $uuid
-   *   UUID generator interface.
-   * @param \Drupal\Core\KeyValueStore\KeyValueStoreExpirableInterface $selection_storage
-   *   The selection storage.
-   * @param \Drupal\Core\Routing\RouteMatchInterface $current_route_match
-   *   The currently active route match object.
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   *   Current request.
-   * @param \Drupal\Core\Path\CurrentPathStack $current_path
-   *   The current path.
-   * @param \Drupal\Core\Render\RendererInterface $renderer
-   *   The renderer service.
-   * @param \Drupal\Core\Render\BareHtmlPageRendererInterface $bare_html_page_renderer
-   *   The bare HTML page renderer.
-   */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EventDispatcherInterface $event_dispatcher, UuidInterface $uuid, KeyValueStoreExpirableInterface $selection_storage, RouteMatchInterface $current_route_match, Request $request, CurrentPathStack $current_path, RendererInterface $renderer, BareHtmlPageRendererInterface $bare_html_page_renderer) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $event_dispatcher, $uuid, $selection_storage);
-    $this->currentRouteMatch = $current_route_match;
-    $this->request = $request;
-    $this->currentPath = $current_path;
-    $this->renderer = $renderer;
-    $this->bareHtmlPageRenderer = $bare_html_page_renderer;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('event_dispatcher'),
-      $container->get('uuid'),
-      $container->get('entity_browser.selection_storage'),
-      $container->get('current_route_match'),
-      $container->get('request_stack')->getCurrentRequest(),
-      $container->get('path.current'),
-      $container->get('renderer'),
-      $container->get('bare_html_page_renderer')
-    );
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    $instance->currentRouteMatch = $container->get('current_route_match');
+    $instance->request = $container->get('request_stack')->getCurrentRequest();
+    $instance->currentPath = $container->get('path.current');
+    $instance->renderer = $container->get('renderer');
+    $instance->bareHtmlPageRenderer = $container->get('bare_html_page_renderer');
+    return $instance;
   }
 
   /**
@@ -142,7 +93,7 @@ class IFrame extends DisplayBase implements DisplayRouterInterface {
     /** @var \Drupal\entity_browser\Events\RegisterJSCallbacks $event */
     $js_event_object = new RegisterJSCallbacks($this->configuration['entity_browser_id'], $this->getUuid());
     $js_event_object->registerCallback('Drupal.entityBrowser.selectionCompleted');
-    $callback_event = $this->eventDispatcher->dispatch(Events::REGISTER_JS_CALLBACKS, $js_event_object);
+    $callback_event = $this->eventDispatcher->dispatch($js_event_object, Events::REGISTER_JS_CALLBACKS);
     $original_path = $this->currentPath->getPath();
 
     $data = [
@@ -160,7 +111,7 @@ class IFrame extends DisplayBase implements DisplayRouterInterface {
       ],
     ];
     $event_object = new AlterEntityBrowserDisplayData($this->configuration['entity_browser_id'], $this->getUuid(), $this->getPluginDefinition(), $form_state, $data);
-    $event = $this->eventDispatcher->dispatch(Events::ALTER_BROWSER_DISPLAY_DATA, $event_object);
+    $event = $this->eventDispatcher->dispatch($event_object, Events::ALTER_BROWSER_DISPLAY_DATA);
     $data = $event->getData();
     return [
       '#theme_wrappers' => ['container'],
@@ -205,10 +156,10 @@ class IFrame extends DisplayBase implements DisplayRouterInterface {
    * Intercepts default response and injects response that will trigger JS to
    * propagate selected entities upstream.
    *
-   * @param \Symfony\Component\HttpKernel\Event\FilterResponseEvent $event
+   * @param \Symfony\Component\HttpKernel\Event\ResponseEvent $event
    *   Response event.
    */
-  public function propagateSelection(FilterResponseEvent $event) {
+  public function propagateSelection(ResponseEvent $event) {
     $render = [
       '#attached' => [
         'library' => ['entity_browser/' . $this->pluginDefinition['id'] . '_selection'],

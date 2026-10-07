@@ -16,7 +16,7 @@ class CssOptimizerUnitTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['advagg'];
+  protected static $modules = ['advagg'];
 
   /**
    * The Optimizer.
@@ -77,7 +77,7 @@ class CssOptimizerUnitTest extends KernelTestBase {
     $absolute_path = dirname(__FIlE__) . '/css_test_files/';
     $contents = file_get_contents($absolute_path . $file);
     $replaced_urls = $this->optimizer->updateUrls($contents, $path);
-    $this->assertTrue(strstr($replaced_urls, $expected));
+    $this->assertNotFalse(strstr($replaced_urls, $expected));
   }
 
 }

@@ -38,7 +38,7 @@ use Drupal\Core\Url;
  *   For page-specific help, use the route name as identified in the
  *   module's routing.yml file. For module overview help, the route name
  *   will be in the form of "help.page.$modulename".
- * @param Drupal\Core\Routing\RouteMatchInterface $route_match
+ * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
  *   The current route match. This can be used to generate different help
  *   output for different pages that share the same route.
  *
@@ -72,9 +72,11 @@ function hook_help($route_name, \Drupal\Core\Routing\RouteMatchInterface $route_
  * @see \Drupal\help\Annotation\HelpSection
  * @see \Drupal\help\HelpSectionManager
  */
-function hook_help_section_info_alter(&$info) {
+function hook_help_section_info_alter(array &$info) {
   // Alter the header for the module overviews section.
-  $info['hook_help']['header'] = t('Overviews of modules');
+  $info['hook_help']['title'] = t('Overviews of modules');
+  // Move the module overviews section to the end.
+  $info['hook_help']['weight'] = 500;
 }
 
 /**

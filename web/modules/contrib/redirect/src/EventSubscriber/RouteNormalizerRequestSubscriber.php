@@ -3,13 +3,16 @@
 namespace Drupal\redirect\EventSubscriber;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Path\CurrentPathStack;
 use Drupal\Core\Path\PathMatcherInterface;
 use Drupal\Core\Routing\RequestHelper;
 use Drupal\Core\Routing\TrustedRedirectResponse;
 use Drupal\Core\Routing\UrlGeneratorInterface;
+use Drupal\path_alias\AliasManager;
+use Drupal\path_alias\AliasManagerInterface;
 use Drupal\redirect\RedirectChecker;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -60,9 +63,12 @@ class RouteNormalizerRequestSubscriber implements EventSubscriberInterface {
    *   The config.
    * @param \Drupal\redirect\RedirectChecker $redirect_checker
    *   The redirect checker service.
-   *   The value of the route_normalizer_enabled container parameter.
+   * @param \Drupal\path_alias\AliasManagerInterface|null $aliasManager
+   *   The alias manager.
+   * @param \Drupal\Core\Path\CurrentPathStack|null $currentPath
+   *   The current path service.
    */
-  public function __construct(UrlGeneratorInterface $url_generator, PathMatcherInterface $path_matcher, ConfigFactoryInterface $config, RedirectChecker $redirect_checker) {
+  public function __construct(UrlGeneratorInterface $url_generator, PathMatcherInterface $path_matcher, ConfigFactoryInterface $config, RedirectChecker $redirect_checker, protected ?AliasManagerInterface $aliasManager = NULL, protected ?CurrentPathStack $currentPath = NULL) {
     $this->urlGenerator = $url_generator;
     $this->pathMatcher = $path_matcher;
     $this->redirectChecker = $redirect_checker;
@@ -80,12 +86,12 @@ class RouteNormalizerRequestSubscriber implements EventSubscriberInterface {
    *   page.
    * - Requested path has an alias: redirect to alias.
    *
-   * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
+   * @param \Symfony\Component\HttpKernel\Event\RequestEvent $event
    *   The Event to process.
    */
-  public function onKernelRequestRedirect(GetResponseEvent $event) {
+  public function onKernelRequestRedirect(RequestEvent $event) {
 
-    if (!$this->config->get('route_normalizer_enabled') || !$event->isMasterRequest()) {
+    if (!$this->config->get('route_normalizer_enabled') || !$event->isMainRequest()) {
       return;
     }
 
@@ -99,6 +105,12 @@ class RouteNormalizerRequestSubscriber implements EventSubscriberInterface {
       // page because it's not a real route.
       $route_name = $this->pathMatcher->isFrontPage() ? '<front>' : '<current>';
 
+      // Explicitly replicate PathAliasSubscriber::onKernelController() to set
+      // the cache key.
+      if ($this->aliasManager instanceof AliasManager) {
+        $this->aliasManager->setCacheKey(rtrim($this->currentPath->getPath($event->getRequest()), '/'));
+      }
+
       // Don't pass in the query here using $request->query->all()
       // since that can potentially modify the query parameters.
       $options = ['absolute' => TRUE];
@@ -106,7 +118,7 @@ class RouteNormalizerRequestSubscriber implements EventSubscriberInterface {
 
       // Strip off query parameters added by the route such as a CSRF token.
       if (strpos($redirect_uri, '?') !== FALSE) {
-        $redirect_uri  = strtok($redirect_uri, '?');
+        $redirect_uri = strtok($redirect_uri, '?');
       }
 
       // Append back the request query string from $_SERVER.
@@ -123,8 +135,7 @@ class RouteNormalizerRequestSubscriber implements EventSubscriberInterface {
 
       $original_uri = $request->getSchemeAndHttpHost() . $request->getRequestUri();
       $original_uri = urldecode($original_uri);
-      $redirect_uri = urldecode($redirect_uri);
-      if ($redirect_uri != $original_uri) {
+      if (urldecode($redirect_uri) != $original_uri) {
         $response = new TrustedRedirectResponse($redirect_uri, $this->config->get('default_status_code'));
         $response->headers->set('X-Drupal-Route-Normalizer', 1);
         $event->setResponse($response);
@@ -135,7 +146,7 @@ class RouteNormalizerRequestSubscriber implements EventSubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  static function getSubscribedEvents() {
+  public static function getSubscribedEvents(): array {
     $events[KernelEvents::REQUEST][] = ['onKernelRequestRedirect', 30];
     return $events;
   }

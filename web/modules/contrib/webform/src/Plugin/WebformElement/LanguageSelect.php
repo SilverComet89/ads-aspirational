@@ -4,6 +4,7 @@ namespace Drupal\webform\Plugin\WebformElement;
 
 use Drupal\webform\Plugin\WebformElementBase;
 use Drupal\webform\WebformSubmissionInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a 'language_select' element.
@@ -19,12 +20,43 @@ use Drupal\webform\WebformSubmissionInterface;
 class LanguageSelect extends WebformElementBase {
 
   /**
+   * The language manager service.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected $languageManager;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    $instance->languageManager = $container->get('language_manager');
+    return $instance;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function defineDefaultProperties() {
+    $properties = parent::defineDefaultProperties();
+    unset(
+      $properties['format_items'],
+      $properties['format_items_html'],
+      $properties['format_items_text']
+    );
+    return $properties;
+  }
+
+  /* ************************************************************************ */
+
+  /**
    * {@inheritdoc}
    */
   protected function formatTextItem(array $element, WebformSubmissionInterface $webform_submission, array $options = []) {
     $value = $this->getValue($element, $webform_submission, $options);
 
-    $language = \Drupal::languageManager()->getLanguage($value);
+    $language = $this->languageManager->getLanguage($value);
     $format = $this->getItemFormat($element);
     switch ($format) {
       case 'langcode':

@@ -5,9 +5,10 @@ namespace Drupal\webform_image_select\Plugin\WebformElement;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\webform\Plugin\WebformElement\Select;
-use Drupal\webform_image_select\Element\WebformImageSelect as WebformImageSelectElement;
 use Drupal\webform\WebformSubmissionInterface;
+use Drupal\webform_image_select\Element\WebformImageSelect as WebformImageSelectElement;
 use Drupal\webform_image_select\Entity\WebformImageSelectImages;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a 'image_select' element.
@@ -22,10 +23,43 @@ use Drupal\webform_image_select\Entity\WebformImageSelectImages;
 class WebformImageSelect extends Select {
 
   /**
+   * The current request.
+   *
+   * @var null|\Symfony\Component\HttpFoundation\Request
+   */
+  protected $request;
+
+  /**
+   * The route match object.
+   *
+   * @var \Drupal\Core\Routing\RouteMatchInterface
+   */
+  protected $routeMatch;
+
+  /**
    * {@inheritdoc}
    */
-  public function getDefaultProperties() {
-    $properties = parent::getDefaultProperties();
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    $instance->request = $container->get('request_stack')->getCurrentRequest();
+    $instance->routeMatch = $container->get('current_route_match');
+    return $instance;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function defineDefaultProperties() {
+    $properties = [
+      'images' => [],
+      'images_randomize' => FALSE,
+      'show_label' => FALSE,
+      'filter' => FALSE,
+      'filter__placeholder' => (string) $this->t('Filter images by label'),
+      'filter__singlular' => (string) $this->t('image'),
+      'filter__plural' => (string) $this->t('images'),
+      'filter__no_results' => (string) $this->t('No images found.'),
+    ] + parent::defineDefaultProperties();
     unset(
       $properties['options'],
       $properties['options_randomize'],
@@ -34,23 +68,14 @@ class WebformImageSelect extends Select {
       $properties['disabled'],
       $properties['select2']
     );
-
-    $properties['images'] = [];
-    $properties['images_randomize'] = FALSE;
-    $properties['show_label'] = FALSE;
-    $properties['filter'] = FALSE;
-    $properties['filter__placeholder'] = $this->t('Filter images by label');
-    $properties['filter__singlular'] = $this->t('image');
-    $properties['filter__plural'] = $this->t('images');
-    $properties['filter__no_results'] = $this->t('No images found.');
     return $properties;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getTranslatableProperties() {
-    return array_merge(parent::getTranslatableProperties(), [
+  protected function defineTranslatableProperties() {
+    return array_merge(parent::defineTranslatableProperties(), [
       'images',
       'filter__placeholder',
       'filter__singlular',
@@ -58,6 +83,8 @@ class WebformImageSelect extends Select {
       'filter__no_results',
     ]);
   }
+
+  /* ************************************************************************ */
 
   /**
    * {@inheritdoc}
@@ -91,7 +118,7 @@ class WebformImageSelect extends Select {
 
         // Always use absolute URLs for the src so that it will load via e-mail.
         if (strpos($src, '/') === 0) {
-          $src = \Drupal::request()->getSchemeAndHttpHost() . $src;
+          $src = $this->request->getSchemeAndHttpHost() . $src;
         }
 
         $image = [
@@ -117,7 +144,7 @@ class WebformImageSelect extends Select {
         }
 
         // For the Results table always just return the image with tooltip.
-        if (strpos(\Drupal::routeMatch()->getRouteName(), 'webform.results_submissions') !== FALSE) {
+        if (strpos($this->routeMatch->getRouteName(), 'webform.results_submissions') !== FALSE) {
           $image['#attached']['library'][] = 'webform/webform.tooltip';
           $image['#attributes']['class'] = ['js-webform-tooltip-link'];
           return $image;
@@ -152,7 +179,7 @@ class WebformImageSelect extends Select {
    * {@inheritdoc}
    */
   protected function formatTextItem(array $element, WebformSubmissionInterface $webform_submission, array $options = []) {
-    if ($this->getItemFormat($element) == 'image') {
+    if ($this->getItemFormat($element) === 'image') {
       $element['#format'] = 'value';
     }
     return parent::formatTextItem($element, $webform_submission, $options);
@@ -198,17 +225,17 @@ class WebformImageSelect extends Select {
     return parent::preview() + [
       '#show_label' => TRUE,
       '#images' => [
-        'bear_1' => [
-          'text' => 'Bear 1',
-          'src' => 'https://www.placebear.com/80/100',
+        'dog_1' => [
+          'text' => 'Dog 1',
+          'src' => 'https://www.placedog.net/80/100',
         ],
-        'bear_2' => [
-          'text' => 'Bear 2',
-          'src' => 'https://www.placebear.com/100/100',
+        'dog_2' => [
+          'text' => 'Dog 2',
+          'src' => 'https://www.placedog.net/100/100',
         ],
-        'bear_3' => [
-          'text' => 'Bear 3',
-          'src' => 'https://www.placebear.com/120/100',
+        'dog_3' => [
+          'text' => 'Dog 3',
+          'src' => 'https://www.placedog.net/120/100',
         ],
       ],
     ];
@@ -250,6 +277,7 @@ class WebformImageSelect extends Select {
     ];
     $form['options']['filter_container'] = [
       '#type' => 'container',
+      '#attributes' => ['data-webform-states-no-clear' => TRUE],
       '#states' => [
         'visible' => [
           ':input[name="properties[filter]"]' => ['checked' => TRUE],

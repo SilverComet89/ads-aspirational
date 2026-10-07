@@ -37,6 +37,13 @@ class WebformDialogHelper {
   const DIALOG_NARROW = 'narrow';
 
   /**
+   * Prevent dialog from being displayed.
+   *
+   * @var string
+   */
+  const DIALOG_NONE = 'none';
+
+  /**
    * Use outside-in off-canvas system tray instead of dialogs.
    *
    * @return bool
@@ -53,14 +60,13 @@ class WebformDialogHelper {
    *   A render array.
    */
   public static function attachLibraries(array &$build) {
+    $build += ['#attached' => []];
+    $build['#attached'] += ['library' => []];
+    $build['#attached']['library'] = (array) $build['#attached']['library'];
+
     $build['#attached']['library'][] = 'webform/webform.admin.dialog';
     if (static::useOffCanvas()) {
       $build['#attached']['library'][] = 'webform/webform.admin.off_canvas';
-    }
-    // @see \Drupal\webform\Element\WebformHtmlEditor::preRenderWebformHtmlEditor
-    if (\Drupal::moduleHandler()->moduleExists('imce') && \Drupal\imce\Imce::access()) {
-      $build['#attached']['library'][] = 'imce/drupal.imce.ckeditor';
-      $build['#attached']['drupalSettings']['webform']['html_editor']['ImceImageIcon'] = file_create_url(drupal_get_path('module', 'imce') . '/js/plugins/ckeditor/icons/imceimage.png');
     }
   }
 
@@ -85,7 +91,7 @@ class WebformDialogHelper {
       static::DIALOG_NORMAL => 800,
       static::DIALOG_NARROW => 700,
     ];
-    $width = (isset($dialog_widths[$width])) ? $dialog_widths[$width] : $width;
+    $width = $dialog_widths[$width] ?? $width;
 
     $class[] = 'webform-ajax-link';
     return [
@@ -112,7 +118,8 @@ class WebformDialogHelper {
    *   Modal dialog attributes.
    */
   public static function getOffCanvasDialogAttributes($width = self::DIALOG_NORMAL, array $class = []) {
-    if (\Drupal::config('webform.settings')->get('ui.dialog_disabled')) {
+    if (\Drupal::config('webform.settings')->get('ui.dialog_disabled')
+      || $width === self::DIALOG_NONE) {
       return $class ? ['class' => $class] : [];
     }
 
@@ -125,7 +132,7 @@ class WebformDialogHelper {
       static::DIALOG_NORMAL => 600,
       static::DIALOG_NARROW => 550,
     ];
-    $width = (isset($dialog_widths[$width])) ? $dialog_widths[$width] : $width;
+    $width = $dialog_widths[$width] ?? $width;
 
     $class[] = 'webform-ajax-link';
     return [

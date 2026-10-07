@@ -3,15 +3,16 @@
 namespace Drupal\webform;
 
 use Drupal\Component\Render\FormattableMarkup;
-use Drupal\Core\Messenger\MessengerInterface;
-use Drupal\Core\Session\AccountInterface;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\webform\Element\WebformHtmlEditor;
+use Drupal\webform\EntityStorage\WebformEntityStorageTrait;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -20,6 +21,7 @@ use Psr\Log\LoggerInterface;
 class WebformMessageManager implements WebformMessageManagerInterface {
 
   use StringTranslationTrait;
+  use WebformEntityStorageTrait;
 
   /**
    * The current user.
@@ -36,13 +38,6 @@ class WebformMessageManager implements WebformMessageManagerInterface {
   protected $configFactory;
 
   /**
-   * Webform submission storage.
-   *
-   * @var \Drupal\webform\WebformSubmissionStorageInterface
-   */
-  protected $entityStorage;
-
-  /**
    * The token service.
    *
    * @var \Drupal\Core\Utility\Token
@@ -50,7 +45,7 @@ class WebformMessageManager implements WebformMessageManagerInterface {
   protected $token;
 
   /**
-   * Logger service.
+   * The logger service.
    *
    * @var \Drupal\Core\Logger\LoggerChannelInterface
    */
@@ -64,7 +59,7 @@ class WebformMessageManager implements WebformMessageManagerInterface {
   protected $renderer;
 
   /**
-   * Webform request handler.
+   * The webform request handler.
    *
    * @var \Drupal\webform\WebformRequestInterface
    */
@@ -131,7 +126,7 @@ class WebformMessageManager implements WebformMessageManagerInterface {
   public function __construct(AccountInterface $current_user, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, LoggerInterface $logger, RendererInterface $renderer, MessengerInterface $messenger, WebformRequestInterface $request_handler, WebformTokenManagerInterface $token_manager) {
     $this->currentUser = $current_user;
     $this->configFactory = $config_factory;
-    $this->entityStorage = $entity_type_manager->getStorage('webform_submission');
+    $this->entityTypeManager = $entity_type_manager;
     $this->logger = $logger;
     $this->renderer = $renderer;
     $this->messenger = $messenger;
@@ -239,7 +234,7 @@ class WebformMessageManager implements WebformMessageManagerInterface {
     // Get custom messages with :href argument.
     switch ($key) {
       case WebformMessageManagerInterface::DRAFT_PENDING_SINGLE:
-        $webform_draft = $this->entityStorage->loadDraft($webform, $source_entity, $this->currentUser);
+        $webform_draft = $this->getSubmissionStorage()->loadDraft($webform, $source_entity, $this->currentUser);
         $args = [':href' => $webform_draft->getTokenUrl()->toString()];
         return $this->getCustomMessage('draft_pending_single_message', $args);
 
@@ -248,7 +243,7 @@ class WebformMessageManager implements WebformMessageManagerInterface {
         return $this->getCustomMessage('draft_pending_multiple_message', $args);
 
       case WebformMessageManagerInterface::PREVIOUS_SUBMISSION:
-        $webform_submission = $this->entityStorage->getLastSubmission($webform, $source_entity, $this->currentUser);
+        $webform_submission = $this->getSubmissionStorage()->getLastSubmission($webform, $source_entity, $this->currentUser);
         $args = [':href' => $this->requestHandler->getUrl($webform_submission, $source_entity, 'webform.user.submission')->toString()];
         return $this->getCustomMessage('previous_submission_message', $args);
 
@@ -301,7 +296,7 @@ class WebformMessageManager implements WebformMessageManagerInterface {
         return $this->t('This webform is not available. Please contact the site administrator.');
 
       case WebformMessageManagerInterface::PREVIOUS_SUBMISSION:
-        $webform_submission = $this->entityStorage->getLastSubmission($webform, $source_entity, $this->currentUser);
+        $webform_submission = $this->getSubmissionStorage()->getLastSubmission($webform, $source_entity, $this->currentUser);
         $args = [':href' => $this->requestHandler->getUrl($webform_submission, $source_entity, 'webform.user.submission')->toString()];
         return $this->getCustomMessage('previous_submission_message', $args);
 
@@ -354,12 +349,19 @@ class WebformMessageManager implements WebformMessageManagerInterface {
    *   The name of webform settings message to be displayed.
    *
    * @return string|bool
-   *   A message or FALSE if no message is found.
+   *   A message or FALSE when no message is found or the message
+   *   is set to [none].
    */
   protected function getSetting($key) {
     $webform_settings = ($this->webform) ? $this->webform->getSettings() : [];
     if (!empty($webform_settings[$key])) {
-      return $webform_settings[$key];
+      $value = $webform_settings[$key];
+      if ($value === '[none]' || $value === (string) $this->t('[none]')) {
+        return FALSE;
+      }
+      else {
+        return $value;
+      }
     }
 
     $default_settings = $this->configFactory->get('webform.settings')->get('settings');

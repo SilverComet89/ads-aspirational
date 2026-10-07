@@ -2,10 +2,10 @@
 
 namespace Drupal\Tests\embed\Unit;
 
-use Drupal\Component\Utility\Html;
 use Drupal\Component\Serialization\Json;
-use Drupal\Tests\UnitTestCase;
+use Drupal\Component\Utility\Html;
 use Drupal\embed\DomHelperTrait;
+use Drupal\Tests\UnitTestCase;
 
 /**
  * Tests \Drupal\embed\DomHelperTrait.
@@ -32,7 +32,7 @@ class DomHelperTraitTest extends UnitTestCase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  public function setUp(): void {
     $this->document = Html::load('<outer><test foo="bar" namespace:foo="bar"><test bar="foo"></test></test></outer>');
     $this->node = $this->document->getElementsByTagName('body')->item(0)->firstChild->firstChild;
   }
@@ -57,10 +57,9 @@ class DomHelperTraitTest extends UnitTestCase {
   }
 
   /**
-   * @return array
-   * @see ::testSetNodeContent()
+   * Data provider for testSetNodeContent().
    */
-  public function providerTestSetNodeContent() {
+  public function providerTestSetNodeContent(): array {
     return [
       'empty' => [
         '',
@@ -96,10 +95,9 @@ class DomHelperTraitTest extends UnitTestCase {
   }
 
   /**
-   * @return array
-   * @see ::testReplaceNodeContent()
+   * Data provider for testReplaceNodeContent().
    */
-  public function providerTestReplaceNodeContent() {
+  public function providerTestReplaceNodeContent(): array {
     return [
       'empty' => [
         '',
@@ -129,7 +127,13 @@ class DomHelperTraitTest extends UnitTestCase {
    */
   public function testGetNodeAttributesAsArray() {
     $attributes = $this->getNodeAttributesAsArray($this->node);
-    $this->assertArrayEquals(['foo' => 'bar', 'namespace:foo' => 'bar'], $attributes);
+    $this->assertEquals(
+      [
+        'foo' => 'bar',
+        'namespace:foo' => 'bar',
+      ],
+      $attributes
+    );
 
     // Test more complex attributes with special characters.
     $string = "TEST: A <complex> 'encoded' \"JSON\" string";
@@ -138,7 +142,13 @@ class DomHelperTraitTest extends UnitTestCase {
     $document = Html::load($html);
     $node = $document->getElementsByTagName('body')->item(0)->firstChild;
     $attributes = $this->getNodeAttributesAsArray($node);
-    $this->assertArrayEquals(['data-json-string' => $string, 'data-json-object' => $object], $attributes);
+    $this->assertEquals(
+      [
+        'data-json-string' => $string,
+        'data-json-object' => $object,
+      ],
+      $attributes
+    );
   }
 
 }

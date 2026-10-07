@@ -5,6 +5,7 @@ namespace Drupal\Tests\ctools\Kernel;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\Context\ContextDefinition;
+use Drupal\Core\Plugin\Context\EntityContextDefinition;
 use Drupal\entity_test\Entity\EntityTest;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\user\Entity\User;
@@ -17,13 +18,13 @@ use Drupal\user\Entity\User;
 class TypedDataResolverTest extends KernelTestBase {
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = ['user', 'system', 'entity_test', 'ctools'];
+  protected static $modules = ['user', 'system', 'entity_test', 'ctools'];
 
   /**
+   * The ctools.typed_data.resolver service.
+   *
    * @var \Drupal\ctools\TypedDataResolver
    */
   protected $typedDataResolver;
@@ -31,10 +32,9 @@ class TypedDataResolverTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
-    $this->installSchema('system', 'sequences');
     $this->installEntitySchema('user');
 
     $this->typedDataResolver = \Drupal::service('ctools.typed_data.resolver');
@@ -76,17 +76,23 @@ class TypedDataResolverTest extends KernelTestBase {
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The entity to test with.
-   * @param $property_path
+   * @param string $property_path
    *   The property path to look for.
-   * @param $expected_data_type
+   * @param string $expected_data_type
    *   The expected data type.
    *
    * @return \Drupal\Core\Plugin\Context\ContextInterface
    *   The context with a value.
    */
-  protected function assertPropertyPath(ContentEntityInterface $entity, $property_path, $expected_data_type)  {
+  protected function assertPropertyPath(ContentEntityInterface $entity, string $property_path, $expected_data_type) {
     $typed_data_entity = $entity->getTypedData();
-    $context_definition = new ContextDefinition($typed_data_entity->getDataDefinition()->getDataType());
+    if (strpos($typed_data_entity->getDataDefinition()->getDataType(), 'entity:') === 0) {
+      $context_definition = new EntityContextDefinition($typed_data_entity->getDataDefinition()->getDataType());
+    }
+    else {
+      $context_definition = new ContextDefinition($typed_data_entity->getDataDefinition()
+        ->getDataType());
+    }
     $context_with_value = new Context($context_definition, $typed_data_entity);
     $context_without_value = new Context($context_definition);
 

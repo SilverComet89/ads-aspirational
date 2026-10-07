@@ -4,20 +4,10 @@ namespace Doctrine\Common\Reflection;
 
 use Doctrine\Common\Annotations\TokenParser;
 use ReflectionException;
-use const T_CLASS;
-use const T_DOC_COMMENT;
-use const T_EXTENDS;
-use const T_FUNCTION;
-use const T_PAAMAYIM_NEKUDOTAYIM;
-use const T_PRIVATE;
-use const T_PROTECTED;
-use const T_PUBLIC;
-use const T_STRING;
-use const T_USE;
-use const T_VAR;
-use const T_VARIABLE;
+
 use function array_merge;
 use function file_get_contents;
+use function is_array;
 use function ltrim;
 use function preg_match;
 use function sprintf;
@@ -26,8 +16,24 @@ use function strrpos;
 use function strtolower;
 use function substr;
 
+use const T_CLASS;
+use const T_DOC_COMMENT;
+use const T_EXTENDS;
+use const T_FUNCTION;
+use const T_NEW;
+use const T_PAAMAYIM_NEKUDOTAYIM;
+use const T_PRIVATE;
+use const T_PROTECTED;
+use const T_PUBLIC;
+use const T_STRING;
+use const T_USE;
+use const T_VAR;
+use const T_VARIABLE;
+
 /**
  * Parses a file for namespaces/use/class declarations.
+ *
+ * @phpstan-consistent-constructor
  */
 class StaticReflectionParser implements ReflectionProviderInterface
 {
@@ -101,7 +107,7 @@ class StaticReflectionParser implements ReflectionProviderInterface
     /**
      * The parent PSR-0 Parser.
      *
-     * @var \Doctrine\Common\Reflection\StaticReflectionParser
+     * @var StaticReflectionParser
      */
     protected $parentStaticReflectionParser;
 
@@ -139,6 +145,7 @@ class StaticReflectionParser implements ReflectionProviderInterface
         if ($this->parsed || ! $fileName) {
             return;
         }
+
         $this->parsed = true;
         $contents     = file_get_contents($fileName);
         if ($this->classAnnotationOptimize) {
@@ -148,9 +155,10 @@ class StaticReflectionParser implements ReflectionProviderInterface
                 $contents = $matches[0];
             }
         }
+
         $tokenParser = new TokenParser($contents);
         $docComment  = '';
-        $last_token  = false;
+        $lastToken   = false;
 
         while ($token = $tokenParser->next(false)) {
             switch ($token[0]) {
@@ -161,10 +169,11 @@ class StaticReflectionParser implements ReflectionProviderInterface
                     $docComment = $token[1];
                     break;
                 case T_CLASS:
-                    if ($last_token !== T_PAAMAYIM_NEKUDOTAYIM) {
+                    if ($lastToken !== T_PAAMAYIM_NEKUDOTAYIM && $lastToken !== T_NEW) {
                         $this->docComment['class'] = $docComment;
                         $docComment                = '';
                     }
+
                     break;
                 case T_VAR:
                 case T_PRIVATE:
@@ -176,6 +185,7 @@ class StaticReflectionParser implements ReflectionProviderInterface
                         $this->docComment['property'][$propertyName] = $docComment;
                         continue 2;
                     }
+
                     if ($token[0] !== T_FUNCTION) {
                         // For example, it can be T_FINAL.
                         continue 2;
@@ -188,6 +198,11 @@ class StaticReflectionParser implements ReflectionProviderInterface
                     while (($token = $tokenParser->next()) && $token[0] !== T_STRING) {
                         continue;
                     }
+
+                    if ($token === null) {
+                        break;
+                    }
+
                     $methodName                              = $token[1];
                     $this->docComment['method'][$methodName] = $docComment;
                     $docComment                              = '';
@@ -206,6 +221,7 @@ class StaticReflectionParser implements ReflectionProviderInterface
                             $prefix  = strtolower($this->parentClassName);
                             $postfix = '';
                         }
+
                         foreach ($this->useStatements as $alias => $use) {
                             if ($alias !== $prefix) {
                                 continue;
@@ -215,13 +231,15 @@ class StaticReflectionParser implements ReflectionProviderInterface
                             $fullySpecified        = true;
                         }
                     }
+
                     if (! $fullySpecified) {
                         $this->parentClassName = '\\' . $this->namespace . '\\' . $this->parentClassName;
                     }
+
                     break;
             }
 
-            $last_token = $token[0];
+            $lastToken = is_array($token) ? $token[0] : false;
         }
     }
 
@@ -320,9 +338,11 @@ class StaticReflectionParser implements ReflectionProviderInterface
         if (isset($this->docComment[$type][$name])) {
             return $this;
         }
+
         if (! empty($this->parentClassName)) {
             return $this->getParentStaticReflectionParser()->getStaticReflectionParserForDeclaringClass($type, $name);
         }
+
         throw new ReflectionException('Invalid ' . $type . ' "' . $name . '"');
     }
 }

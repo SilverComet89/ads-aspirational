@@ -6,10 +6,15 @@
 
 namespace Drupal\jcarousel\Plugin\Field\FieldFormatter;
 use Drupal\Component\Utility\Unicode;
+use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\image\Plugin\Field\FieldFormatter\ImageFormatter;
+use Drupal\jcarousel\jCarouselSkinsManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
 /**
@@ -26,10 +31,64 @@ use Drupal\image\Plugin\Field\FieldFormatter\ImageFormatter;
 class JCarouselFormatter extends ImageFormatter implements ContainerFactoryPluginInterface {
 
   /**
+   * jCarousel Skin Manager.
+   *
+   * @var \Drupal\jcarousel\jCarouselSkinsManager
+   */
+  protected $skinsManager;
+
+  /**
+   * Constructs an ImageFormatter object.
+   *
+   * @param string $plugin_id
+   *   The plugin_id for the formatter.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *   The definition of the field to which the formatter is associated.
+   * @param array $settings
+   *   The formatter settings.
+   * @param string $label
+   *   The formatter label display setting.
+   * @param string $view_mode
+   *   The view mode.
+   * @param array $third_party_settings
+   *   Any third party settings settings.
+   * @param \Drupal\Core\Session\AccountInterface $current_user
+   *   The current user.
+   * @param \Drupal\Core\Entity\EntityStorageInterface $image_style_storage
+   *   The image style storage.
+   * @param \Drupal\jcarousel\jCarouselSkinsManager $skins_manager
+   *   Jcarousel Skin manager.
+   */
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, AccountInterface $current_user, EntityStorageInterface $image_style_storage, jCarouselSkinsManager $skins_manager) {
+    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings, $current_user, $image_style_storage);
+    $this->skinsManager = $skins_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $plugin_id,
+      $plugin_definition,
+      $configuration['field_definition'],
+      $configuration['settings'],
+      $configuration['label'],
+      $configuration['view_mode'],
+      $configuration['third_party_settings'],
+      $container->get('current_user'),
+      $container->get('entity_type.manager')->getStorage('image_style'),
+      $container->get('jcarousel.skins.manager')
+    );
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function defaultSettings() {
-    return array(
+    return [
       'wrap' => NULL,
       'skin' => 'default',
       'visible' => NULL,
@@ -42,26 +101,10 @@ class JCarouselFormatter extends ImageFormatter implements ContainerFactoryPlugi
       'easing' => NULL,
       'vertical' => FALSE,
       'navigation' => '',
-    ) + parent::defaultSettings();
-  }
-
-  /**
-   * Wraps the skins manager.
-   *
-   * @return \Drupal\jcarousel\jCarouselSkinsManager
-   */
-  protected function skinsManager() {
-    return \Drupal::service('jcarousel.skins.manager');
-  }
-
-  /**
-   * Returns keyed array of jCarousel skins.
-   *
-   * @return array
-   *   Keys array of skins
-   */
-  public function getSkins() {
-    return $this->skinsManager()->getDefinitions();
+      'swipe' => 1,
+      'draggable' => TRUE,
+      'method' => 'scroll',
+      ] + parent::defaultSettings();
   }
 
   /**
@@ -71,7 +114,7 @@ class JCarouselFormatter extends ImageFormatter implements ContainerFactoryPlugi
     $element = parent::settingsForm($form, $form_state);
 
     // Build the list of skins as options.
-    $skins = $this->getSkins();
+    $skins = $this->skinsManager->getDefinitions();
     foreach ($skins as $key => $skin) {
       $skins[$key] = $skin['label'];
     }
@@ -84,52 +127,52 @@ class JCarouselFormatter extends ImageFormatter implements ContainerFactoryPlugi
     unset($range[0]);
     $auto_range = ['' => t('Auto')] + array_combine(range(1, 10), range(1, 10));
 
-    $element['description'] = array(
+    $element['description'] = [
       '#type' => 'markup',
       '#value' => '<div class="messages">' . t('The jCarousel style is affected by several other settings within the display. Enable the "Use AJAX" option on your display to have items loaded dynamically. The "Items to display" option will determine how many items are preloaded into the carousel on each AJAX request. Non-AJAX carousels will contain the total number of items set in the "Items to display" option. Carousels may not be used with the "Use pager" option.') . '</div>',
-    );
+    ];
 
-    $element['wrap'] = array(
+    $element['wrap'] = [
       '#type' => 'select',
       '#title' => t('Wrap content'),
       '#default_value' => $this->getSetting('wrap'),
       '#description' => t('Specifies whether to wrap at the first/last item (or both) and jump back to the start/end.'),
-      '#options' => array(
+      '#options' => [
         0 => t('Disabled'),
         'circular' => t('Circular'),
         'both' => t('Both'),
         'last' => t('Last'),
         'first' => t('First'),
-      ),
-    );
-    $element['skin'] = array(
+      ],
+    ];
+    $element['skin'] = [
       '#type' => 'select',
       '#title' => t('Skin'),
       '#default_value' => $this->getSetting('skin'),
       '#options' => $skins,
       '#description' => t('Skins may be provided by other modules. Set to "None" if your theme includes carousel theming directly in style.css or another stylesheet. "None" does not include any built-in navigation, arrows, or positioning at all.'),
-    );
-    $element['responsive'] = array(
+    ];
+    $element['responsive'] = [
       '#type' => 'checkbox',
       '#title' => t('Responsive (number of items)'),
       '#default_value' => $this->getSetting('responsive'),
       '#description' => t('Select this option to have the carousel automatically adjust the number of visible items and the number of items to scroll at a time based on the available width.') . ' <strong>' . t('Changing this option will override the "Visible" and "Scroll" options and set carousel orientation to "horizontal".') . '</strong>',
-    );
-    $element['visible'] = array(
+    ];
+    $element['visible'] = [
       '#type' => 'select',
       '#title' => t('Number of visible items'),
       '#options' => $auto_range,
       '#default_value' => $this->getSetting('visible'),
       '#description' => t('Set an exact number of items to show at a time. It is recommended to leave set this to "auto", in which the number of items will be determined automatically by the space available to the carousel.') . ' <strong>' . t('Changing this option will override "width" properties set in your CSS.') . '</strong>',
-    );
-    $element['scroll'] = array(
+    ];
+    $element['scroll'] = [
       '#type' => 'select',
       '#title' => t('Scroll'),
       '#description' => t('The number of items to scroll at a time. The "auto" setting scrolls all the visible items.'),
       '#options' => $auto_range,
       '#default_value' => $this->getSetting('scroll'),
-    );
-    $element['auto'] = array(
+    ];
+    $element['auto'] = [
       '#type' => 'textfield',
       '#title' => t('Auto-scroll after'),
       '#size' => 4,
@@ -137,74 +180,95 @@ class JCarouselFormatter extends ImageFormatter implements ContainerFactoryPlugi
       '#default_value' => $this->getSetting('auto'),
       '#field_suffix' => ' ' . t('seconds'),
       '#description' => t('Specifies how many seconds to periodically auto-scroll the content. If set to 0 (default) then autoscrolling is turned off.'),
-    );
-    $element['navigation'] = array(
+    ];
+    $element['navigation'] = [
       '#type' => 'select',
       '#title' => t('Enable navigation'),
-      '#options' => array(
+      '#options' => [
         '' => t('None'),
         'before' => t('Before'),
         'after' => t('After'),
-      ),
+      ],
       '#default_value' => $this->getSetting('navigation'),
       '#description' => t('Enable a clickable navigation list to jump straight to a given page.'),
-    );
+    ];
 
-    $element['advanced'] = array(
+    $element['advanced'] = [
       '#type' => 'fieldset',
       '#title' => t('Advanced'),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
-      '#parents' => array('style_options'),
-    );
-    $element['advanced']['animation'] = array(
+      '#parents' => ['style_options'],
+    ];
+    $element['advanced']['animation'] = [
       '#type' => 'textfield',
       '#title' => t('Animation speed'),
       '#size' => 10,
       '#maxlength' => 10,
       '#default_value' => $this->getSetting('animation'),
       '#description' => t('The speed of the scroll animation as string in jQuery terms ("slow"  or "fast") or milliseconds as integer (See <a href="http://api.jquery.com/animate/">jQuery Documentation</a>).'),
-    );
-    $element['advanced']['easing'] = array(
+    ];
+    $element['advanced']['easing'] = [
       '#type' => 'textfield',
       '#title' => t('Easing effect'),
       '#size' => 10,
       '#maxlength' => 128,
       '#default_value' => $this->getSetting('easing'),
       '#description' => t('The name of the easing effect that you want to use such as "swing" (the default) or "linear". See list of options in the <a href="http://api.jquery.com/animate/">jQuery Documentation</a>.'),
-    );
-    $element['advanced']['start'] = array(
+    ];
+    $element['advanced']['start'] = [
       '#type' => 'select',
       '#title' => t('Start position'),
       '#description' => t('The item that will be shown as the first item in the list upon loading. Useful for starting a list in the middle of a set. A negative value allows choosing an item in the end, e.g. -1 is the last item.'),
       '#options' => $range,
       '#default_value' => $this->getSetting('start'),
-    );
-    $element['advanced']['autoPause'] = array(
+    ];
+    $element['advanced']['autoPause'] = [
       '#type' => 'checkbox',
       '#title' => t('Pause auto-scroll on hover'),
       '#description' => t('If auto-scrolling, pause the carousel when the user hovers the mouse over an item.'),
       '#default_value' => $this->getSetting('autoPause'),
-    );
-    $element['advanced']['vertical'] = array(
+    ];
+    $element['advanced']['vertical'] = [
       '#type' => 'checkbox',
       '#title' => t('Vertical'),
       '#description' => t('Specifies wether the carousel appears in horizontal or vertical orientation. Changes the carousel from a left/right style to a up/down style carousel. Defaults to horizontal.'),
       '#default_value' => $this->getSetting('vertical'),
-    );
+    ];
 
-    $link_types = array(
+    $link_types = [
       'content' => t('Content'),
       'file' => t('File'),
-    );
-    $element['image_link'] = array(
+    ];
+    $element['image_link'] = [
       '#title' => t('Link image to'),
       '#type' => 'select',
       '#default_value' => $this->getSetting('image_link'),
       '#empty_option' => t('Nothing'),
       '#options' => $link_types,
-    );
+    ];
 
+    $element['advanced']['swipe'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enable jcarouselSwipe plugin'),
+      '#description' => $this->t('Adds support user-friendly swipe gestures.'),
+      '#default_value' => $this->getSetting('swipe'),
+    ];
+    $element['advanced']['draggable'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('On/off dragging items on swipe'),
+      '#default_value' => $this->getSetting('draggable'),
+    ];
+    $element['advanced']['method'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Swipe method'),
+      '#options' => [
+        'scroll' => $this->t('Scroll'),
+        'scrollIntoView' => $this->t('ScrollIntoView'),
+      ],
+      '#default_value' => $this->getSetting('method'),
+      '#description' => $this->t('What method should used to switch slides.'),
+    ];
     return $element;
   }
 
@@ -222,7 +286,7 @@ class JCarouselFormatter extends ImageFormatter implements ContainerFactoryPlugi
     $skin = $this->getSetting('skin');
     $skin_name = t('None');
     if (!empty($skin)) {
-      $skins = $this->getSkins();
+      $skins = $this->skinsManager->getDefinitions();
       $skin_name = isset($skins[$skin]) ? $skins[$skin]['label'] : t('Broken skin !skin', ['!skin' => $skin]);
     }
     $summary[] = t('Skin: @skin', ['@skin' => $skin_name]);

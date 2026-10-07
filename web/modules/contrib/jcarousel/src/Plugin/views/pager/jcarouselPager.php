@@ -27,9 +27,9 @@ class jcarouselPager extends SqlBase {
    */
   public function summaryTitle() {
     if (!empty($this->options['offset'])) {
-      return $this->formatPlural($this->options['items_per_page'], 'jCarousel pager, @count item, skip @skip', 'jCarousel pager, @count items, skip @skip', array('@count' => $this->options['items_per_page'], '@skip' => $this->options['offset']));
+      return $this->formatPlural($this->options['items_per_page'], 'jCarousel pager, @count item, skip @skip', 'jCarousel pager, @count items, skip @skip', ['@count' => $this->options['items_per_page'], '@skip' => $this->options['offset']]);
     }
-    return $this->formatPlural($this->options['items_per_page'], 'jCarousel pager, @count item', 'jCarousel pager, @count items', array('@count' => $this->options['items_per_page']));
+    return $this->formatPlural($this->options['items_per_page'], 'jCarousel pager, @count item', 'jCarousel pager, @count items', ['@count' => $this->options['items_per_page']]);
   }
 
   /**

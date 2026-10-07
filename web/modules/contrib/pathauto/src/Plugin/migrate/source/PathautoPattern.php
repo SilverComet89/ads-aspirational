@@ -2,7 +2,7 @@
 
 namespace Drupal\pathauto\Plugin\migrate\source;
 
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\migrate\Plugin\MigrationInterface;
@@ -21,18 +21,18 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class PathautoPattern extends DrupalSqlBase {
 
   /**
-   * The entity type manager.
+   * The entity type bundle info.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeBundleInfo
    */
-  protected $entityTypeManager;
+  protected $entityTypeBundleInfo;
 
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, MigrationInterface $migration, StateInterface $state, EntityManagerInterface $entity_manager, EntityTypeManagerInterface $entity_type_manager) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $migration, $state, $entity_manager);
-    $this->entityTypeManager = $entity_type_manager;
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, MigrationInterface $migration, StateInterface $state, EntityTypeManagerInterface $entity_type_manager, EntityTypeBundleInfo $entity_bundle_info) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $migration, $state, $entity_type_manager);
+    $this->entityTypeBundleInfo = $entity_bundle_info;
   }
 
   /**
@@ -45,8 +45,8 @@ class PathautoPattern extends DrupalSqlBase {
       $plugin_definition,
       $migration,
       $container->get('state'),
-      $container->get('entity.manager'),
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('entity_type.bundle.info')
     );
   }
 
@@ -95,7 +95,7 @@ class PathautoPattern extends DrupalSqlBase {
         $row->setSourceProperty('id', $entity_type);
         $row->setSourceProperty('label', (string) $definition->getLabel() . ' - default');
         $row->setSourceProperty('type', 'canonical_entities:' . $entity_type);
-        $row->setSourceProperty('pattern', unserialize($row->getSourceProperty('value')));
+        $row->setSourceProperty('pattern', unserialize($row->getSourceProperty('value'), ['allowed_classes' => FALSE]));
         return parent::prepareRow($row);
       }
       elseif (strpos($name, 'pathauto_' . $entity_type . '_') === 0) {
@@ -104,7 +104,7 @@ class PathautoPattern extends DrupalSqlBase {
         $bundle = $matches[1];
 
         // Check that the bundle exists.
-        $bundles = $this->entityManager->getBundleInfo($entity_type);
+        $bundles = $this->entityTypeBundleInfo->getBundleInfo($entity_type);
         if (!in_array($bundle, array_keys($bundles))) {
           // No matching bundle found in destination.
           return FALSE;
@@ -114,10 +114,10 @@ class PathautoPattern extends DrupalSqlBase {
         $row->setSourceProperty('id', $entity_type . '_' . $bundle);
         $row->setSourceProperty('label', (string) $definition->getLabel() . ' - ' . $bundles[$bundle]['label']);
         $row->setSourceProperty('type', 'canonical_entities:' . $entity_type);
-        $row->setSourceProperty('pattern', unserialize($row->getSourceProperty('value')));
+        $row->setSourceProperty('pattern', unserialize($row->getSourceProperty('value'), ['allowed_classes' => FALSE]));
 
         $selection_criteria = [
-          'id' => ($entity_type == 'node') ? 'node_type' : 'entity_bundle:' . $entity_type,
+          'id' => 'entity_bundle:' . $entity_type,
           'bundles' => [$bundle => $bundle],
           'negate' => FALSE,
           'context_mapping' => [$entity_type => $entity_type],

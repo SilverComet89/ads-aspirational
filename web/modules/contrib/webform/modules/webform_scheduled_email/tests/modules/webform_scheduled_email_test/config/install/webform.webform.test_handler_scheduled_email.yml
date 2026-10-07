@@ -1,3 +1,4 @@
+uuid: null
 langcode: en
 status: open
 dependencies:
@@ -15,7 +16,7 @@ archive: false
 id: test_handler_scheduled_email
 title: 'Test: Handler: Test scheduled email'
 description: 'Test webform schedule email handler.'
-category: null
+categories: {  }
 elements: |
   value:
     '#type': textfield
@@ -39,7 +40,6 @@ elements: |
       visible:
         ':input[name="send"]':
           value: other
-
 css: ''
 javascript: ''
 settings:
@@ -51,7 +51,7 @@ settings:
   page: true
   page_submit_path: ''
   page_confirm_path: ''
-  page_admin_theme: false
+  page_theme_name: ''
   form_title: source_entity_webform
   form_submit_once: false
   form_exception_message: ''
@@ -60,7 +60,7 @@ settings:
   form_previous_submissions: true
   form_confidential: false
   form_confidential_message: ''
-  form_remote_addr: true
+  form_disable_remote_addr: false
   form_convert_anonymous: false
   form_prepopulate: false
   form_prepopulate_source_entity: false
@@ -81,6 +81,14 @@ settings:
   form_access_denied_message: ''
   form_access_denied_attributes: {  }
   form_file_limit: ''
+  form_method: ''
+  form_action: ''
+  form_attributes: {  }
+  share: false
+  share_node: false
+  share_theme_name: ''
+  share_title: true
+  share_page_body_attributes: {  }
   submission_label: ''
   submission_log: true
   submission_views: {  }
@@ -105,11 +113,22 @@ settings:
   wizard_progress_pages: false
   wizard_progress_percentage: false
   wizard_progress_link: false
+  wizard_progress_states: false
+  wizard_auto_forward: true
+  wizard_auto_forward_hide_next_button: false
+  wizard_keyboard: true
   wizard_start_label: ''
   wizard_preview_link: false
   wizard_confirmation: true
   wizard_confirmation_label: ''
   wizard_track: ''
+  wizard_prev_button_label: ''
+  wizard_next_button_label: ''
+  wizard_toggle: false
+  wizard_toggle_show_label: ''
+  wizard_toggle_hide_label: ''
+  wizard_page_type: container
+  wizard_page_title_tag: h2
   preview: 0
   preview_label: ''
   preview_title: ''
@@ -152,7 +171,11 @@ settings:
   purge_days: null
   results_disabled: false
   results_disabled_ignore: false
+  results_customize: false
+  token_view: false
   token_update: false
+  token_delete: false
+  serial_disabled: false
 access:
   create:
     roles:
@@ -204,6 +227,7 @@ handlers:
   tomorrow:
     id: scheduled_email
     label: Tomorow
+    notes: ''
     handler_id: tomorrow
     status: true
     conditions: {  }
@@ -228,9 +252,11 @@ handlers:
       ignore_access: false
       exclude_empty: true
       exclude_empty_checkbox: false
+      exclude_attachments: false
       html: true
       attachments: false
       theme_name: ''
+      parameters: {  }
       twig: false
       debug: true
       reply_to: ''
@@ -245,6 +271,7 @@ handlers:
   yesterday:
     id: scheduled_email
     label: Yesterday
+    notes: ''
     handler_id: yesterday
     status: true
     conditions: {  }
@@ -269,10 +296,12 @@ handlers:
       ignore_access: false
       exclude_empty: true
       exclude_empty_checkbox: false
+      exclude_attachments: false
       html: true
       attachments: false
       twig: false
       theme_name: ''
+      parameters: {  }
       debug: true
       reply_to: ''
       return_path: ''
@@ -286,6 +315,7 @@ handlers:
   last_year:
     id: scheduled_email
     label: 'Last year'
+    notes: ''
     handler_id: last_year
     status: true
     conditions: {  }
@@ -310,10 +340,12 @@ handlers:
       ignore_access: false
       exclude_empty: true
       exclude_empty_checkbox: false
+      exclude_attachments: false
       html: true
       attachments: false
       twig: false
       theme_name: ''
+      parameters: {  }
       debug: true
       reply_to: ''
       return_path: ''
@@ -327,6 +359,7 @@ handlers:
   broken:
     id: scheduled_email
     label: Broken
+    notes: ''
     handler_id: broken
     status: true
     conditions: {  }
@@ -351,10 +384,12 @@ handlers:
       ignore_access: false
       exclude_empty: true
       exclude_empty_checkbox: false
+      exclude_attachments: false
       html: true
       attachments: false
       twig: false
       theme_name: ''
+      parameters: {  }
       debug: true
       reply_to: ''
       return_path: ''
@@ -368,6 +403,7 @@ handlers:
   other:
     id: scheduled_email
     label: Other
+    notes: ''
     handler_id: other
     status: true
     conditions: {  }
@@ -395,10 +431,12 @@ handlers:
       ignore_access: false
       exclude_empty: true
       exclude_empty_checkbox: false
+      exclude_attachments: false
       html: true
       attachments: false
       twig: false
       theme_name: ''
+      parameters: {  }
       debug: true
       reply_to: ''
       return_path: ''
@@ -412,6 +450,7 @@ handlers:
   draft_reminder:
     id: scheduled_email
     label: 'Draft reminder'
+    notes: ''
     handler_id: draft_reminder
     status: true
     conditions: {  }
@@ -437,10 +476,12 @@ handlers:
       ignore_access: false
       exclude_empty: true
       exclude_empty_checkbox: false
+      exclude_attachments: false
       html: true
       attachments: false
       twig: false
       theme_name: ''
+      parameters: {  }
       debug: true
       reply_to: ''
       return_path: ''
@@ -451,3 +492,4 @@ handlers:
       unschedule: true
       ignore_past: false
       test_send: false
+variants: {  }

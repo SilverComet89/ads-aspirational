@@ -12,7 +12,7 @@ class MetatagFieldTestTest extends MetatagFieldTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     // Needed for token handling.
     'token',
 
@@ -64,7 +64,7 @@ class MetatagFieldTestTest extends MetatagFieldTestBase {
   /**
    * {@inheritdoc}
    */
-  protected $entityFieldAdminPath = 'entity_test/structure/entity_test/fields';
+  protected $entityFieldAdminPath = 'entity_test/structure/entity_test';
 
   /**
    * Whether or not the entity type supports defaults.

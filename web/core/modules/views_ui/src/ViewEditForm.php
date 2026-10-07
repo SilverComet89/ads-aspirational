@@ -9,9 +9,11 @@ use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Render\ElementInfoManagerInterface;
-use Drupal\Core\Url;
 use Drupal\Core\TempStore\SharedTempStoreFactory;
+use Drupal\Core\Theme\ThemeManagerInterface;
+use Drupal\Core\Url;
 use Drupal\views\Views;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -53,6 +55,13 @@ class ViewEditForm extends ViewFormBase {
   protected $elementInfo;
 
   /**
+   * The theme manager.
+   *
+   * @var \Drupal\Core\Theme\ThemeManagerInterface
+   */
+  protected $themeManager;
+
+  /**
    * Constructs a new ViewEditForm object.
    *
    * @param \Drupal\Core\TempStore\SharedTempStoreFactory $temp_store_factory
@@ -63,12 +72,19 @@ class ViewEditForm extends ViewFormBase {
    *   The date Formatter service.
    * @param \Drupal\Core\Render\ElementInfoManagerInterface $element_info
    *   The element info manager.
+   * @param \Drupal\Core\Theme\ThemeManagerInterface $theme_manager
+   *   The theme manager.
    */
-  public function __construct(SharedTempStoreFactory $temp_store_factory, RequestStack $requestStack, DateFormatterInterface $date_formatter, ElementInfoManagerInterface $element_info) {
+  public function __construct(SharedTempStoreFactory $temp_store_factory, RequestStack $requestStack, DateFormatterInterface $date_formatter, ElementInfoManagerInterface $element_info, ThemeManagerInterface $theme_manager = NULL) {
     $this->tempStore = $temp_store_factory->get('views');
     $this->requestStack = $requestStack;
     $this->dateFormatter = $date_formatter;
     $this->elementInfo = $element_info;
+    if ($theme_manager === NULL) {
+      @trigger_error('Calling ' . __METHOD__ . ' without the $theme_manager argument is deprecated in drupal:9.1.0 and will be required in drupal:10.0.0. See https://www.drupal.org/node/3159506', E_USER_DEPRECATED);
+      $theme_manager = \Drupal::service('theme.manager');
+    }
+    $this->themeManager = $theme_manager;
   }
 
   /**
@@ -79,7 +95,8 @@ class ViewEditForm extends ViewFormBase {
       $container->get('tempstore.shared'),
       $container->get('request_stack'),
       $container->get('date.formatter'),
-      $container->get('element_info')
+      $container->get('element_info'),
+      $container->get('theme.manager')
     );
   }
 
@@ -109,8 +126,7 @@ class ViewEditForm extends ViewFormBase {
 
     $form['#tree'] = TRUE;
 
-    $form['#attached']['library'][] = 'core/jquery.ui.tabs';
-    $form['#attached']['library'][] = 'core/jquery.ui.dialog';
+    $form['#attached']['library'][] = 'core/drupal.dialog.ajax';
     $form['#attached']['library'][] = 'core/drupal.states';
     $form['#attached']['library'][] = 'core/drupal.tabledrag';
     $form['#attached']['library'][] = 'views_ui/views_ui.admin';
@@ -315,8 +331,6 @@ class ViewEditForm extends ViewFormBase {
           $query->remove('destination');
         }
       }
-      // @todo Use Url::fromPath() once https://www.drupal.org/node/2351379 is
-      //   resolved.
       $form_state->setRedirectUrl(Url::fromUri("base:$destination"));
     }
 
@@ -361,15 +375,26 @@ class ViewEditForm extends ViewFormBase {
       $build['details'] = $this->getDisplayDetails($view, $display->display);
     }
     // In AJAX context, ViewUI::rebuildCurrentTab() returns this outside of form
-    // context, so hook_form_views_ui_edit_form_alter() is insufficient.
+    // context, so hook_form_view_edit_form_alter() is insufficient.
+    // @todo remove this after
+    //   https://www.drupal.org/project/drupal/issues/3087455 has been resolved.
     \Drupal::moduleHandler()->alter('views_ui_display_tab', $build, $view, $display_id);
+    // Because themes can implement hook_form_FORM_ID_alter() and because this
+    // is a workaround for hook_form_view_edit_form_alter() being insufficient,
+    // also invoke this on themes.
+    // @todo remove this after
+    //   https://www.drupal.org/project/drupal/issues/3087455 has been resolved.
+    $this->themeManager->alter('views_ui_display_tab', $build, $view, $display_id);
     return $build;
   }
 
   /**
    * Helper function to get the display details section of the edit UI.
    *
-   * @param $display
+   * @param \Drupal\views_ui\ViewUI $view
+   *   The ViewUI entity.
+   * @param array $display
+   *   The display.
    *
    * @return array
    *   A renderable page build array.
@@ -382,7 +407,7 @@ class ViewEditForm extends ViewFormBase {
     ];
 
     $is_display_deleted = !empty($display['deleted']);
-    // The master display cannot be duplicated.
+    // The default display cannot be duplicated.
     $is_default = $display['id'] == 'default';
     // @todo: Figure out why getOption doesn't work here.
     $is_enabled = $view->getExecutable()->displayHandlers->get($display['id'])->isEnabled();
@@ -580,8 +605,8 @@ class ViewEditForm extends ViewFormBase {
     $build['columns']['second']['header'] = $this->getFormBucket($view, 'header', $display);
     $build['columns']['second']['footer'] = $this->getFormBucket($view, 'footer', $display);
     $build['columns']['second']['empty'] = $this->getFormBucket($view, 'empty', $display);
-    $build['columns']['third']['arguments'] = $this->getFormBucket($view, 'argument', $display);
     $build['columns']['third']['relationships'] = $this->getFormBucket($view, 'relationship', $display);
+    $build['columns']['third']['arguments'] = $this->getFormBucket($view, 'argument', $display);
 
     return $build;
   }
@@ -768,13 +793,28 @@ class ViewEditForm extends ViewFormBase {
         '#value' => $this->t('Add @display', ['@display' => $label]),
         '#limit_validation_errors' => [],
         '#submit' => ['::submitDisplayAdd', '::submitDelayDestination'],
-        '#attributes' => ['class' => ['add-display']],
+        '#attributes' => [
+          'class' => ['add-display'],
+          'data-drupal-dropdown-label' => $label,
+        ],
         // Allow JavaScript to remove the 'Add ' prefix from the button label when
-        // placing the button in a "Add" dropdown menu.
+        // placing the button in an "Add" dropdown menu.
         '#process' => array_merge(['views_ui_form_button_was_clicked'], $this->elementInfo->getInfoProperty('submit', '#process', [])),
         '#values' => [$this->t('Add @display', ['@display' => $label]), $label],
       ];
     }
+
+    // In AJAX context, ViewUI::rebuildCurrentTab() returns this outside of form
+    // context, so hook_form_view_edit_form_alter() is insufficient.
+    // @todo remove this after
+    //   https://www.drupal.org/project/drupal/issues/3087455 has been resolved.
+    \Drupal::moduleHandler()->alter('views_ui_display_top', $element, $view, $display_id);
+    // Because themes can implement hook_form_FORM_ID_alter() and because this
+    // is a workaround for hook_form_view_edit_form_alter() being insufficient,
+    // also invoke this on themes.
+    // @todo remove this after
+    //   https://www.drupal.org/project/drupal/issues/3087455 has been resolved.
+    $this->themeManager->alter('views_ui_display_top', $element, $view, $display_id);
 
     return $element;
   }
@@ -960,6 +1000,7 @@ class ViewEditForm extends ViewFormBase {
         // TODO: Add another class to have another symbol for filter rearrange.
         $class = 'icon compact rearrange';
         break;
+
       case 'field':
         // Fetch the style plugin info so we know whether to list fields or not.
         $style_plugin = $executable->style_plugin;
@@ -973,6 +1014,7 @@ class ViewEditForm extends ViewFormBase {
           return $build;
         }
         break;
+
       case 'header':
       case 'footer':
       case 'empty':
@@ -1062,13 +1104,13 @@ class ViewEditForm extends ViewFormBase {
       if ($handler->broken()) {
         $build['fields'][$id]['#class'][] = 'broken';
         $field_name = $handler->adminLabel();
-        $build['fields'][$id]['#link'] = $this->l($field_name, new Url('views_ui.form_handler', [
+        $build['fields'][$id]['#link'] = Link::fromTextAndUrl($field_name, new Url('views_ui.form_handler', [
           'js' => 'nojs',
           'view' => $view->id(),
           'display_id' => $display['id'],
           'type' => $type,
           'id' => $id,
-        ], ['attributes' => ['class' => ['views-ajax-link']]]));
+        ], ['attributes' => ['class' => ['views-ajax-link']]]))->toString();
         continue;
       }
 
@@ -1085,33 +1127,33 @@ class ViewEditForm extends ViewFormBase {
         // Add a [hidden] marker, if the field is excluded.
         $link_text .= ' [' . $this->t('hidden') . ']';
       }
-      $build['fields'][$id]['#link'] = $this->l($link_text, new Url('views_ui.form_handler', [
+      $build['fields'][$id]['#link'] = Link::fromTextAndUrl($link_text, new Url('views_ui.form_handler', [
         'js' => 'nojs',
         'view' => $view->id(),
         'display_id' => $display['id'],
         'type' => $type,
         'id' => $id,
-      ], ['attributes' => $link_attributes]));
+      ], ['attributes' => $link_attributes]))->toString();
       $build['fields'][$id]['#class'][] = Html::cleanCssIdentifier($display['id'] . '-' . $type . '-' . $id);
 
       if ($executable->display_handler->useGroupBy() && $handler->usesGroupBy()) {
-        $build['fields'][$id]['#settings_links'][] = $this->l(new FormattableMarkup('<span class="label">@text</span>', ['@text' => $this->t('Aggregation settings')]), new Url('views_ui.form_handler_group', [
+        $build['fields'][$id]['#settings_links'][] = Link::fromTextAndUrl(new FormattableMarkup('<span class="label">@text</span>', ['@text' => $this->t('Aggregation settings')]), new Url('views_ui.form_handler_group', [
           'js' => 'nojs',
           'view' => $view->id(),
           'display_id' => $display['id'],
           'type' => $type,
           'id' => $id,
-        ], ['attributes' => ['class' => ['views-button-configure', 'views-ajax-link'], 'title' => $this->t('Aggregation settings')]]));
+        ], ['attributes' => ['class' => ['views-button-configure', 'views-ajax-link'], 'title' => $this->t('Aggregation settings')]]))->toString();
       }
 
       if ($handler->hasExtraOptions()) {
-        $build['fields'][$id]['#settings_links'][] = $this->l(new FormattableMarkup('<span class="label">@text</span>', ['@text' => $this->t('Settings')]), new Url('views_ui.form_handler_extra', [
+        $build['fields'][$id]['#settings_links'][] = Link::fromTextAndUrl(new FormattableMarkup('<span class="label">@text</span>', ['@text' => $this->t('Settings')]), new Url('views_ui.form_handler_extra', [
           'js' => 'nojs',
           'view' => $view->id(),
           'display_id' => $display['id'],
           'type' => $type,
           'id' => $id,
-        ], ['attributes' => ['class' => ['views-button-configure', 'views-ajax-link'], 'title' => $this->t('Settings')]]));
+        ], ['attributes' => ['class' => ['views-button-configure', 'views-ajax-link'], 'title' => $this->t('Settings')]]))->toString();
       }
 
       if ($grouping) {

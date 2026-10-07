@@ -7,7 +7,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 
 /**
- * Interface LinkedFieldManagerInterface.
+ * Linked Field Manager Interface.
  *
  * @package Drupal\linked_field
  */
@@ -45,8 +45,6 @@ interface LinkedFieldManagerInterface {
   /**
    * Get Linked Field display settings for a given entity.
    *
-   * @deprecated No longer used by internal code and not recommended.
-   *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity being viewed.
    * @param string $view_mode
@@ -54,7 +52,11 @@ interface LinkedFieldManagerInterface {
    * @param string $field_name
    *   The name of the field.
    *
+   * @deprecated in linked_field:8.x-1.2 and is removed from linked_field:2.0.0. No longer used by internal code and not recommended.
+   * @see https://www.drupal.org/node/404
+   *
    * @return array
+   *   Getting linked field display settings.
    */
   public function getDisplaySettings(EntityInterface $entity, $view_mode, $field_name);
 
@@ -67,6 +69,7 @@ interface LinkedFieldManagerInterface {
    *   The field name.
    *
    * @return array
+   *   Getting display settings.
    */
   public function getFieldDisplaySettings(EntityViewDisplayInterface $display, $field_name);
 
@@ -81,8 +84,24 @@ interface LinkedFieldManagerInterface {
    *   An array of context information.
    *
    * @return string
+   *   Getting the destination.
    */
-  public function getDestination($type, $value, $context);
+  public function getDestination($type, $value, array $context);
+
+  /**
+   * Get the field attributes for a set field.
+   *
+   * @param string $value
+   *   The value of the destination.
+   * @param int $delta
+   *   The delta of the field item.
+   * @param array $context
+   *   An array of context information.
+   *
+   * @return array
+   *   Getting the field attributes.
+   */
+  public function getFieldItemAttributes(string $value, int $delta, array $context);
 
   /**
    * Build the final destination URL.
@@ -109,7 +128,7 @@ interface LinkedFieldManagerInterface {
   /**
    * Replace token in text.
    *
-   * @param $text
+   * @param string $text
    *   The text with tokens included.
    * @param array $data
    *   Additional context information.
@@ -117,8 +136,9 @@ interface LinkedFieldManagerInterface {
    *   An options array for the token replacement.
    *
    * @return string
+   *   String with tokens.
    */
-  public function replaceToken($text, $data = [], $options = []);
+  public function replaceToken($text, array $data = [], array $options = []);
 
   /**
    * Link a DOM node.
@@ -135,11 +155,14 @@ interface LinkedFieldManagerInterface {
   /**
    * Link HTML code with set link attributes.
    *
-   * @param $html
-   * @param $attributes
+   * @param string $html
+   *   The list of HTML.
+   * @param array $attributes
+   *   An associative array of attributes.
    *
    * @return string
+   *   Linking the html code.
    */
-  public function linkHtml($html, $attributes);
+  public function linkHtml($html, array $attributes);
 
 }

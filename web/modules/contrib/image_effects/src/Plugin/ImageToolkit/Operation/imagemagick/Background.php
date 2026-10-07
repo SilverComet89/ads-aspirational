@@ -25,9 +25,9 @@ class Background extends ImagemagickImageToolkitOperationBase {
    */
   protected function execute(array $arguments) {
     // Background image local path.
-    $local_path = $arguments['background_image']->getToolkit()->getSourceLocalPath();
+    $local_path = $arguments['background_image']->getToolkit()->ensureSourceLocalPath();
     if ($local_path !== '') {
-      $image_path = $this->getToolkit()->escapeShellArg($local_path);
+      $image_path = $this->escapeArgument($local_path);
     }
     else {
       $source_path = $arguments['background_image']->getToolkit()->getSource();
@@ -44,13 +44,8 @@ class Background extends ImagemagickImageToolkitOperationBase {
     $w = $arguments['background_image']->getToolkit()->getWidth();
     $h = $arguments['background_image']->getToolkit()->getHeight();
     // Reverse offset sign. Offset arguments require a sign in front.
-    // @todo the minus before $arguments gives issues to PHPCS, either as is
-    // or with a space in between the minus and the variable. See if later
-    // sniffs fix that.
-    // @codingStandardsIgnoreStart
     $x = $arguments['x_offset'] > 0 ? ('-' . $arguments['x_offset']) : ('+' . -$arguments['x_offset']);
     $y = $arguments['y_offset'] > 0 ? ('-' . $arguments['y_offset']) : ('+' . -$arguments['y_offset']);
-    // @codingStandardsIgnoreEnd
     $op .= " -extent {$w}x{$h}{$x}{$y} ";
 
     // Add the background image.
@@ -64,8 +59,8 @@ class Background extends ImagemagickImageToolkitOperationBase {
       $op .= " -compose blend -define compose:args=100,{$arguments['opacity']} -composite";
     }
 
+    $this->addArgument($op);
     $this->getToolkit()
-      ->addArgument($op)
       ->setWidth($w)
       ->setHeight($h);
     return TRUE;

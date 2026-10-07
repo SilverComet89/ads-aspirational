@@ -3,17 +3,36 @@
 namespace Drupal\views_fieldsets;
 
 use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Render\Markup;
 use Drupal\views\ResultRow;
 use Drupal\views_fieldsets\Plugin\views\field\Fieldset;
 
+/**
+ * Custom class for handling RowFieldset.
+ */
 class RowFieldset {
 
-  public $row;
+  /**
+   * Current row being worked.
+   *
+   * @var \Drupal\views\ResultRow
+   */
+  public ResultRow $row;
 
-  public $properties = [];
+  /**
+   * An array of properties for fieldset.
+   *
+   * @var array
+   */
+  public array $properties = [];
 
-  public $children = [];
+  /**
+   * An array children for fieldset.
+   *
+   * @var array
+   */
+  public array $children = [];
 
   /**
    * Constructs an RowFieldset object.
@@ -29,7 +48,7 @@ class RowFieldset {
    * @param string $name
    *   Method's name.
    */
-  public function __isset($name) {
+  public function __isset(string $name) {
     return TRUE;
   }
 
@@ -39,8 +58,9 @@ class RowFieldset {
    * @param string $name
    *   Method's name.
    */
-  public function __get($name) {
-    if (is_callable($method = [$this, "get_$name"])) {
+  public function __get(string $name) {
+    $method_name = 'get' . Unicode::ucwords($name);
+    if (is_callable($method = [$this, $method_name])) {
       return call_user_func($method);
     }
     if (!empty($name) && !empty($this->properties[$name])) {
@@ -50,23 +70,23 @@ class RowFieldset {
   }
 
   /**
-   * Object get_content().
+   * Object getcontent().
    */
-  public function get_content() {
+  public function getContent() {
     return $this->render();
   }
 
   /**
-   * Object get_wrapper_element().
+   * Object getwrapperelement().
    */
-  public function get_wrapper_element() {
+  public function getWrapperelement() {
     return '';
   }
 
   /**
-   * Object get_element_type().
+   * Object getelementtype().
    */
-  public function get_element_type() {
+  public function getElementtype() {
     return '';
   }
 
@@ -74,16 +94,32 @@ class RowFieldset {
    * Object render().
    */
   public function render() {
-    // @todo Theme hook suggestions!
+    $children = $this->children;
+    $show_fieldset = FALSE;
+    foreach ($children as $child) {
+      if (isset($child->content)) {
+        $text = trim(strip_tags($child->content));
+        if (!empty($text)) {
+          $show_fieldset = TRUE;
+          break;
+        }
+      }
+    }
     $element = [
-      '#theme' => 'views_fieldsets_' . $this->getWrapperType(),
+      '#theme' => $this->themeFunctions($this->getWrapperType()),
       '#fields' => $this->children,
+      '#show_fieldset' => $show_fieldset,
       '#legend' => Markup::create($this->getLegend()),
       '#collapsible' => (bool) $this->handler->options['collapsible'],
-      '#collapsed' => (bool) $this->handler->options['collapsed'],
-      '#classes' => $this->getClasses(),
+      '#attributes' => [
+        'class' => $this->getClasses(),
+      ],
     ];
-    return render($element);
+    if ($this->handler->options['collapsed'] && $this->getWrapperType() != 'div') {
+      $element['#attributes']['class'][] = 'collapsed';
+    }
+    // @phpstan-ignore-next-line
+    return \Drupal::service('renderer')->render($element);
   }
 
   /**
@@ -111,11 +147,10 @@ class RowFieldset {
    * Object getClasses().
    */
   protected function getClasses() {
-    $classes = explode('  ', $this->handler->options['classes']);
-    $classes = array_map(function ($class) {
+    $classes = preg_split('/(,|  )/', $this->handler->options['classes']);
+    return array_map(function ($class) {
       return Html::getClass($this->tokenize($class));
     }, $classes);
-    return implode(' ', $classes);
   }
 
   /**
@@ -133,11 +168,46 @@ class RowFieldset {
    *
    * @param array $fields
    *   Fields.
-   * @param array $field_name
-   *   Fields name.
+   * @param string $field_name
+   *   Field name.
    */
   public function addChild(array $fields, $field_name) {
     $this->children[$field_name] = $fields[$field_name];
+  }
+
+  /**
+   * Generate a list of theme hook suggestions.
+   *
+   * @param string $type
+   *   Fieldset type.
+   *
+   * @return array
+   *   List of theme suggestions.
+   */
+  public function themeFunctions(string $type): array {
+    $themes = [];
+    $hook = 'views_fieldsets_' . $type;
+
+    $display = $this->handler->view->display_handler->display;
+
+    if (!empty($display)) {
+      $themes[] = $hook . '__' . $this->handler->view->storage->id() . '__' . $display['id'] . '__' . $this->handler->options['id'];
+      $themes[] = $hook . '__' . $this->handler->view->storage->id() . '__' . $display['id'];
+      $themes[] = $hook . '__' . $display['id'] . '__' . $this->handler->options['id'];
+      $themes[] = $hook . '__' . $display['id'];
+      if ($display['id'] != $display['display_plugin']) {
+        $themes[] = $hook . '__' . $this->handler->view->storage->id() . '__' . $display['display_plugin'] . '__' . $this->handler->options['id'];
+        $themes[] = $hook . '__' . $this->handler->view->storage->id() . '__' . $display['display_plugin'];
+        $themes[] = $hook . '__' . $display['display_plugin'] . '__' . $this->handler->options['id'];
+        $themes[] = $hook . '__' . $display['display_plugin'];
+      }
+    }
+    $themes[] = $hook . '__' . $this->handler->view->storage->id() . '__' . $this->handler->options['id'];
+    $themes[] = $hook . '__' . $this->handler->view->storage->id();
+    $themes[] = $hook . '__' . $this->handler->options['id'];
+    $themes[] = $hook;
+
+    return $themes;
   }
 
 }

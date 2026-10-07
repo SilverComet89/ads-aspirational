@@ -8,7 +8,7 @@ namespace Drupal\imce;
 abstract class ImceItem {
 
   /**
-   * Item type
+   * Item type.
    *
    * @var string
    */
@@ -24,7 +24,7 @@ abstract class ImceItem {
   /**
    * Selected status.
    *
-   * @var boolean
+   * @var bool
    */
   public $selected;
 
@@ -36,7 +36,14 @@ abstract class ImceItem {
   public $parent;
 
   /**
-   * File manager
+   * Item uuid.
+   *
+   * @var string
+   */
+  public $uuid;
+
+  /**
+   * File manager.
    *
    * @var \Drupal\imce\ImceFM
    */
@@ -86,6 +93,13 @@ abstract class ImceItem {
         return Imce::joinPaths($path, $this->name);
       }
     }
+  }
+
+  /**
+   * Sets the item path.
+   */
+  public function setPath($path) {
+    $this->path = $path;
   }
 
   /**

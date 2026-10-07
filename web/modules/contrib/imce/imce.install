@@ -12,7 +12,10 @@ use Drupal\Core\StreamWrapper\StreamWrapperInterface;
  */
 function imce_install() {
   // Assign admin profile to administrators.
-  $admin_roles = \Drupal::entityQuery('user_role')->condition('is_admin', TRUE)->execute();
+  $admin_roles = \Drupal::entityQuery('user_role')
+    ->accessCheck(FALSE)
+    ->condition('is_admin', TRUE)
+    ->execute();
   if ($admin_roles) {
     $config = \Drupal::configFactory()->getEditable('imce.settings');
     $roles_profiles = $config->get('roles_profiles') ?: [];
@@ -25,4 +28,11 @@ function imce_install() {
     $config->set('roles_profiles', $roles_profiles);
     $config->save(TRUE);
   }
+}
+
+/**
+ * Create image style for IMCE browser.
+ */
+function imce_update_8001() {
+  // Cancelled.
 }

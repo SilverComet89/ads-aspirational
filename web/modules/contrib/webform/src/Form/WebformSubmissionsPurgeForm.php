@@ -125,10 +125,11 @@ class WebformSubmissionsPurgeForm extends WebformSubmissionsDeleteFormBase {
   protected function getSubmissionTotal() {
     if (!isset($this->submissionTotal)) {
       $this->submissionTotal = $this->entityTypeManager
-      ->getStorage('webform_submission')
-      ->getQuery()
-      ->count()
-      ->execute();
+        ->getStorage('webform_submission')
+        ->getQuery()
+        ->accessCheck(FALSE)
+        ->count()
+        ->execute();
     }
     return $this->submissionTotal;
   }

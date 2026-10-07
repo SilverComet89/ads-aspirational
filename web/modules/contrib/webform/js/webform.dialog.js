@@ -3,7 +3,7 @@
  * JavaScript behaviors for webform dialogs.
  */
 
-(function ($, Drupal, drupalSettings) {
+(function ($, Drupal, drupalSettings, once) {
 
   'use strict';
 
@@ -13,13 +13,30 @@
   Drupal.webform.dialog.options = Drupal.webform.dialog.options || {};
 
   /**
+   * Programmatically open a webform (or page) in a dialog.
+   *
+   * @param {string} url
+   *   Webform URL.
+   * @param {string} type
+   *   Webform dialog type defined via /admin/structure/webform/config.
+   */
+  Drupal.webformOpenDialog = function (url, type) {
+    // Create a div with link but don't attach it to the page.
+    var $div = $('<div><a href="' + url + '" class="webform-dialog ' + type + '"></a></div>');
+    // Init the webform dialog behavior.
+    Drupal.behaviors.webformDialog.attach($div.get(0));
+    // Trigger the link.
+    $div.find('a').trigger('click');
+  };
+
+  /**
    * Open webform dialog using preset options.
    *
    * @type {Drupal~behavior}
    */
   Drupal.behaviors.webformDialog = {
     attach: function (context) {
-      $('a.webform-dialog', context).once('webform-dialog').each(function () {
+      $(once('webform-dialog', 'a.webform-dialog', context)).each(function () {
         var $a = $(this);
 
         // Get default options.
@@ -67,9 +84,14 @@
         element_settings.dialogType = $a.data('dialog-type') || 'modal';
         element_settings.dialog = options;
         element_settings.element = this;
+        element_settings.error = function error(xmlhttp, uri) {
+          if (xmlhttp.status === 403) {
+            window.location.replace(href.split('?')[0]);
+          }
+        };
         Drupal.ajax(element_settings);
       });
     }
   };
 
-})(jQuery, Drupal, drupalSettings);
+})(jQuery, Drupal, drupalSettings, once);

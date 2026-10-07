@@ -3,7 +3,7 @@
  * JavaScript behaviors for time integration.
  */
 
-(function ($, Drupal) {
+(function ($, Drupal, once) {
 
   'use strict';
 
@@ -26,7 +26,7 @@
         return;
       }
 
-      $(context).find('input[data-webform-time-format]').once('webformTimePicker').each(function () {
+      $(once('webformTimePicker', 'input[data-webform-time-format]', context)).each(function () {
         var $input = $(this);
 
         // Skip if time inputs are supported by the browser and input is not a text field.
@@ -57,6 +57,11 @@
           options.step = 1;
         }
 
+        // Set step to 'any' to prevent clientside validation issues.
+        // @see \Drupal\clientside_validation\Plugin\CvValidator\Step
+        // @see https://www.drupal.org/project/clientside_validation/issues/2941434
+        $input.attr('step', 'any');
+
         options = $.extend(options, Drupal.webform.timePicker.options);
 
         $input.timepicker(options);
@@ -64,4 +69,4 @@
     }
   };
 
-})(jQuery, Drupal);
+})(jQuery, Drupal, once);

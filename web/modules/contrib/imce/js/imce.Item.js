@@ -184,6 +184,13 @@
   };
 
   /**
+   * Sets the item path.
+   */
+  Item.setPath = function (path) {
+    this.path = path;
+  };
+
+  /**
    * Returns item uri.
    */
   Item.getUri = function () {
@@ -198,10 +205,16 @@
    * Uncached parameter allows unique urls per size+date which is useful to display resized/cropped images
    */
   Item.getUrl = function (absolute, uncached) {
-    var rootUrl;
-    var url = '';
-    if (rootUrl = imce.getConf('root_url')) {
-      url = imce.joinPaths(rootUrl, encodeURIComponent(this.getPath()).replace(/%2F/g, '/'));
+    // Allow urls set by plugins on server side.
+    var url = this.url;
+    if (!url) {
+      var rootUrl = imce.getConf('root_url');
+      if (rootUrl) {
+        var path = encodeURIComponent(this.getPath()).replace(/%2F/g, '/');
+        url = imce.joinPaths(rootUrl, path);
+      }
+    }
+    if (url) {
       if (absolute && url.charAt(0) === '/' && url.charAt(1) !== '/') {
         url = location.protocol + '//' + location.host + url;
       }
@@ -209,7 +222,7 @@
         url += (url.indexOf('?') === -1 ? '?' : '&') + ('s' + this.size) + ('d' + this.date);
       }
     }
-    return url;
+    return url || '';
   };
 
   /**
@@ -305,7 +318,7 @@
    * Triggers property change handlers.
    */
   Item.triggerPropertyChange = function (prop, oldval) {
-    var method = 'on' + prop.charAt(0).toUpperCase() + prop.substr(1) + 'Change';
+    var method = 'on' + prop.charAt(0).toUpperCase() + prop.substring(1) + 'Change';
     if (this[method]) {
       this[method](oldval);
       if (this === imce.previewingItem) {
@@ -319,9 +332,25 @@
    */
   Item.onNameChange = function (oldname) {
     var Item = this;
-    Item.nameEl.innerHTML = Item.formatName();
+    var name = Item.formatName();
+    Item.nameEl.innerHTML = name;
+    Item.nameEl.title = name;
     if (Item.parent) {
       Item.parent.onItemNameChange(Item, oldname);
+    }
+  };
+
+  /**
+   * Thumbnail change handler.
+   */
+  Item.onThumbnailChange = function (oldval) {
+    if (this.thumbnail) {
+      this.iconEl.innerHTML = '<img src="' + this.thumbnail + '" alt="thumbnail">';
+      this.iconEl.className += ' imce-item-thumbnail';
+    }
+    else {
+      this.iconEl.innerHTML = '';
+      $(this.iconEl).removeClass('imce-item-thumbnail');
     }
   };
 
@@ -329,29 +358,36 @@
    * Size change handler.
    */
   Item.onSizeChange = function (oldval) {
-    this.sizeEl.innerHTML = this.formatSize();
+    var size = this.formatSize();
+    this.sizeEl.innerHTML = size;
+    this.sizeEl.title = size;
   };
 
   /**
    * Date change handler.
    */
   Item.onDateChange = function (oldval) {
-    this.dateEl.innerHTML = this.formatDate(true);
-    this.dateEl.title = this.formatDate();
+    var date = this.formatDate(true);
+    this.dateEl.innerHTML = date;
+    this.dateEl.title = date;
   };
 
   /**
    * Width change handler.
    */
   Item.onWidthChange = function (oldval) {
-    this.widthEl.innerHTML = this.formatWidth();
+    var width = this.formatWidth();
+    this.widthEl.innerHTML = width;
+    this.widthEl.title = width;
   };
 
   /**
    * Height change handler.
    */
   Item.onHeightChange = function (oldval) {
-    this.heightEl.innerHTML = this.formatHeight();
+    var height = this.formatHeight();
+    this.heightEl.innerHTML = height;
+    this.heightEl.title = height;
   };
 
 
@@ -393,8 +429,19 @@
       prvEl.appendChild(el);
       prvEl.className += ' image';
       el.firstChild.onclick = imce.ePrvImgClick;
+      el.firstChild.onload = (e) => Item.prvImgLoad(e);
     }
     return prvEl;
+  };
+
+  /**
+   * Load event for the preview image.
+   */
+  Item.prvImgLoad = function (e) {
+    if (!this.width) {
+      const { width, height } = e.target;
+      this.extend({ width, height });
+    }
   };
 
   /**
@@ -447,10 +494,16 @@
   /**
    * Check if the item can be used as an image source.
    */
-  Item.isImageSource = function() {
-    return this.width || this.ext && this.ext.toLowerCase() === 'svg';
+  Item.isImageSource = function () {
+    return false;
   };
 
+  /**
+   * Check if the item name has image extension.
+   */
+  Item.hasImageExtension = function () {
+    return false;
+  };
 
   /**
    * Mousedown event for items.

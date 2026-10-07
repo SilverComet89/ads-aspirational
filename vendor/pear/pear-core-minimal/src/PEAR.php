@@ -49,7 +49,9 @@ $GLOBALS['_PEAR_destructor_object_list'] = array();
 $GLOBALS['_PEAR_shutdown_funcs']         = array();
 $GLOBALS['_PEAR_error_handler_stack']    = array();
 
-@ini_set('track_errors', true);
+if(function_exists('ini_set')) {
+    @ini_set('track_errors', true);
+}
 
 /**
  * Base class for other PEAR classes.  Provides rudimentary
@@ -214,12 +216,16 @@ class PEAR
     public function __call($method, $arguments)
     {
         if (!isset(self::$bivalentMethods[$method])) {
-            trigger_error(
-                'Call to undefined method PEAR::' . $method . '()', E_USER_ERROR
-            );
+           if (PHP_VERSION_ID < 70000) {
+                trigger_error(
+                    'Call to undefined method PEAR::' . $method . '()', E_USER_ERROR
+                );
+            } else {
+                throw new Error('Call to undefined method PEAR::' . $method . '()');
+            }
         }
         return call_user_func_array(
-            array(get_class(), '_' . $method),
+            array(__CLASS__, '_' . $method),
             array_merge(array($this), $arguments)
         );
     }
@@ -227,12 +233,16 @@ class PEAR
     public static function __callStatic($method, $arguments)
     {
         if (!isset(self::$bivalentMethods[$method])) {
-            trigger_error(
-                'Call to undefined method PEAR::' . $method . '()', E_USER_ERROR
-            );
+            if (PHP_VERSION_ID < 70000) {
+                trigger_error(
+                    'Call to undefined method PEAR::' . $method . '()', E_USER_ERROR
+                );
+            } else {
+                throw new Error('Call to undefined method PEAR::' . $method . '()');
+            }
         }
         return call_user_func_array(
-            array(get_class(), '_' . $method),
+            array(__CLASS__, '_' . $method),
             array_merge(array(null), $arguments)
         );
     }
@@ -766,6 +776,28 @@ class PEAR
 
         return @dl('php_'.$ext.$suffix) || @dl($ext.$suffix);
     }
+
+    /**
+     * Get SOURCE_DATE_EPOCH environment variable
+     * See https://reproducible-builds.org/specs/source-date-epoch/
+     *
+     * @return int
+     * @access public
+     */
+    static function getSourceDateEpoch()
+    {
+        if ($source_date_epoch = getenv('SOURCE_DATE_EPOCH')) {
+            if (preg_match('/^\d+$/', $source_date_epoch)) {
+                return (int) $source_date_epoch;
+            } else {
+            //  "If the value is malformed, the build process SHOULD exit with a non-zero error code."
+            self::raiseError("Invalid SOURCE_DATE_EPOCH: $source_date_epoch");
+            exit(1);
+            }
+        } else {
+            return time();
+        }
+    }
 }
 
 function _PEAR_call_destructors()
@@ -837,6 +869,7 @@ class PEAR_Error
     var $message              = '';
     var $userinfo             = '';
     var $backtrace            = null;
+    var $callback             = null;
 
     /**
      * PEAR_Error constructor

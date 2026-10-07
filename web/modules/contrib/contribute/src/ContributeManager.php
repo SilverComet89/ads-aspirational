@@ -6,7 +6,6 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
-use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
 use GuzzleHttp\ClientInterface;
@@ -107,7 +106,7 @@ class ContributeManager implements ContributeManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getAccount() {
+  public function getAccount($display_type = TRUE) {
     $account_type = $this->getAccountType();
     $account_id = $this->getAccountId() ?: 'anonymous';
 
@@ -188,12 +187,14 @@ class ContributeManager implements ContributeManagerInterface {
         '#prefix' => '<br/>',
         '#markup' => $this->t('On Drupal.org for @date', $t_args),
       ];
-      $account['description']['link'] = [
-        '#type' => 'link',
-        '#title' => $this->t('Configure'),
-        '#url' => Url::fromRoute('contribute.settings'),
-        '#attributes' => $configure_attributes + ['class' => ['use-ajax']],
-      ];
+      if ($display_type) {
+        $account['description']['link'] = [
+          '#type' => 'link',
+          '#title' => $this->t('Configure'),
+          '#url' => Url::fromRoute('contribute.settings'),
+          '#attributes' => $configure_attributes + ['class' => ['use-ajax']],
+        ];
+      }
     }
     else {
       $t_args = [
@@ -341,7 +342,6 @@ class ContributeManager implements ContributeManagerInterface {
 
     return $membership;
   }
-
 
   /**
    * {@inheritdoc}
@@ -521,7 +521,7 @@ class ContributeManager implements ContributeManagerInterface {
   /**
    * Get a user account's badge from Drupal.org.
    *
-   * @return string
+   * @return string|NULL
    *   A user account's badge from Drupal.org.
    */
   protected function getUserBadge() {

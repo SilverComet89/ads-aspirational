@@ -7,7 +7,7 @@ namespace Drupal\Tests\token\Kernel;
  *
  * @group token
  */
-class UnitTest extends KernelTestBase {
+class UnitTest extends TokenKernelTestBase {
 
   /**
    * @var \Drupal\token\Token
@@ -15,16 +15,14 @@ class UnitTest extends KernelTestBase {
   protected $tokenService;
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = ['file', 'node'];
+  protected static $modules = ['file', 'node'];
 
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  public function setUp(): void {
     parent::setUp();
     $this->tokenService = \Drupal::token();
   }
@@ -103,7 +101,7 @@ class UnitTest extends KernelTestBase {
 
       sort($invalid_tokens);
       sort($test['invalid tokens']);
-      $this->assertEqual($invalid_tokens, $test['invalid tokens'], 'Invalid tokens detected properly: ' . implode(', ', $invalid_tokens));
+      $this->assertEquals($test['invalid tokens'], $invalid_tokens, 'Invalid tokens detected properly: ' . implode(', ', $invalid_tokens));
     }
   }
 

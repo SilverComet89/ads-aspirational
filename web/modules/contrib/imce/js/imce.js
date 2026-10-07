@@ -33,7 +33,8 @@
   /**
    * Initiate imce on document ready.
    */
-  $(document).ready(function () {
+  $(function () {
+
     var settings = window.drupalSettings;
     var conf = settings && settings.imce;
     var body = document.body;
@@ -96,7 +97,7 @@
     // Add the file manager to the page
     parentEl.appendChild(imce.fmEl);
     // Set window events
-    $(window).bind('beforeunload', imce.eWinBeforeunload).bind('resize', imce.eWinResize);
+    $(window).on('beforeunload', imce.eWinBeforeunload).on('resize', imce.eWinResize);
     imce.eWinResize();
     // Content focus
     imce.contentEl.focus();
@@ -115,7 +116,7 @@
     if (Folder) {
       Folder.open();
     }
-    // Triger postinit
+    // Trigger postinit
     imce.trigger('postinit');
   };
 
@@ -132,7 +133,7 @@
     el.onkeydown = imce.eFmKeydown;
     el.tabIndex = 0;
     // Toolbar
-    el.appendChild(imce.toolbarEl = createEl('<div id="imce-toolbar"></div>'));
+    el.appendChild(imce.toolbarEl = createEl('<div id="imce-toolbar" aria-label="Operations" role="toolbar"></div>'));
     // Body
     el.appendChild(imce.bodyEl = createEl('<div id="imce-body"></div>'));
     // Tree
@@ -149,6 +150,9 @@
     imce.bodyEl.appendChild(el);
     // Content
     el = imce.contentEl = createEl('<div id="imce-content"></div>');
+    if (imce.conf.thumbnail_grid_style) {
+      el.className = 'thumbnail-grid';
+    }
     el.onmousedown = imce.eContentMousedown;
     el.ontouchstart = imce.eContentTouchstart;
     el.onkeydown = imce.eContentKeydown;
@@ -358,6 +362,82 @@
     }
   };
 
+  /**
+   * Loads item uuids by ajax.
+   */
+  imce.loadItemUuids = function (items, callback) {
+    var i;
+    var Item;
+    var missing = [];
+    var loaded = [];
+    for (i in items) {
+      Item = items[i];
+      if (Item && Item.isFile) {
+        if (Item.uuid) {
+          loaded.push(Item);
+        }
+        else {
+          missing.push(Item);
+        }
+      }
+    }
+    // All loaded
+    if (!missing.length) {
+      if (callback) {
+        callback(loaded);
+      }
+      return loaded;
+    }
+    // Load missing uuids
+    return imce.ajaxItems('uuid', missing, {
+      customComplete: function(xhr, status) {
+        var path;
+        var Item;
+        var response = this.response;
+        if (response && response.uuids) {
+          for (path in response.uuids) {
+            if (Item = imce.getItem(path)) {
+              Item.uuid = response.uuids[path];
+              loaded.push(Item);
+            }
+          }
+        }
+        if (callback) {
+          callback(loaded);
+        }
+      }
+    });
+  };
+
+  /**
+   * Generate link/image html for the given items.
+   */
+   imce.itemsHtml = function (items, type, innerHtml, separator) {
+    const lines = [];
+    const isImg = type === 'image';
+    for (const File of items) {
+      // Image.
+      if (isImg && File.isImageSource()) {
+        lines.push(
+          '<img src="' +
+            File.getUrl() +
+            '"' +
+            (File.width ? ' width="' + File.width + '"' : '') +
+            (File.height ? ' height="' + File.height + '"' : '') +
+            ' data-entity-type="file" data-entity-uuid="' +
+            (File.uuid || '') +
+            '" alt="" />'
+        );
+      }
+      // Link.
+      else {
+        // Use the innerHtml for the first link.
+        const text = (!lines.length && innerHtml) || File.formatName();
+        lines.push('<a href="' + File.getUrl() + '">' + text + '</a>');
+      }
+    }
+    return lines.join(separator == null ? '<br />' : separator);
+  };
 
   /**
    * Checks external application integration by URL parameters.
@@ -385,7 +465,7 @@
           imce.sendtoHandler = function (Item, win) {
             try {
               imce.parentWin.focus();
-              (imce.parentWin.jQuery||$)(urlField).val(Item.getUrl()).blur().change().focus();
+              (imce.parentWin.jQuery||$)(urlField).val(Item.getUrl()).trigger('blur').trigger('change').trigger('focus');
             }
             catch (err) {
               imce.delayError(err);
@@ -703,14 +783,41 @@
    * Checks if all the selected items are images.
    */
   imce.validateImageTypes = function (items) {
-    var Item = imce.getFirstItem(items, 'width', false);
-    if (Item) {
-      imce.setMessage(Drupal.t('%name is not an image.', {'%name': Item.name}));
-      return false;
+    // Require width when lazy dimensions is not enabled.
+    // Otherwise require an image extension.
+    const lazy = imce.getConf('lazy_dimensions', false);
+    for (const Item of items) {
+      if ((!lazy && !Item.width) || !Item.hasImageExtension()) {
+        imce.setMessage(
+          Drupal.t('%name is not a supported image type.', {
+            '%name': Item.name,
+          }),
+        );
+        return false;
+      }
     }
     return true;
   };
 
+  /**
+   * Checks if a file name has image extension.
+   *
+   * @param {string} name
+   *  File name.
+   *
+   * @return {boolean}
+   *  Boolean.
+   */
+  imce.hasImageExtension = function (name) {
+    let re = imce.imageExtensionsRE;
+    if (!re) {
+      let exts = imce.getConf('image_extensions', 'jpg jpeg png gif webp avif');
+      exts = exts.trim().replace(/ +/g, '|');
+      re = new RegExp(`\\.(${exts})$`, 'i');
+      imce.imageExtensionsRE = re;
+    }
+    return re.test(`${name}`);
+  };
 
   /**
    * Keydown event for the file manager.
@@ -811,7 +918,7 @@
   imce.eTreeLR = function (e) {
     var Folder = imce.activeFolder;
     if (e.keyCode === 39 ^ Folder.expanded) {
-      $(Folder.branchToggleEl).click();
+      $(Folder.branchToggleEl).trigger('click');
     }
   };
 
@@ -1297,7 +1404,9 @@
    * Default ajax error handler.
    */
   imce.ajaxError = function (xhr, status, e) {
-    imce.setMessage('<pre class="imce-ajax-error">' + Drupal.checkPlain(imce.ajaxErrorMessage(xhr, this.url)) + '</pre>');
+    if (status !== 'abort') {
+      imce.setMessage('<pre class="imce-ajax-error">' + Drupal.checkPlain(imce.ajaxErrorMessage(xhr, this.url)) + '</pre>');
+    }
   };
 
   /**
@@ -1426,7 +1535,7 @@
       // Empty array.
       mq.length = 0;
       // Mousedown close
-      $(document).bind('mousedown', imce.eMPopDocMousedown);
+      $(document).on('mousedown', imce.eMPopDocMousedown);
       // Auto close
       imce.mPopCloseTimer = setTimeout(imce.mPopClose, 2500);
     }
@@ -1444,7 +1553,7 @@
     // Time up or mousedown
     clearTimeout(imce.mPopCloseTimer);
     imce.mPopCloseTimerUp = 0;
-    $(document).unbind('mousedown', imce.eMPopDocMousedown);
+    $(document).off('mousedown', imce.eMPopDocMousedown);
     $(imce.messagePopupEl).fadeOut(400, imce.processMessageQueueNext);
   };
 
@@ -1507,7 +1616,7 @@
     var el = imce.messagePopupEl;
     if (!el) {
       el = imce.messagePopupEl = imce.createLayer('imce-message-popup', imce.fmEl);
-      $(el).hover(imce.eMPopMouseenter, imce.eMPopMouseleave);
+      $(el).on('mouseenter', imce.eMPopMouseenter).on('mouseleave', imce.eMPopMouseleave);
     }
     return el;
   };
@@ -1612,7 +1721,7 @@
     if (filename === '.') {
       return dirpath;
     }
-    if (dirpath.substr(-1) !== '/') {
+    if (dirpath.substring(dirpath.length - 1) !== '/') {
       dirpath += '/';
     }
     return dirpath + filename;
@@ -1630,7 +1739,7 @@
     if (!query) {
       query = imce.query = {};
       if (str = location.search) {
-        parts = str.substr(1).split('&');
+        parts = str.substring(1).split('&');
         for (i in parts) {
           if (imce.owns(parts, i)) {
             part = parts[i].split('=');
@@ -1729,7 +1838,7 @@
    */
   imce.getExt = function (name) {
     var pos = name.lastIndexOf('.');
-    return pos === -1 ? '' : name.substr(pos + 1);
+    return pos === -1 ? '' : name.substring(pos + 1);
   };
 
   /**
@@ -1898,7 +2007,7 @@
    */
   imce.bindDragDrop = function (drag, drop, data, isTouch) {
     var edata = {drag: drag, drop: drop, data: data, isTouch: isTouch};
-    $(document).bind(isTouch ? 'touchmove' : 'mousemove', edata, imce.eDocDrag).bind(isTouch ? 'touchend' : 'mouseup', edata, imce.eDocDrop);
+    $(document).on(isTouch ? 'touchmove' : 'mousemove', edata, imce.eDocDrag).on(isTouch ? 'touchend' : 'mouseup', edata, imce.eDocDrop);
   };
 
   /**
@@ -1921,7 +2030,7 @@
    */
   imce.eDocDrop = function (e) {
     var edata = e.data;
-    $(document).unbind(edata.isTouch ? 'touchmove' : 'mousemove', imce.eDocDrag).unbind(edata.isTouch ? 'touchend' : 'mouseup', imce.eDocDrop);
+    $(document).off(edata.isTouch ? 'touchmove' : 'mousemove', imce.eDocDrag).off(edata.isTouch ? 'touchend' : 'mouseup', imce.eDocDrop);
     // Call custom drop event if set.
     if (edata.drop) {
       // Fix touch event

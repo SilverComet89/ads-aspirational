@@ -9,21 +9,27 @@ use Drupal\Core\Plugin\DefaultLazyPluginCollection;
  */
 class VariantPluginCollection extends DefaultLazyPluginCollection {
 
+  // The override exists solely to narrow the documented return type.
+  // phpcs:disable Generic.CodeAnalysis.UselessOverridingMethod.Found
+
   /**
    * {@inheritdoc}
    *
    * @return \Drupal\Core\Display\VariantInterface
+   *   The variant plugin.
    */
   public function &get($instance_id) {
     return parent::get($instance_id);
   }
+
+  // phpcs:enable Generic.CodeAnalysis.UselessOverridingMethod.Found
 
   /**
    * {@inheritdoc}
    */
   public function sort() {
     // @todo Determine the reason this needs error suppression.
-    @uasort($this->instanceIDs, [$this, 'sortHelper']);
+    @uasort($this->instanceIds, [$this, 'sortHelper']);
     return $this;
   }
 

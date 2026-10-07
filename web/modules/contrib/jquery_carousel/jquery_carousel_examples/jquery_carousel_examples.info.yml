@@ -1,0 +1,11 @@
+name: jQuery Carousel Examples
+description: 'Examples for jqeury carousel.'
+core: 8.x
+type: module
+dependencies:
+  - jquery_carousel:jquery_carousel
+
+# Information added by Drupal.org packaging script on 2020-04-28
+version: '8.x-1.0'
+project: 'jquery_carousel'
+datestamp: 1588076443

@@ -3,6 +3,7 @@
 namespace Drupal\webform_scheduled_email\Plugin\WebformHandler;
 
 use Drupal\Component\Render\FormattableMarkup;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\webform\Element\WebformMessage;
@@ -11,6 +12,7 @@ use Drupal\webform\Plugin\WebformHandler\EmailWebformHandler;
 use Drupal\webform\Utility\WebformDateHelper;
 use Drupal\webform\WebformSubmissionInterface;
 use Drupal\webform_scheduled_email\WebformScheduledEmailManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Schedules a webform submission's email.
@@ -26,6 +28,30 @@ use Drupal\webform_scheduled_email\WebformScheduledEmailManagerInterface;
  * )
  */
 class ScheduleEmailWebformHandler extends EmailWebformHandler {
+
+  /**
+   * The current request.
+   *
+   * @var null|\Symfony\Component\HttpFoundation\Request
+   */
+  protected $request;
+
+  /**
+   * The webform scheculed email manager.
+   *
+   * @var \Drupal\webform_scheduled_email\WebformScheduledEmailManagerInterface
+   */
+  protected $scheduledEmailManager;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    $instance->request = $container->get('request_stack')->getCurrentRequest();
+    $instance->scheduledEmailManager = $container->get('webform_scheduled_email.manager');
+    return $instance;
+  }
 
   /**
    * {@inheritdoc}
@@ -44,9 +70,6 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
    * {@inheritdoc}
    */
   public function getSummary() {
-    /** @var \Drupal\webform_scheduled_email\WebformScheduledEmailManagerInterface $webform_scheduled_email_manager */
-    $webform_scheduled_email_manager = \Drupal::service('webform_scheduled_email.manager');
-
     $status_messages = [
       WebformScheduledEmailManagerInterface::SUBMISSION_WAITING => [
         'message' => $this->t('waiting to be scheduled.'),
@@ -64,7 +87,7 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
 
     $cron_link = FALSE;
     $build = [];
-    $stats = $webform_scheduled_email_manager->stats($this->webform, $this->getHandlerId());
+    $stats = $this->scheduledEmailManager->stats($this->webform, $this->getHandlerId());
     foreach ($stats as $type => $total) {
       if (empty($total) || !isset($status_messages[$type])) {
         continue;
@@ -73,14 +96,14 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
         '#type' => 'webform_message',
         '#message_message' => $this->formatPlural(
           $total,
-          '@total email @message',
-          '@total emails @message',
-          ['@total' => $total, '@message' => $status_messages[$type]['message']]
+          '@count email @message',
+          '@count emails @message',
+          ['@message' => $status_messages[$type]['message']]
         ),
         '#message_type' => $status_messages[$type]['type'],
       ];
 
-      if ($status_messages[$type]['type'] == 'warning') {
+      if ($status_messages[$type]['type'] === 'warning') {
         $cron_link = TRUE;
       }
     }
@@ -113,9 +136,6 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    /** @var \Drupal\webform_scheduled_email\WebformScheduledEmailManagerInterface $webform_scheduled_email_manager */
-    $webform_scheduled_email_manager = \Drupal::service('webform_scheduled_email.manager');
-
     $webform = $this->getWebform();
 
     // Get options, mail, and text elements as options (text/value).
@@ -149,8 +169,8 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
     // Send date/time.
     $send_options = [
       '[date:html_date]' => $this->t('Current date'),
-      WebformOtherBase::OTHER_OPTION => $this->t('Custom @label…', ['@label' => $webform_scheduled_email_manager->getDateTypeLabel()]),
-      (string) $this->t('Webform') => [
+      WebformOtherBase::OTHER_OPTION => $this->t('Custom @label…', ['@label' => $this->scheduledEmailManager->getDateTypeLabel()]),
+      (string) $this->t('Webform', [], ['context' => 'form']) => [
         '[webform:open:html_date]' => $this->t('Open date'),
         '[webform:close:html_date]' => $this->t('Close date'),
       ],
@@ -165,14 +185,14 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
     }
 
     $t_args = [
-      '@format' => $webform_scheduled_email_manager->getDateFormatLabel(),
-      '@type' => $webform_scheduled_email_manager->getDateTypeLabel(),
+      '@format' => $this->scheduledEmailManager->getDateFormatLabel(),
+      '@type' => $this->scheduledEmailManager->getDateTypeLabel(),
     ];
     $form['scheduled']['send'] = [
       '#type' => 'webform_select_other',
       '#title' => $this->t('Send email on'),
       '#options' => $send_options,
-      '#other__placeholder' => $webform_scheduled_email_manager->getDateFormatLabel(),
+      '#other__placeholder' => $this->scheduledEmailManager->getDateFormatLabel(),
       '#other__description' => $this->t('Enter a valid ISO @type (@format) or token which returns a valid ISO @type.', $t_args),
       '#default_value' => $this->configuration['send'],
     ];
@@ -203,7 +223,7 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
     // Ignore past.
     $form['scheduled']['ignore_past'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Do not schedule email if the action should be triggered in the past.'),
+      '#title' => $this->t('Do not schedule email if the action should be triggered in the past'),
       '#description' => $this->t('You can use this setting to prevent an action to be scheduled if it should have been triggered in the past.'),
       '#default_value' => $this->configuration['ignore_past'],
       '#return_value' => TRUE,
@@ -225,6 +245,10 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
         '#title' => $this->t('Schedule emails for all existing submissions'),
         '#description' => $this->t('Check schedule emails after submissions have been processed.'),
         '#return_value' => TRUE,
+        // Must specify #parents because 'queue' is not a configuration setting.
+        // @see \Drupal\webform_scheduled_email\Plugin\WebformHandler\ScheduleEmailWebformHandler::defaultConfiguration
+        // @see \Drupal\webform\Plugin\WebformHandlerBase::setSettingsParentsRecursively
+        '#parents' => ['settings', 'queue'],
       ];
       $form['scheduled']['queue_message'] = [
         '#type' => 'webform_message',
@@ -266,7 +290,7 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
     // Development.
     $form['development']['test_send'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Immediately send email when testing a webform.'),
+      '#title' => $this->t('Immediately send email when testing a webform'),
       '#return_value' => TRUE,
       '#default_value' => $this->configuration['test_send'],
     ];
@@ -280,9 +304,6 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
     parent::validateConfigurationForm($form, $form_state);
 
-    /** @var \Drupal\webform_scheduled_email\WebformScheduledEmailManagerInterface $webform_scheduled_email_manager */
-    $webform_scheduled_email_manager = \Drupal::service('webform_scheduled_email.manager');
-
     $values = $form_state->getValues();
 
     // Cast days string to int.
@@ -290,13 +311,13 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
 
     // If token skip validation.
     if (!preg_match('/^\[[^]]+\]$/', $values['send'])) {
-      $date_format = $webform_scheduled_email_manager->getDateFormat();
+      $date_format = $this->scheduledEmailManager->getDateFormat();
       // Validate custom 'send on' date.
       if (WebformDateHelper::createFromFormat($date_format, $values['send']) === FALSE) {
         $t_args = [
           '%field' => $this->t('Send on'),
-          '%format' => $webform_scheduled_email_manager->getDateFormatLabel(),
-          '@type' => $webform_scheduled_email_manager->getDateTypeLabel(),
+          '%format' => $this->scheduledEmailManager->getDateFormatLabel(),
+          '@type' => $this->scheduledEmailManager->getDateTypeLabel(),
         ];
         $form_state->setError($form['settings']['scheduled']['send'], $this->t('The %field date is required. Please enter a @type in the format %format.', $t_args));
       }
@@ -311,9 +332,9 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     parent::submitConfigurationForm($form, $form_state);
     if ($form_state->getValue('queue')) {
-      /** @var \Drupal\webform_scheduled_email\WebformScheduledEmailManagerInterface $webform_scheduled_email_manager */
-      $webform_scheduled_email_manager = \Drupal::service('webform_scheduled_email.manager');
-      $webform_scheduled_email_manager->schedule($this->getWebform(), $this->getHandlerId());
+      // If this is a new handler, we need to get the $handler_id from the $form.
+      $handler_id = $this->getHandlerId() ?: NestedArray::getValue($form, ['general', 'handler_id', '#value']);
+      $this->scheduledEmailManager->schedule($this->getWebform(), $handler_id);
     }
   }
 
@@ -322,7 +343,7 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
    */
   public function alterForm(array &$form, FormStateInterface $form_state, WebformSubmissionInterface $webform_submission) {
     // Display warning when test email will be sent immediately.
-    if (\Drupal::request()->isMethod('GET')
+    if ($this->request->isMethod('GET')
       && $this->getWebform()->isTest()
       && !empty($this->configuration['test_send'])) {
       $t_args = ['%label' => $this->getLabel()];
@@ -360,18 +381,14 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
    * {@inheritdoc}
    */
   public function updateHandler() {
-    /** @var \Drupal\webform_scheduled_email\WebformScheduledEmailManagerInterface $webform_scheduled_email_manager */
-    $webform_scheduled_email_manager = \Drupal::service('webform_scheduled_email.manager');
-    $webform_scheduled_email_manager->reschedule($this->webform, $this->getHandlerId());
+    $this->scheduledEmailManager->reschedule($this->webform, $this->getHandlerId());
   }
 
   /**
    * {@inheritdoc}
    */
   public function deleteHandler() {
-    /** @var \Drupal\webform_scheduled_email\WebformScheduledEmailManagerInterface $webform_scheduled_email_manager */
-    $webform_scheduled_email_manager = \Drupal::service('webform_scheduled_email.manager');
-    $webform_scheduled_email_manager->unschedule($this->webform, $this->getHandlerId());
+    $this->scheduledEmailManager->delete($this->webform, $this->getHandlerId());
   }
 
   /**
@@ -384,9 +401,6 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
    *   The status of scheduled email. FALSE is email was not scheduled.
    */
   protected function scheduleMessage(WebformSubmissionInterface $webform_submission) {
-    /** @var \Drupal\webform_scheduled_email\WebformScheduledEmailManagerInterface $webform_scheduled_email_manager */
-    $webform_scheduled_email_manager = \Drupal::service('webform_scheduled_email.manager');
-
     $t_args = [
       '%submission' => $webform_submission->label(),
       '%handler' => $this->label(),
@@ -411,7 +425,7 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
     }
 
     // Get send date.
-    $send_iso_date = $webform_scheduled_email_manager->getSendDate($webform_submission, $this->handler_id);
+    $send_iso_date = $this->scheduledEmailManager->getSendDate($webform_submission, $this->handler_id);
     $t_args['%date'] = $send_iso_date;
 
     // Log and exit when we are unable to schedule an email due to an invalid
@@ -429,7 +443,7 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
 
     // Finally, schedule the email, which also writes to the submission log
     // and watchdog.
-    $status = $webform_scheduled_email_manager->schedule($webform_submission, $this->getHandlerId());
+    $status = $this->scheduledEmailManager->schedule($webform_submission, $this->getHandlerId());
 
     // Debug by displaying schedule message onscreen.
     if ($this->configuration['debug']) {
@@ -459,7 +473,7 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
         '#wrapper_attributes' => ['class' => ['container-inline'], 'style' => 'margin: 0'],
         '#weight' => -10,
       ];
-      $this->messenger()->addWarning(\Drupal::service('renderer')->renderPlain($debug_message), TRUE);
+      $this->messenger()->addWarning($this->renderer->renderPlain($debug_message), TRUE);
     }
 
     return $status;
@@ -472,10 +486,8 @@ class ScheduleEmailWebformHandler extends EmailWebformHandler {
    *   A webform submission.
    */
   protected function unscheduleMessage(WebformSubmissionInterface $webform_submission) {
-    /** @var \Drupal\webform_scheduled_email\WebformScheduledEmailManagerInterface $webform_scheduled_email_manager */
-    $webform_scheduled_email_manager = \Drupal::service('webform_scheduled_email.manager');
-    if ($webform_scheduled_email_manager->hasScheduledEmail($webform_submission, $this->getHandlerId())) {
-      $webform_scheduled_email_manager->unschedule($webform_submission, $this->getHandlerId());
+    if ($this->scheduledEmailManager->hasScheduledEmail($webform_submission, $this->getHandlerId())) {
+      $this->scheduledEmailManager->unschedule($webform_submission, $this->getHandlerId());
       if ($this->configuration['debug']) {
         $t_args = [
           '%submission' => $webform_submission->label(),

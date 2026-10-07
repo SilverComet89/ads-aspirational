@@ -22,12 +22,12 @@ class EntityEmbedFilterTranslationTest extends EntityEmbedFilterTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     ConfigurableLanguage::createFromLangcode('pt-br')->save();
     // Reload the entity to ensure it is aware of the newly created language.
-    $this->embeddedEntity = $this->container->get('entity.manager')
+    $this->embeddedEntity = $this->container->get('entity_type.manager')
       ->getStorage($this->embeddedEntity->getEntityTypeId())
       ->load($this->embeddedEntity->id());
 

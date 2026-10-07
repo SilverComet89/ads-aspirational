@@ -3,9 +3,37 @@
  * JavaScript behaviors for message element integration.
  */
 
-(function ($, Drupal) {
+(function ($, Drupal, once) {
 
   'use strict';
+
+  // Determine if local storage exists and is enabled.
+  // This approach is copied from Modernizr.
+  // @see https://github.com/Modernizr/Modernizr/blob/c56fb8b09515f629806ca44742932902ac145302/modernizr.js#L696-731
+  var hasLocalStorage = (function () {
+    try {
+      localStorage.setItem('webform', 'webform');
+      localStorage.removeItem('webform');
+      return true;
+    }
+    catch (e) {
+      return false;
+    }
+  }());
+
+  // Determine if session storage exists and is enabled.
+  // This approach is copied from Modernizr.
+  // @see https://github.com/Modernizr/Modernizr/blob/c56fb8b09515f629806ca44742932902ac145302/modernizr.js#L696-731
+  var hasSessionStorage = (function () {
+    try {
+      sessionStorage.setItem('webform', 'webform');
+      sessionStorage.removeItem('webform');
+      return true;
+    }
+    catch (e) {
+      return false;
+    }
+  }());
 
   /**
    * Behavior for handler message close.
@@ -14,7 +42,7 @@
    */
   Drupal.behaviors.webformMessageClose = {
     attach: function (context) {
-      $(context).find('.js-webform-message--close').once('webform-message--close').each(function () {
+      $(once('webform-message--close', '.js-webform-message--close', context)).each(function () {
         var $element = $(this);
 
         var id = $element.attr('data-message-id');
@@ -31,8 +59,9 @@
           return;
         }
 
-        // Only show element if it's style is not set to 'display: none'.
-        if ($element.attr('style') !== 'display: none;') {
+        // Only show element if it's style is not set to 'display: none'
+        // and it is not hidden via .js-webform-states-hidden.
+        if ($element.attr('style') !== 'display: none;' && !$element.hasClass('js-webform-states-hidden')) {
           $element.show();
         }
 
@@ -53,13 +82,13 @@
 
     switch (storage) {
       case 'local':
-        if (window.localStorage) {
+        if (hasLocalStorage) {
           return localStorage.getItem('Drupal.webform.message.' + id) || false;
         }
         return false;
 
       case 'session':
-        if (window.sessionStorage) {
+        if (hasSessionStorage) {
           return sessionStorage.getItem('Drupal.webform.message.' + id) || false;
         }
         return false;
@@ -76,13 +105,13 @@
 
     switch (storage) {
       case 'local':
-        if (window.localStorage) {
+        if (hasLocalStorage) {
           localStorage.setItem('Drupal.webform.message.' + id, true);
         }
         break;
 
       case 'session':
-        if (window.sessionStorage) {
+        if (hasSessionStorage) {
           sessionStorage.setItem('Drupal.webform.message.' + id, true);
         }
         break;
@@ -95,4 +124,4 @@
     }
   }
 
-})(jQuery, Drupal);
+})(jQuery, Drupal, once);

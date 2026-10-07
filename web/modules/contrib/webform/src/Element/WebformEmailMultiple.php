@@ -2,9 +2,9 @@
 
 namespace Drupal\webform\Element;
 
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Render\Element\FormElement;
-use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Provides a webform element for entering multiple comma delimited email addresses.
@@ -20,7 +20,7 @@ class WebformEmailMultiple extends FormElement {
     $class = get_class($this);
     return [
       '#input' => TRUE,
-      '#description' => $this->t('Multiple email addresses may be separated by commas.'),
+      '#description' => $this->t('Multiple email addresses may be separated by commas. Emails are only sent to cc and bcc addresses if a To email address is provided.'),
       '#size' => 60,
       '#cardinality' => NULL,
       '#allow_tokens' => FALSE,
@@ -61,8 +61,9 @@ class WebformEmailMultiple extends FormElement {
       $values = preg_split('/\s*,\s*/', $value);
       // Validate email.
       foreach ($values as $value) {
-        // Allow tokens to be be include in multiple email list.
-        if (!empty($element['#allow_tokens'] && preg_match('/^\[.*\]$/', $value))) {
+        // Allow tokens to be included in multiple email list by skipping
+        // validation if a token is present.
+        if (!empty($element['#allow_tokens'] && preg_match('/\[.+\]/', $value))) {
           continue;
         }
 

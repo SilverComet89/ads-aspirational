@@ -5,9 +5,11 @@
  * Webform install helper functions.
  */
 
+use Drupal\Core\Config\FileStorage;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Serialization\Yaml;
 use Drupal\system\Entity\Action;
+use Drupal\webform\Element\WebformHtmlEditor;
 use Drupal\webform\Entity\Webform;
 use Drupal\webform\WebformInterface;
 
@@ -23,10 +25,14 @@ use Drupal\webform\WebformInterface;
  * @see drush_webform_repair()
  */
 function _webform_update_admin_settings($reset = FALSE) {
+  // Make sure to purge the config cache before updating any config.
+  // This ensure that any config schema changes are loaded.
+  \Drupal::service('cache.config')->deleteAll();
+
   $admin_config = \Drupal::configFactory()->getEditable('webform.settings');
 
   $current_settings = $admin_config->getRawData();
-  $admin_settings = Yaml::decode(file_get_contents(drupal_get_path('module', 'webform') . '/config/install/webform.settings.yml'));
+  $admin_settings = Yaml::decode(file_get_contents(__DIR__ . '/../config/install/webform.settings.yml'));
   // Note, admin settings are always grouped into associative array,
   // except for the langcode.
   foreach ($admin_settings as $group => $settings) {
@@ -96,9 +102,11 @@ function _webform_update_webform_settings() {
  */
 function _webform_update_webform_setting(array $data) {
   $default_properties = [
+    'uuid' => NULL,
     'langcode' => 'en',
     'status' => WebformInterface::STATUS_OPEN,
     'dependencies' => [],
+    'third_party_settings' => [],
     'open' => NULL,
     'close' => NULL,
     'weight' => 0,
@@ -108,13 +116,14 @@ function _webform_update_webform_setting(array $data) {
     'id' => '',
     'title' => '',
     'description' => '',
-    'category' => '',
+    'categories' => [],
     'elements' => '',
     'css' => '',
     'javascript' => '',
     'settings' => [],
     'access' => [],
     'handlers' => [],
+    'variants' => [],
   ];
 
   $default_settings = Webform::getDefaultSettings();
@@ -125,8 +134,13 @@ function _webform_update_webform_setting(array $data) {
   foreach ($data as $name => $value) {
     $properties[$name] = $value;
   }
+  // Empty settings.
+  if (empty($properties['third_party_settings'])) {
+    unset($properties['third_party_settings']);
+  }
+
   // Set properties.
-  $data = $properties;
+  $data = _webform_update_webform_setting_properties($properties);
 
   // Always apply the default settings.
   $settings = $default_settings;
@@ -135,7 +149,7 @@ function _webform_update_webform_setting(array $data) {
     $settings[$name] = $value;
   }
   // Set settings.
-  $data['settings'] = $settings;
+  $data['settings'] = _webform_update_webform_setting_settings($settings);
 
   // Set access.
   /** @var \Drupal\webform\WebformAccessRulesManagerInterface $access_rules_manager */
@@ -146,7 +160,69 @@ function _webform_update_webform_setting(array $data) {
 }
 
 /**
- * Update webform handler settings to reflect changes in a handler's default configuration.
+ * Make sure outdated webform properties are up-to-date.
+ *
+ * @param array $properties
+ *   An associative array of webform properties.
+ *
+ * @return array
+ *   Updated webform properties.
+ */
+function _webform_update_webform_setting_properties(array $properties) {
+  // Issue #3339769: Improve Webform categorization to support assigning multiple categories and default categories.
+  if (isset($properties['category'])) {
+    $properties['categories'] = [];
+    if (!empty($properties['category'])) {
+      $properties['categories'] = array_values(array_filter(array_merge(
+        $properties['categories'],
+        (array) $properties['category']
+      )));
+    }
+    unset($properties['category']);
+  }
+
+  return $properties;
+}
+
+/**
+ * Make sure outdated webform settings are up-to-date.
+ *
+ * @param array $settings
+ *   An associative array of webform settings.
+ *
+ * @return array
+ *   Updated webform settings.
+ */
+function _webform_update_webform_setting_settings(array $settings) {
+  // Issue #3153184: Allow a webform displayed as a page to have a custom theme.
+  // Convert 'page_admin_theme' setting to 'page_theme_name' setting.
+  // @see webform_update_8196()
+  if (isset($settings['page_admin_theme'])) {
+    if (empty($settings['page_theme_name'])) {
+      $settings['page_theme_name'] = ($settings['page_admin_theme'])
+        ? \Drupal::configFactory()->get('system.theme')->get('admin')
+        : '';
+    }
+    unset($settings['page_admin_theme']);
+  }
+
+  // Issue #3088780: Add the ability to disable user IP tracking for all forms.
+  // Convert 'form_remote_addr' to 'form_disable_remote_addr'.
+  if (isset($settings['form_remote_addr'])) {
+    $settings['form_disable_remote_addr'] = $settings['form_remote_addr'] ? FALSE : TRUE;
+    unset($settings['form_remote_addr']);
+  }
+
+  // Issue #3151506: Remove .webform-elements wrapper around elements.
+  if (isset($settings['form_elements_attributes'])) {
+    unset($settings['form_elements_attributes']);
+  }
+
+  return $settings;
+}
+
+/**
+ * Update webform handler settings to reflect changes in the handler's settings.
  *
  * @see \Drupal\webform\Plugin\WebformHandlerInterface
  */
@@ -176,24 +252,26 @@ function _webform_update_webform_handler_settings() {
 
     // Apply the default handler settings.
     $has_handler = FALSE;
-    foreach ($data['handlers'] as &$handler) {
-      if (!isset($default_handler_settings[$handler['id']])) {
-        continue;
+    if (!empty($data['handlers'])) {
+      foreach ($data['handlers'] as &$handler) {
+        if (!isset($default_handler_settings[$handler['id']])) {
+          continue;
+        }
+
+        $settings = $default_handler_settings[$handler['id']];
+        foreach ($handler['settings'] as $settings_key => $setting_value) {
+          $settings[$settings_key] = $setting_value;
+        }
+
+        if ($handler['settings'] !== $settings) {
+          $has_handler = TRUE;
+          $handler['settings'] = $settings;
+        }
       }
 
-      $settings = $default_handler_settings[$handler['id']];
-      foreach ($handler['settings'] as $settings_key => $setting_value) {
-        $settings[$settings_key] = $setting_value;
+      if ($has_handler) {
+        $webform_config->setData($data)->save();
       }
-
-      if ($handler['settings'] != $settings) {
-        $has_handler = TRUE;
-        $handler['settings'] = $settings;
-      }
-    }
-
-    if ($has_handler) {
-      $webform_config->setData($data)->save();
     }
   }
 }
@@ -244,7 +322,7 @@ function _webform_update_options_settings() {
  * Update or install any new system.actions.* config entities.
  */
 function _webform_update_actions() {
-  $files = file_scan_directory(drupal_get_path('module', 'webform') . '/config', '/^system.action..*\.yml$/');
+  $files = \Drupal::service('file_system')->scanDirectory(__DIR__ . '/../config', '/^system.action..*\.yml$/');
   foreach ($files as $path => $file) {
     $action_id = str_replace('system.action.', '', $file->name);
     $action = Action::load($action_id);
@@ -282,6 +360,10 @@ function _webform_update_field_storage_definitions() {
  */
 function _webform_update_webform_submission_storage_schema() {
   $manager = \Drupal::entityDefinitionUpdateManager();
+  if (!$manager->getEntityType('webform_submission')) {
+    $type = \Drupal::entityTypeManager()->getDefinition('webform_submission');
+    $manager->installEntityType($type);
+  }
   $manager->updateEntityType($manager->getEntityType('webform_submission'));
 }
 
@@ -378,6 +460,73 @@ function _webform_update_elements_clear_properties_recursive(array &$element, ar
   foreach (Element::children($element) as $key) {
     if (is_array($element[$key])) {
       _webform_update_elements_clear_properties_recursive($element[$key], $properties);
+    }
+  }
+}
+
+/**
+ * Update the Webform module's default hidden text format and editor.
+ *
+ * Determines if the CKEditor 5 or 4 module installed and imports the
+ * appropriate configuration file.
+ */
+function _webform_update_html_editor() {
+  // Make sure the Webform module is installed, since we do call this function
+  // via webform_requirements().
+  if (!\Drupal::moduleHandler()->moduleExists('webform')) {
+    return;
+  }
+
+  /** @var \Drupal\Core\Config\StorageInterface $config_storage */
+  $config_storage = \Drupal::service('config.storage');
+
+  $module_path = \Drupal::service('extension.list.module')->getPath('webform');
+  $ckeditor_file_name = 'editor.editor.' . WebformHtmlEditor::DEFAULT_FILTER_FORMAT;
+
+  $names = [];
+
+  // Install the webform default filter format.
+  $names['optional'] = 'filter.format.' . WebformHtmlEditor::DEFAULT_FILTER_FORMAT;
+
+  // Get the current CKEditor version.
+  $current_version = \Drupal::config($ckeditor_file_name)->get('editor') ?: NULL;
+  if (\Drupal::moduleHandler()->moduleExists('ckeditor5')) {
+    $ckeditor_version = 'ckeditor5';
+  }
+  elseif (\Drupal::moduleHandler()->moduleExists('ckeditor')) {
+    $ckeditor_version = 'ckeditor';
+  }
+  else {
+    $ckeditor_version = NULL;
+  }
+
+  // If the changing or deleting the CKEditor, we need delete the existing file.
+  if ($current_version !== $ckeditor_version) {
+    \Drupal::configFactory()
+      ->getEditable($ckeditor_file_name)
+      ->delete();
+  }
+
+  // Install new CKEditor version.
+  if ($ckeditor_version) {
+    $names["optional/$ckeditor_version"] = $ckeditor_file_name;
+  }
+
+  // Import config files but never overwrite the existing config file.
+  foreach ($names as $directory => $name) {
+    $source = new FileStorage("$module_path/config/$directory");
+    if (!$config_storage->exists($name)) {
+      // Use the entity API to create config entities.
+      $entity_type_id = \Drupal::service('config.manager')->getEntityTypeIdByName($name);
+      if ($entity_type_id) {
+        \Drupal::entityTypeManager()
+          ->getStorage($entity_type_id)
+          ->createFromStorageRecord($source->read($name))
+          ->save();
+      }
+      else {
+        $config_storage->write($name, $source->read($name));
+      }
     }
   }
 }

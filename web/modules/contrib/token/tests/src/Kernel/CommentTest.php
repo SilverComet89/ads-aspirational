@@ -4,30 +4,33 @@ namespace Drupal\Tests\token\Kernel;
 
 use Drupal\comment\Entity\Comment;
 use Drupal\comment\Tests\CommentTestTrait;
+use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
-use Drupal\Core\Url;
 
 /**
  * Tests comment tokens.
  *
  * @group token
  */
-class CommentTest extends KernelTestBase {
+class CommentTest extends TokenKernelTestBase {
 
   use CommentTestTrait;
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = ['node', 'comment', 'field', 'text', 'entity_reference'];
+  protected static $modules = [
+    'node',
+    'comment',
+    'field',
+    'text',
+  ];
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->installEntitySchema('node');
@@ -35,7 +38,7 @@ class CommentTest extends KernelTestBase {
     $this->installEntitySchema('comment');
     $this->installSchema('comment', ['comment_entity_statistics']);
 
-    $node_type = NodeType::create(['type' => 'page', 'name' => t('Page')]);
+    $node_type = NodeType::create(['type' => 'page', 'name' => 'Page']);
     $node_type->save();
 
     $this->installConfig(['comment']);
@@ -43,10 +46,13 @@ class CommentTest extends KernelTestBase {
     $this->addDefaultCommentField('node', 'page');
   }
 
-  function testCommentTokens() {
+  /**
+   *
+   */
+  public function testCommentTokens() {
     $node = Node::create([
       'type' => 'page',
-      'title' => $this->randomMachineName()
+      'title' => $this->randomMachineName(),
     ]);
     $node->save();
 
@@ -62,7 +68,7 @@ class CommentTest extends KernelTestBase {
     $parent_comment->save();
 
     // Fix http://example.com/index.php/comment/1 fails 'url:path' test.
-    $parent_comment_path = $parent_comment->url();
+    $parent_comment_path = $parent_comment->toUrl()->toString();
 
     $tokens = [
       'url' => $parent_comment->toUrl('canonical', ['fragment' => "comment-{$parent_comment->id()}"])->setAbsolute()->toString(),

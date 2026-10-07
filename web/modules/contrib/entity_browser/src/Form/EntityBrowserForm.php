@@ -162,6 +162,9 @@ class EntityBrowserForm extends FormBase implements EntityBrowserFormInterface, 
       return $form;
     }
 
+    // Allow submission in non-default workspace.
+    $form_state->set('workspace_safe', TRUE);
+
     $this->entityBrowser
       ->getWidgetSelector()
       ->setDefaultWidget($current_widget_id);
@@ -191,6 +194,9 @@ class EntityBrowserForm extends FormBase implements EntityBrowserFormInterface, 
     if ($this->entityBrowser->getDisplay() instanceof DisplayAjaxInterface) {
       $this->entityBrowser->getDisplay()->addAjax($form);
     }
+
+    // Disable inline form error.
+    $form['#disable_inline_form_errors'] = TRUE;
 
     $form['#attached']['library'][] = 'entity_browser/entity_browser';
 

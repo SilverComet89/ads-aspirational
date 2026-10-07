@@ -2,33 +2,27 @@
 
 namespace Drupal\Tests\webform_node\Unit;
 
-use Drupal\simpletest\AssertHelperTrait;
 use Drupal\Tests\UnitTestCase;
 
 /**
  * @coversDefaultClass \Drupal\webform_node\WebformNodeUninstallValidator
- * @group webform
+ * @group webform_node
  */
 class WebformNodeUninstallValidatorTest extends UnitTestCase {
-
-  use AssertHelperTrait;
 
   /**
    * A mock webform node uninstall validator.
    *
-   * @var \Drupal\webform_node\WebformNodeUninstallValidator|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\webform_node\WebformNodeUninstallValidator|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $webformNodeUninstallValidator;
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
-    $this->webformNodeUninstallValidator = $this->getMockBuilder('Drupal\webform_node\WebformNodeUninstallValidator')
-      ->disableOriginalConstructor()
-      ->setMethods(['hasWebformNodes'])
-      ->getMock();
+    $this->webformNodeUninstallValidator = $this->createPartialMock('Drupal\webform_node\WebformNodeUninstallValidator', ['hasWebformNodes']);
     $this->webformNodeUninstallValidator->setStringTranslation($this->getStringTranslationStub());
   }
 
@@ -42,7 +36,7 @@ class WebformNodeUninstallValidatorTest extends UnitTestCase {
     $module = 'not_webform_node';
     $expected = [];
     $reasons = $this->webformNodeUninstallValidator->validate($module);
-    $this->assertSame($expected, $this->castSafeStrings($reasons));
+    $this->assertEquals($expected, $reasons);
   }
 
   /**
@@ -56,7 +50,7 @@ class WebformNodeUninstallValidatorTest extends UnitTestCase {
     $module = 'webform_node';
     $expected = [];
     $reasons = $this->webformNodeUninstallValidator->validate($module);
-    $this->assertSame($expected, $this->castSafeStrings($reasons));
+    $this->assertEquals($expected, $reasons);
   }
 
   /**
@@ -70,7 +64,7 @@ class WebformNodeUninstallValidatorTest extends UnitTestCase {
     $module = 'webform_node';
     $expected = ['To uninstall Webform node, delete all content that has the Webform content type.'];
     $reasons = $this->webformNodeUninstallValidator->validate($module);
-    $this->assertSame($expected, $this->castSafeStrings($reasons));
+    $this->assertEquals($expected, $reasons);
   }
 
 }

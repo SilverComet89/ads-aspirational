@@ -32,11 +32,15 @@ trait BlockVariantTrait {
   protected $eventDispatcher;
 
   /**
+   * Gets the region names.
+   *
    * @see \Drupal\ctools\Plugin\BlockVariantInterface::getRegionNames()
    */
   abstract public function getRegionNames();
 
   /**
+   * Gets a block plugin instance.
+   *
    * @see \Drupal\ctools\Plugin\BlockVariantInterface::getBlock()
    */
   public function getBlock($block_id) {
@@ -44,6 +48,8 @@ trait BlockVariantTrait {
   }
 
   /**
+   * Adds a new block to the variant.
+   *
    * @see \Drupal\ctools\Plugin\BlockVariantInterface::addBlock()
    */
   public function addBlock(array $configuration) {
@@ -53,12 +59,14 @@ trait BlockVariantTrait {
     $block = $this->getBlock($configuration['uuid']);
     // Allow modules to react to the change.
     $event = new BlockVariantEvent($block, $this);
-    $this->eventDispatcher()->dispatch(BlockVariantEvents::ADD_BLOCK, $event);
+    $this->eventDispatcher()->dispatch($event, BlockVariantEvents::ADD_BLOCK);
 
     return $configuration['uuid'];
   }
 
   /**
+   * Removes a block from the variant.
+   *
    * @see \Drupal\ctools\Plugin\BlockVariantInterface::removeBlock()
    */
   public function removeBlock($block_id) {
@@ -67,12 +75,14 @@ trait BlockVariantTrait {
 
     // Allow modules to react to the change.
     $event = new BlockVariantEvent($block, $this);
-    $this->eventDispatcher()->dispatch(BlockVariantEvents::DELETE_BLOCK, $event);
+    $this->eventDispatcher()->dispatch($event, BlockVariantEvents::DELETE_BLOCK);
 
     return $this;
   }
 
   /**
+   * Updates a block in the variant.
+   *
    * @see \Drupal\ctools\Plugin\BlockVariantInterface::updateBlock()
    */
   public function updateBlock($block_id, array $configuration) {
@@ -82,20 +92,24 @@ trait BlockVariantTrait {
 
     // Allow modules to react to the change.
     $event = new BlockVariantEvent($block, $this);
-    $this->eventDispatcher()->dispatch(BlockVariantEvents::UPDATE_BLOCK, $event);
+    $this->eventDispatcher()->dispatch($event, BlockVariantEvents::UPDATE_BLOCK);
 
     return $this;
   }
 
   /**
+   * Gets the region assignment for a block.
+   *
    * @see \Drupal\ctools\Plugin\BlockVariantInterface::getRegionAssignment()
    */
   public function getRegionAssignment($block_id) {
     $configuration = $this->getBlock($block_id)->getConfiguration();
-    return isset($configuration['region']) ? $configuration['region'] : NULL;
+    return $configuration['region'] ?? NULL;
   }
 
   /**
+   * Gets the region assignments for all blocks.
+   *
    * @see \Drupal\ctools\Plugin\BlockVariantInterface::getRegionAssignments()
    */
   public function getRegionAssignments() {
@@ -107,11 +121,13 @@ trait BlockVariantTrait {
   }
 
   /**
+   * Gets the name of a region.
+   *
    * @see \Drupal\ctools\Plugin\BlockVariantInterface::getRegionName()
    */
   public function getRegionName($region) {
     $regions = $this->getRegionNames();
-    return isset($regions[$region]) ? $regions[$region] : '';
+    return $regions[$region] ?? '';
   }
 
   /**
@@ -144,6 +160,7 @@ trait BlockVariantTrait {
    * Gets the event dispatcher.
    *
    * @return \Symfony\Component\EventDispatcher\EventDispatcherInterface
+   *   The event dispatcher.
    */
   protected function eventDispatcher() {
     if (!$this->eventDispatcher) {
@@ -156,6 +173,7 @@ trait BlockVariantTrait {
    * Returns the UUID generator.
    *
    * @return \Drupal\Component\Uuid\UuidInterface
+   *   The UUID generator.
    */
   abstract protected function uuidGenerator();
 

@@ -12,6 +12,13 @@ use Drupal\filter\Entity\FilterFormat;
  */
 class ConfigurationUiTest extends EntityEmbedTestBase {
 
+  use SortableTestTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $failOnJavascriptConsoleErrors = FALSE;
+
   /**
    * {@inheritdoc}
    */
@@ -23,14 +30,14 @@ class ConfigurationUiTest extends EntityEmbedTestBase {
   /**
    * The test administrative user.
    *
-   * @var \Drupal\user\UserInterface
+   * @var \Drupal\Core\Session\AccountInterface
    */
   protected $adminUser;
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $format = FilterFormat::create([
@@ -83,7 +90,6 @@ class ConfigurationUiTest extends EntityEmbedTestBase {
    *   The error message that should display.
    *
    * @dataProvider providerTestValidations
-   * @dataProvider providerTestValidationWhenAdding
    */
   public function testValidationWhenAdding($filter_html_status, $entity_embed_status, $allowed_html, $expected_error_message) {
     $this->drupalGet('admin/config/content/formats/add');
@@ -92,8 +98,7 @@ class ConfigurationUiTest extends EntityEmbedTestBase {
     // as the text editor.
     $page = $this->getSession()->getPage();
     $page->fillField('name', 'Test Format');
-    $this->showHiddenFields();
-    $page->findField('format')->setValue('test_format');
+    $this->assertJsCondition("document.querySelector('[name=\"format\"]').value === 'test_format'");
 
     if ($filter_html_status) {
       $page->checkField('filters[filter_html][status]');
@@ -106,15 +111,21 @@ class ConfigurationUiTest extends EntityEmbedTestBase {
     // Verify that after dragging the Entity Embed CKEditor plugin button into
     // the active toolbar, the <drupal-entity> tag is allowed, as well as some
     // attributes.
-    $target = $this->assertSession()->waitForElementVisible('css', 'ul.ckeditor-toolbar-group-buttons');
-    $button_element = $this->assertSession()->elementExists('xpath', '//li[@data-drupal-ckeditor-button-name="test_media_entity_embed"]');
-    $button_element->dragTo($target);
+    $item = 'li[data-drupal-ckeditor-button-name="test_media_entity_embed"]';
+    $from = "ul $item";
+    $target = 'ul.ckeditor-toolbar-group-buttons';
 
-    if ($allowed_html == 'default' && $entity_embed_status) {
-      // Unfortunately the <drupal-entity> tag is not yet allowed due to
-      // https://www.drupal.org/project/drupal/issues/2763075.
+    $this->assertSession()->waitForElementVisible('css', $target);
+    $this->sortableTo($item, $from, $target);
+
+    if ($allowed_html === 'default' && $entity_embed_status) {
       $allowed_html = $this->assertSession()->fieldExists('filters[filter_html][settings][allowed_html]')->getValue();
-      $this->assertNotContains('drupal-entity', $allowed_html);
+      if ($entity_embed_status) {
+        $this->assertStringContainsString('drupal-entity', $allowed_html);
+      }
+      else {
+        $this->assertStringNotContainsString('drupal-entity', $allowed_html);
+      }
     }
     elseif (!empty($allowed_html)) {
       $page->fillField('filters[filter_html][settings][allowed_html]', $allowed_html);
@@ -132,20 +143,6 @@ class ConfigurationUiTest extends EntityEmbedTestBase {
   }
 
   /**
-   * Data provider for testValidationWhenAdding().
-   */
-  public function providerTestValidationWhenAdding() {
-    return [
-      'Tests validation when drupal-entity not added.' => [
-        'filters[filter_html][status]' => TRUE,
-        'filters[entity_embed][status]' => TRUE,
-        'allowed_html' => 'default',
-        'expected_error_message' => 'The Media Entity Embed button requires <drupal-entity> among the allowed HTML tags.',
-      ],
-    ];
-  }
-
-  /**
    * Test integration with Filter and Text Editor form validation.
    *
    * @param bool $filter_html_status
@@ -159,7 +156,6 @@ class ConfigurationUiTest extends EntityEmbedTestBase {
    *   The error message that should display.
    *
    * @dataProvider providerTestValidations
-   * @dataProvider providerTestValidationWhenEditing
    */
   public function testValidationWhenEditing($filter_html_status, $entity_embed_status, $allowed_html, $expected_error_message) {
     $this->drupalGet('admin/config/content/formats/manage/embed_test');
@@ -179,13 +175,21 @@ class ConfigurationUiTest extends EntityEmbedTestBase {
     // Verify that after dragging the Entity Embed CKEditor plugin button into
     // the active toolbar, the <drupal-entity> tag is allowed, as well as some
     // attributes.
-    $target = $this->assertSession()->waitForElementVisible('css', 'ul.ckeditor-toolbar-group-buttons');
-    $button_element = $this->assertSession()->elementExists('xpath', '//li[@data-drupal-ckeditor-button-name="test_media_entity_embed"]');
-    $button_element->dragTo($target);
+    $item = 'li[data-drupal-ckeditor-button-name="test_media_entity_embed"]';
+    $from = "ul $item";
+    $target = 'ul.ckeditor-toolbar-group-buttons';
 
-    if ($allowed_html == 'default' && $entity_embed_status) {
+    $this->assertSession()->waitForElementVisible('css', $target);
+    $this->sortableTo($item, $from, $target);
+
+    if ($allowed_html === 'default' && $entity_embed_status) {
       $allowed_html = $this->assertSession()->fieldExists('filters[filter_html][settings][allowed_html]')->getValue();
-      $this->assertContains('drupal-entity', $allowed_html);
+      if ($entity_embed_status) {
+        $this->assertStringContainsString('drupal-entity', $allowed_html);
+      }
+      else {
+        $this->assertStringNotContainsString('drupal-entity', $allowed_html);
+      }
     }
     elseif (!empty($allowed_html)) {
       $page->fillField('filters[filter_html][settings][allowed_html]', $allowed_html);
@@ -200,20 +204,6 @@ class ConfigurationUiTest extends EntityEmbedTestBase {
     else {
       $this->assertSession()->pageTextContains('The text format Embed format has been updated.');
     }
-  }
-
-  /**
-   * Data provider for testValidationWhenEditing().
-   */
-  public function providerTestValidationWhenEditing() {
-    return [
-      'Tests validation when drupal-entity not added.' => [
-        'filters[filter_html][status]' => TRUE,
-        'filters[entity_embed][status]' => TRUE,
-        'allowed_html' => 'default',
-        'expected_error_message' => FALSE,
-      ],
-    ];
   }
 
   /**
@@ -240,6 +230,18 @@ class ConfigurationUiTest extends EntityEmbedTestBase {
         'allowed_html' => 'default',
         'expected_error_message' => FALSE,
       ],
+      'Tests validation when entity_embed filter enabled and filter_html is enabled.' => [
+        'filters[filter_html][status]' => TRUE,
+        'filters[entity_embed][status]' => TRUE,
+        'allowed_html' => 'default',
+        'expected_error_message' => FALSE,
+      ],
+      'Tests validation when drupal-entity not added.' => [
+        'filters[filter_html][status]' => TRUE,
+        'filters[entity_embed][status]' => TRUE,
+        'allowed_html' => "<a href hreflang> <em> <strong> <cite> <blockquote cite> <code> <ul type> <ol start type='1 A I'> <li> <dl> <dt> <dd> <h2 id='jump-*'> <h3 id> <h4 id> <h5 id> <h6 id>",
+        'expected_error_message' => 'The Media Entity Embed button requires <drupal-entity> among the allowed HTML tags.',
+      ],
       'Tests validation when drupal-entity element has no attributes.' => [
         'filters[filter_html][status]' => TRUE,
         'filters[entity_embed][status]' => TRUE,
@@ -251,6 +253,12 @@ class ConfigurationUiTest extends EntityEmbedTestBase {
         'filters[entity_embed][status]' => TRUE,
         'allowed_html' => "<a href hreflang> <em> <strong> <cite> <blockquote cite> <code> <ul type> <ol start type='1 A I'> <li> <dl> <dt> <dd> <h2 id='jump-*'> <h3 id> <h4 id> <h5 id> <h6 id> <drupal-entity data-entity-type data-entity-uuid data-entity-embed-display data-entity-embed-display-settings data-align data-embed-button data-langcode>",
         'expected_error_message' => 'The <drupal-entity> tag in the allowed HTML tags is missing the following attributes: data-caption, alt, title.',
+      ],
+      'Tests that wildcard for required attributes works' => [
+        'filters[filter_html][status]' => TRUE,
+        'filters[entity_embed][status]' => TRUE,
+        'allowed_html' => "<a href hreflang> <em> <strong> <cite> <blockquote cite> <code> <ul type> <ol start type='1 A I'> <li> <dl> <dt> <dd> <h2 id='jump-*'> <h3 id> <h4 id> <h5 id> <h6 id> <drupal-entity data-* alt title>",
+        'expected_error_message' => FALSE,
       ],
     ];
   }

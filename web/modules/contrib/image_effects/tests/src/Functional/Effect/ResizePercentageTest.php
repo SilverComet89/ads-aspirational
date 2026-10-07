@@ -7,7 +7,7 @@ use Drupal\Tests\image_effects\Functional\ImageEffectsTestBase;
 /**
  * Resize percentage effect test.
  *
- * @group Image Effects
+ * @group image_effects
  */
 class ResizePercentageTest extends ImageEffectsTestBase {
 
@@ -26,7 +26,7 @@ class ResizePercentageTest extends ImageEffectsTestBase {
   public function testResizePercentage($toolkit_id, $toolkit_config, array $toolkit_settings) {
     $this->changeToolkit($toolkit_id, $toolkit_config, $toolkit_settings);
 
-    $original_uri = $this->getTestImageCopyUri('/files/image-test.png', 'simpletest');
+    $original_uri = $this->getTestImageCopyUri('core/tests/fixtures/files/image-test.png');
     $derivative_uri = $this->testImageStyle->buildUri($original_uri);
 
     $test_data = [
@@ -148,7 +148,7 @@ class ResizePercentageTest extends ImageEffectsTestBase {
       $image = $this->imageFactory->get($original_uri);
       $this->assertEquals(40, $image->getWidth());
       $this->assertEquals(20, $image->getHeight());
-      $derivative_url = file_url_transform_relative($this->testImageStyle->buildUrl($original_uri));
+      $derivative_url = $this->fileUrlGenerator->transformRelative($this->testImageStyle->buildUrl($original_uri));
       $variables = [
         '#theme' => 'image_style',
         '#style_name' => 'image_effects_test',
@@ -156,7 +156,7 @@ class ResizePercentageTest extends ImageEffectsTestBase {
         '#width' => $image->getWidth(),
         '#height' => $image->getHeight(),
       ];
-      $this->assertEquals('<img src="' . $derivative_url . '" width="' . $test['expected_width'] . '" height="' . $test['expected_height'] . '" alt="" class="image-style-image-effects-test" />', $this->getImageTag($variables), $test_description);
+      $this->assertMatchesRegularExpression("/\<img src=\"" . preg_quote($derivative_url, '/') . "\" width=\"{$test['expected_width']}\" height=\"{$test['expected_height']}\" alt=\"\" .*\/\>/", $this->getImageTag($variables), $test_description);
 
       // Check that ::applyEffect generates image with expected dimensions.
       $this->testImageStyle->createDerivative($original_uri, $derivative_uri);

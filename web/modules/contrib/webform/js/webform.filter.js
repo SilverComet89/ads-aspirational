@@ -3,7 +3,7 @@
  * JavaScript behaviors for filter by text.
  */
 
-(function ($, Drupal, debounce) {
+(function ($, Drupal, debounce, once) {
 
   'use strict';
 
@@ -25,8 +25,11 @@
    */
   Drupal.behaviors.webformFilterByText = {
     attach: function (context, settings) {
-      $('input.webform-form-filter-text', context).once('webform-form-filter-text').each(function () {
+      $(once('webform-form-filter-text', 'input.webform-form-filter-text', context)).each(function () {
         var $input = $(this);
+        $input.wrap('<div class="webform-form-filter"></div>');
+        var $reset = $('<input class="webform-form-filter-reset" type="reset" title="Clear the search query." value="✕" style="display: none" />');
+        $reset.insertAfter($input);
         var $table = $($input.data('element'));
         var $summary = $($input.data('summary'));
         var $noResults = $($input.data('no-results'));
@@ -41,23 +44,36 @@
         var hasDetails = $details.length;
         var totalItems;
         var args = {
-          '@item': $input.data('item-singlular') || Drupal.t('item'),
+          '@item': $input.data('item-singular') || Drupal.t('item'),
           '@items': $input.data('item-plural') || Drupal.t('items'),
           '@total': null
         };
 
         if ($table.length) {
-          var isChrome = (/chrom(e|ium)/.test(window.navigator.userAgent.toLowerCase()));
           $filterRows = $table.find(sourceSelector);
+          var off = /chrom(e|ium)/.test(window.navigator.userAgent.toLowerCase()) ? 'chrome-off-' + Math.floor(Math.random() * 100000000) : 'off';
           $input
-            .attr('autocomplete', (isChrome) ? 'chrome-off' : 'off')
+            .attr('autocomplete', off)
             .on('keyup', debounce(filterElementList, 200))
             .keyup();
 
+          $reset.on('click', resetFilter);
+
           // Make sure the filter input is always focused.
           if (focusInput === 'true') {
-            setTimeout(function () {$input.focus();});
+            setTimeout(function () {$input.trigger('focus');});
           }
+        }
+
+        /**
+         * Reset the filtering
+         *
+         * @param {jQuery.Event} e
+         *   The jQuery event for the keyup event that triggered the filter.
+         */
+        function resetFilter(e) {
+          $input.val('').keyup();
+          $input.trigger('focus');
         }
 
         /**
@@ -103,6 +119,9 @@
           // Hide/show no results.
           $noResults[totalItems ? 'hide' : 'show']();
 
+          // Hide/show reset.
+          $reset[query.length ? 'show' : 'hide']();
+
           // Update summary.
           if ($summary.length) {
             $summary.html(Drupal.formatPlural(
@@ -143,4 +162,4 @@
     }
   };
 
-})(jQuery, Drupal, Drupal.debounce);
+})(jQuery, Drupal, Drupal.debounce, once);

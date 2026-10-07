@@ -3,18 +3,19 @@
 namespace Drupal\webform\Controller;
 
 use Drupal\Component\Render\FormattableMarkup;
+use Drupal\Core\Cache\CacheableResponse;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
-use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\webform\Element\Webform as WebformElement;
+use Drupal\webform\Routing\WebformUncacheableResponse;
 use Drupal\webform\WebformInterface;
-use Drupal\webform\WebformRequestInterface;
 use Drupal\webform\WebformSubmissionInterface;
-use Drupal\webform\WebformTokenManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Provides route responses for Webform entity.
@@ -29,7 +30,7 @@ class WebformEntityController extends ControllerBase implements ContainerInjecti
   protected $renderer;
 
   /**
-   * Webform request handler.
+   * The webform request handler.
    *
    * @var \Drupal\webform\WebformRequestInterface
    */
@@ -43,30 +44,22 @@ class WebformEntityController extends ControllerBase implements ContainerInjecti
   protected $tokenManager;
 
   /**
-   * Constructs a WebformEntityController object.
+   * The webform entity reference manager.
    *
-   * @param \Drupal\Core\Render\RendererInterface $renderer
-   *   The renderer service.
-   * @param \Drupal\webform\WebformRequestInterface $request_handler
-   *   The webform request handler.
-   * @param \Drupal\webform\WebformTokenManagerInterface $token_manager
-   *   The webform token manager.
+   * @var \Drupal\webform\WebformEntityReferenceManagerInterface
    */
-  public function __construct(RendererInterface $renderer, WebformRequestInterface $request_handler, WebformTokenManagerInterface $token_manager) {
-    $this->renderer = $renderer;
-    $this->requestHandler = $request_handler;
-    $this->tokenManager = $token_manager;
-  }
+  protected $webformEntityReferenceManager;
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('renderer'),
-      $container->get('webform.request'),
-      $container->get('webform.token_manager')
-    );
+    $instance = parent::create($container);
+    $instance->renderer = $container->get('renderer');
+    $instance->requestHandler = $container->get('webform.request');
+    $instance->tokenManager = $container->get('webform.token_manager');
+    $instance->webformEntityReferenceManager = $container->get('webform.entity_reference_manager');
+    return $instance;
   }
 
   /**
@@ -92,12 +85,24 @@ class WebformEntityController extends ControllerBase implements ContainerInjecti
    * @param \Drupal\webform\WebformInterface $webform
    *   The webform.
    *
-   * @return \Symfony\Component\HttpFoundation\Response
+   * @return \Symfony\Component\HttpFoundation\Response|\Drupal\Core\Cache\CacheableResponse
    *   The response object.
    */
   public function css(Request $request, WebformInterface $webform) {
     $assets = $webform->getAssets();
-    return new Response($assets['css'], 200, ['Content-Type' => 'text/css']);
+    if (empty($assets['css'])) {
+      throw new NotFoundHttpException();
+    }
+
+    if ($webform->access('update')) {
+      return new WebformUncacheableResponse($assets['css'], 200, ['Content-Type' => 'text/css']);
+    }
+    else {
+      $response = new CacheableResponse($assets['css'], 200, ['Content-Type' => 'text/css']);
+      return $response
+        ->addCacheableDependency($webform)
+        ->addCacheableDependency($this->config('webform.settings'));
+    }
   }
 
   /**
@@ -108,12 +113,24 @@ class WebformEntityController extends ControllerBase implements ContainerInjecti
    * @param \Drupal\webform\WebformInterface $webform
    *   The webform.
    *
-   * @return \Symfony\Component\HttpFoundation\Response
+   * @return \Symfony\Component\HttpFoundation\Response|\Drupal\Core\Cache\CacheableResponse
    *   The response object.
    */
   public function javascript(Request $request, WebformInterface $webform) {
     $assets = $webform->getAssets();
-    return new Response($assets['javascript'], 200, ['Content-Type' => 'text/javascript']);
+    if (empty($assets['javascript'])) {
+      throw new NotFoundHttpException();
+    }
+
+    if ($webform->access('update')) {
+      return new WebformUncacheableResponse($assets['javascript'], 200, ['Content-Type' => 'text/javascript']);
+    }
+    else {
+      $response = new CacheableResponse($assets['javascript'], 200, ['Content-Type' => 'text/javascript']);
+      return $response
+        ->addCacheableDependency($webform)
+        ->addCacheableDependency($this->config('webform.settings'));
+    }
   }
 
   /**
@@ -132,7 +149,7 @@ class WebformEntityController extends ControllerBase implements ContainerInjecti
   public function confirmation(Request $request, WebformInterface $webform = NULL, WebformSubmissionInterface $webform_submission = NULL) {
     /** @var \Drupal\Core\Entity\EntityInterface $source_entity */
     if (!$webform) {
-      list($webform, $source_entity) = $this->requestHandler->getWebformEntities();
+      [$webform, $source_entity] = $this->requestHandler->getWebformEntities();
     }
     else {
       $source_entity = $this->requestHandler->getCurrentSourceEntity('webform');
@@ -151,6 +168,17 @@ class WebformEntityController extends ControllerBase implements ContainerInjecti
       $webform_submission->getWebform()->invokeHandlers('overrideSettings', $webform_submission);
     }
 
+    // Apply variants.
+    if ($webform->hasVariants()) {
+      if ($webform_submission) {
+        $webform->applyVariants($webform_submission);
+      }
+      else {
+        $variants = $this->getVariants($request, $webform, $source_entity);
+        $webform->applyVariants(NULL, $variants);
+      }
+    }
+
     // Get title.
     $title = $webform->getSetting('confirmation_title') ?: (($source_entity) ? $source_entity->label() : $webform->label());
 
@@ -163,6 +191,11 @@ class WebformEntityController extends ControllerBase implements ContainerInjecti
       '#webform' => $webform,
       '#source_entity' => $source_entity,
       '#webform_submission' => $webform_submission,
+      '#cache' => [
+        'contexts' => [
+          'url.query_args:token',
+        ],
+      ],
     ];
 
     // Add entities cacheable dependency.
@@ -175,6 +208,57 @@ class WebformEntityController extends ControllerBase implements ContainerInjecti
     }
 
     return $build;
+  }
+
+  /**
+   * Get variants from the current request.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The current request.
+   * @param \Drupal\webform\WebformInterface|null $webform
+   *   The current webform.
+   * @param \Drupal\Core\Entity\EntityInterface|null $source_entity
+   *   The current source entity.
+   *
+   * @return array
+   *   An associative array of variants keyed by element key
+   *   and variant instance id.
+   *
+   * @see \Drupal\webform\Entity\Webform::getSubmissionForm
+   */
+  protected function getVariants(Request $request, WebformInterface $webform, EntityInterface $source_entity = NULL) {
+    // Get variants from '_webform_variant query string parameter.
+    $webform_variant = $request->query->get('_webform_variant');
+    if ($webform_variant && ($webform->access('update') || $webform->access('test'))) {
+      return $webform_variant;
+    }
+
+    // Get default data.
+    $field_name = $this->webformEntityReferenceManager->getFieldName($source_entity);
+    if (!$field_name) {
+      return [];
+    }
+
+    $default_data = $source_entity->$field_name->default_data;
+    $default_data = ($default_data) ? Yaml::decode($default_data) : [];
+
+    // Get query string data.
+    $query = $request->query->all();
+
+    // Get variants from #prepopulate query string parameters.
+    $variants = [];
+    $element_keys = $webform->getElementsVariant();
+    foreach ($element_keys as $element_key) {
+      $element = $webform->getElement($element_key);
+      if (!empty($query[$element_key]) && !empty($element['#prepopulate'])) {
+        $variants[$element_key] = $query[$element_key];
+      }
+      elseif (!empty($default_data[$element_key])) {
+        $variants[$element_key] = $default_data[$element_key];
+      }
+    }
+
+    return $variants;
   }
 
   /**
@@ -272,7 +356,7 @@ class WebformEntityController extends ControllerBase implements ContainerInjecti
   public function title(WebformInterface $webform = NULL) {
     /** @var \Drupal\Core\Entity\EntityInterface $source_entity */
     if (!$webform) {
-      list($webform, $source_entity) = $this->requestHandler->getWebformEntities();
+      [$webform, $source_entity] = $this->requestHandler->getWebformEntities();
     }
     else {
       $source_entity = $this->requestHandler->getCurrentSourceEntity('webform');

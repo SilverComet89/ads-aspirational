@@ -2,9 +2,9 @@
 
 namespace Drupal\webform\Element;
 
-use Drupal\Core\Serialization\Yaml;
-use Drupal\Core\Render\Element\Textarea;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element\Textarea;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\webform\Entity\WebformSubmission;
 use Drupal\webform\Twig\WebformTwigExtension;
 use Drupal\webform\Utility\WebformYaml;
@@ -46,6 +46,7 @@ class WebformCodeMirror extends Textarea {
       '#input' => TRUE,
       '#mode' => 'text',
       '#skip_validation' => FALSE,
+      '#decode_value' => FALSE,
       '#cols' => 60,
       '#rows' => 5,
       '#wrap' => TRUE,
@@ -68,13 +69,13 @@ class WebformCodeMirror extends Textarea {
    * {@inheritdoc}
    */
   public static function valueCallback(&$element, $input, FormStateInterface $form_state) {
-    if ($input === FALSE && $element['#mode'] == 'yaml' && isset($element['#default_value'])) {
+    if ($input === FALSE && $element['#mode'] === 'yaml' && isset($element['#default_value'])) {
       // Convert associative array in default value to YAML.
       if (is_array($element['#default_value'])) {
         $element['#default_value'] = WebformYaml::encode($element['#default_value']);
       }
       // Convert empty YAML into an empty string.
-      if ($element['#default_value'] == '{  }') {
+      if ($element['#default_value'] === '{  }') {
         $element['#default_value'] = '';
       }
       return $element['#default_value'];
@@ -92,7 +93,7 @@ class WebformCodeMirror extends Textarea {
     }
 
     // Check edit Twig template permission and complete disable editing.
-    if ($element['#mode'] == 'twig') {
+    if ($element['#mode'] === 'twig') {
       if (!WebformTwigExtension::hasEditTwigAccess()) {
         $element['#disable'] = TRUE;
         $element['#attributes']['disabled'] = 'disabled';
@@ -158,14 +159,10 @@ class WebformCodeMirror extends Textarea {
     }
     else {
       // If editing YAML and #default_value is an array, decode #value.
-      if ($element['#mode'] == 'yaml' && (isset($element['#default_value']) && is_array($element['#default_value']))) {
-        // Handle rare case where single array value is not parsed correctly.
-        if (preg_match('/^- (.*?)\s*$/', $element['#value'], $match)) {
-          $value = [$match[1]];
-        }
-        else {
-          $value = $element['#value'] ? Yaml::decode($element['#value']) : [];
-        }
+      if ($element['#mode'] === 'yaml'
+        && (isset($element['#default_value']) && is_array($element['#default_value']) || $element['#decode_value'])
+      ) {
+        $value = $element['#value'] ? Yaml::decode($element['#value']) : [];
         $form_state->setValueForElement($element, $value);
       }
     }
@@ -236,22 +233,12 @@ class WebformCodeMirror extends Textarea {
     return (isset(static::$modes[$mode])) ? static::$modes[$mode] : static::$modes['text'];
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Language/markup validation callback.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * Validate HTML.
-   *
-   * @param array $element
-   *   The form element whose value is being validated.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The current state of the form.
-   * @param array $complete_form
-   *   The complete form structure.
-   *
-   * @return array|null
-   *   An array of error messages.
    */
   protected static function validateHtml($element, FormStateInterface $form_state, $complete_form) {
     // @see: http://stackoverflow.com/questions/3167074/which-function-in-php-validate-if-the-string-is-valid-html
@@ -276,16 +263,6 @@ class WebformCodeMirror extends Textarea {
 
   /**
    * Validate Twig.
-   *
-   * @param array $element
-   *   The form element whose value is being validated.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The current state of the form.
-   * @param array $complete_form
-   *   The complete form structure.
-   *
-   * @return array|null
-   *   An array of error messages.
    */
   protected static function validateTwig($element, FormStateInterface $form_state, $complete_form) {
     $template = $element['#value'];
@@ -326,23 +303,13 @@ class WebformCodeMirror extends Textarea {
 
   /**
    * Validate YAML.
-   *
-   * @param array $element
-   *   The form element whose value is being validated.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The current state of the form.
-   * @param array $complete_form
-   *   The complete form structure.
-   *
-   * @return array|null
-   *   An array of error messages.
    */
   protected static function validateYaml($element, FormStateInterface $form_state, $complete_form) {
     try {
       $value = $element['#value'];
       $data = Yaml::decode($value);
       if (!is_array($data) && $value) {
-        throw new \Exception(t('YAML must contain an associative array of elements.'));
+        throw new \Exception('YAML must contain an associative array of elements.');
       }
       return NULL;
     }

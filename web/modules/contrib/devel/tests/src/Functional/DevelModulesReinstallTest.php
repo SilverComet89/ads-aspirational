@@ -2,21 +2,12 @@
 
 namespace Drupal\Tests\devel\Functional;
 
-use Drupal\Tests\BrowserTestBase;
-
 /**
  * Tests reinstall modules.
  *
  * @group devel
  */
-class DevelModulesReinstallTest extends BrowserTestBase {
-
-  /**
-   * Modules to enable.
-   *
-   * @var array
-   */
-  public static $modules = ['devel'];
+class DevelModulesReinstallTest extends DevelBrowserTestBase {
 
   /**
    * The profile to install as a basis for testing.
@@ -28,11 +19,9 @@ class DevelModulesReinstallTest extends BrowserTestBase {
   /**
    * Set up test.
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
-
-    $web_user = $this->drupalCreateUser(['administer site configuration']);
-    $this->drupalLogin($web_user);
+    $this->drupalLogin($this->adminUser);
   }
 
   /**
@@ -53,8 +42,10 @@ class DevelModulesReinstallTest extends BrowserTestBase {
       $edit["reinstall[$module]"] = TRUE;
     }
 
-    $this->drupalPostForm('devel/reinstall', $edit, t('Reinstall'));
-    $this->assertText(t('Uninstalled and installed: @names.', ['@names' => implode(', ', $modules)]));
+    $this->drupalGet('devel/reinstall');
+    $this->submitForm($edit, 'Reinstall');
+    $this->assertSession()->pageTextContains('Uninstalled and installed: ' . implode(', ', $modules) . '.');
+
   }
 
 }

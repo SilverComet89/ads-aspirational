@@ -34,11 +34,11 @@ class JCarouselConfig extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('jcarousel.settings');
-    $form['global_load'] = array(
+    $form['global_load'] = [
       '#type' => 'checkbox',
       '#title' => t('Load jCarousel on all pages'),
       '#default_value' => $config->get('global_load'),
-    );
+    ];
 
     return parent::buildForm($form, $form_state);
   }

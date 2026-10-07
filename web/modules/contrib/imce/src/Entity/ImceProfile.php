@@ -29,6 +29,12 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *     "edit-form" = "/admin/config/media/imce/{imce_profile}",
  *     "delete-form" = "/admin/config/media/imce/{imce_profile}/delete",
  *     "duplicate-form" = "/admin/config/media/imce/{imce_profile}/duplicate"
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "description",
+ *     "conf"
  *   }
  * )
  */
@@ -68,7 +74,7 @@ class ImceProfile extends ConfigEntityBase {
   public function getConf($key = NULL, $default = NULL) {
     $conf = $this->conf;
     if (isset($key)) {
-      return isset($conf[$key]) ? $conf[$key] : $default;
+      return $conf[$key] ?? $default;
     }
     return $conf;
   }

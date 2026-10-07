@@ -2,13 +2,16 @@
 
 namespace Drupal\ctools\Plugin\Block;
 
+use Drupal\Core\Access\AccessResultForbidden;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
+use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -20,6 +23,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * )
  */
 class EntityView extends BlockBase implements ContextAwarePluginInterface, ContainerFactoryPluginInterface {
+
+  /**
+   * A static cache of the recursion protection.
+   *
+   * @var array
+   */
+  protected static $recursion = [];
 
   /**
    * The entity type manager.
@@ -99,16 +109,59 @@ class EntityView extends BlockBase implements ContextAwarePluginInterface, Conta
   }
 
   /**
+   * Increments access recursion counter for an entity.
+   */
+  protected function accessRecursion(EntityInterface $entity, array $config) {
+    if (!isset(self::$recursion[$entity->uuid()][$config['view_mode']])) {
+      self::$recursion[$entity->uuid()][$config['view_mode']] = 0;
+    }
+    return self::$recursion[$entity->uuid()][$config['view_mode']]++;
+  }
+
+  /**
+   * Gets the access recursion count for an entity.
+   */
+  protected function getAccessRecursion(EntityInterface $entity, array $config) {
+    return self::$recursion[$entity->uuid()][$config['view_mode']] ?? 0;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function access(AccountInterface $account, $return_as_object = FALSE) {
+    // Check the parent's access.
+    $parent_access = parent::access($account, TRUE);
+    if (!$parent_access->isAllowed()) {
+      return $return_as_object ? $parent_access : $parent_access->isAllowed();
+    }
+
+    /** @var \Drupal\Core\Entity\EntityInterface $entity */
+    $entity = $this->getContextValue('entity');
+    if ($entity) {
+      if ($this->getAccessRecursion($entity, $this->getConfiguration())) {
+        return $return_as_object ? new AccessResultForbidden() : FALSE;
+      }
+      return $entity->access('view', $account, $return_as_object);
+    }
+    return new AccessResultForbidden("No Entity Found.");
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function build() {
-    /** @var $entity \Drupal\Core\Entity\EntityInterface */
+    /** @var \Drupal\Core\Entity\EntityInterface $entity */
     $entity = $this->getContextValue('entity');
+    $build = [];
+    if ($this::accessRecursion($entity, $this->getConfiguration())) {
+      return $build;
+    }
 
     $view_builder = $this->entityTypeManager->getViewBuilder($entity->getEntityTypeId());
     $build = $view_builder->view($entity, $this->configuration['view_mode']);
 
-    CacheableMetadata::createFromObject($this->getContext('entity'))
+    CacheableMetadata::createFromObject($entity)
+      ->merge(CacheableMetadata::createFromRenderArray($build))
       ->applyTo($build);
 
     return $build;

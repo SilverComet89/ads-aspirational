@@ -3,13 +3,16 @@
 namespace Drupal\linked_field;
 
 use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\UrlHelper;
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Path\PathValidatorInterface;
+use Drupal\Core\TypedData\Exception\MissingDataException;
 use Drupal\Core\Url;
 use Drupal\Core\Utility\Token;
 
@@ -40,12 +43,28 @@ class LinkedFieldManager implements LinkedFieldManagerInterface {
   protected $token;
 
   /**
+   * Entity field manager.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManager
+   */
+  protected $entityFieldManager;
+
+  /**
+   * Entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManager
+   */
+  protected $entityTypeManager;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(ConfigFactoryInterface $config_factory, PathValidatorInterface $path_validator, Token $token) {
+  public function __construct(ConfigFactoryInterface $config_factory, PathValidatorInterface $path_validator, Token $token, EntityFieldManagerInterface $entityFieldManager, EntityTypeManagerInterface $entityTypeManager) {
     $this->config = $config_factory->get('linked_field.config');
     $this->pathValidator = $path_validator;
     $this->token = $token;
+    $this->entityFieldManager = $entityFieldManager;
+    $this->entityTypeManager = $entityTypeManager;
   }
 
   /**
@@ -69,14 +88,19 @@ class LinkedFieldManager implements LinkedFieldManagerInterface {
    */
   public function getDestinationFields($entity_type_id, $bundle_id) {
     $field_names = [];
-    $fields = \Drupal::service('entity_field.manager')->getFieldDefinitions($entity_type_id, $bundle_id);
-    $label_field = \Drupal::service('entity_type.manager')->getDefinition($entity_type_id)->getKey('label');
+    $fields = $this->entityFieldManager->getFieldDefinitions($entity_type_id, $bundle_id);
+    $label_field = $this->entityTypeManager->getDefinition($entity_type_id)->getKey('label');
 
     // Remove the label field from fields.
     unset($fields[$label_field]);
 
     foreach ($fields as $field_name => $field) {
-      if (in_array($field->getType(), ['link', 'string', 'list_float', 'list_string'])) {
+      if (in_array($field->getType(),
+        [
+          'link', 'string',
+          'list_float',
+          'list_string',
+        ])) {
         $field_names[$field_name] = $field->getLabel() . ' (' . $field_name . ')';
       }
     }
@@ -116,11 +140,11 @@ class LinkedFieldManager implements LinkedFieldManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getDestination($type, $value, $context) {
+  public function getDestination($type, $value, array $context) {
     $uri = '';
 
     if ($type == 'field') {
-      /** @var FieldItemListInterface $field_items */
+      /** @var \Drupal\Core\Field\FieldItemListInterface $field_items */
       $field_items = $context['entity']->get($value);
 
       if (!$field_items->count()) {
@@ -141,6 +165,31 @@ class LinkedFieldManager implements LinkedFieldManagerInterface {
   /**
    * {@inheritdoc}
    */
+  public function getFieldItemAttributes($value, int $delta, array $context) {
+    /** @var \Drupal\Core\Field\FieldItemListInterface $field */
+    $field = $context['entity']->get($value);
+
+    if ($field->isEmpty()) {
+      return [];
+    }
+
+    try {
+      $item = $field->get($delta)->getValue();
+    }
+    catch (MissingDataException) {
+      return [];
+    }
+
+    if (isset($item['options']['attributes'])) {
+      return $item['options']['attributes'];
+    }
+
+    return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function buildDestinationUrl($destination) {
     $parsed_url = parse_url($destination);
 
@@ -156,7 +205,8 @@ class LinkedFieldManager implements LinkedFieldManagerInterface {
       $destination_url = $url->setAbsolute()->toString();
 
       return $destination_url;
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       return FALSE;
     }
   }
@@ -168,7 +218,7 @@ class LinkedFieldManager implements LinkedFieldManagerInterface {
     $items = $field_items->getValue();
     $field_definition = $field_items->getFieldDefinition();
     $field_type = $field_definition->getType();
-    // @TODO: We should add support for deltas.
+    // @todo We should add support for deltas.
     $item = $items[0];
     $uri = '';
 
@@ -176,7 +226,7 @@ class LinkedFieldManager implements LinkedFieldManagerInterface {
       $uri = $item['uri'];
     }
     else {
-      $uri = isset($item['value']) ? $item['value'] : '';
+      $uri = $item['value'] ?? '';
     }
 
     return $uri;
@@ -185,7 +235,7 @@ class LinkedFieldManager implements LinkedFieldManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function replaceToken($text, $data = [], $options = []) {
+  public function replaceToken($text, array $data = [], array $options = []) {
     return $this->token->replace($text, $data, $options);
   }
 
@@ -193,7 +243,7 @@ class LinkedFieldManager implements LinkedFieldManagerInterface {
    * {@inheritdoc}
    */
   public function linkNode(\DOMNode $node, \DOMDocument $dom, array $attributes) {
-    if ($node->hasChildNodes() && $node->nodeName != 'a') {
+    if ($node->hasChildNodes() && !in_array($node->nodeName, ['a', 'picture'])) {
       $c = $node->childNodes->length;
 
       for ($i = $c; $i > 0; --$i) {
@@ -212,6 +262,10 @@ class LinkedFieldManager implements LinkedFieldManagerInterface {
             // Adding the attributes.
             foreach ($attributes as $name => $value) {
               if ($value) {
+                // Stringify class attribute.
+                if ($name == 'class' && is_array($value)) {
+                  $value = implode(' ', $value);
+                }
                 // Convert all HTML entities back to
                 // their applicable characters.
                 $value = Html::decodeEntities($value);
@@ -223,13 +277,17 @@ class LinkedFieldManager implements LinkedFieldManagerInterface {
             $node->replaceChild($element, $child);
           }
         }
-        elseif ($child->nodeName == 'img') {
+        elseif (in_array($child->nodeName, ['img', 'picture'])) {
           // Create new <a> element, set the href and append the image.
           $element = $dom->createElement('a');
 
           // Adding the attributes.
           foreach ($attributes as $name => $value) {
             if ($value) {
+              // Stringify class attribute.
+              if ($name == 'class' && is_array($value)) {
+                $value = implode(' ', $value);
+              }
               // Convert all HTML entities back to their applicable characters.
               $value = Html::decodeEntities($value);
               $element->setAttribute($name, $value);
@@ -246,17 +304,22 @@ class LinkedFieldManager implements LinkedFieldManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function linkHtml($html, $attributes) {
-    // Convert HTML code to a DOMDocument object.
-    $html_dom = Html::load($html);
+  public function linkHtml($html, array $attributes) {
+    $safe_html = Xss::filterAdmin($html);
+
+    $html_dom = Html::load($safe_html);
     $body = $html_dom->getElementsByTagName('body');
     $node = $body->item(0);
 
     // Recursively walk over the DOMDocument body and place the links.
     $this->linkNode($node, $html_dom, $attributes);
 
-    // Converting the DOMDocument object back to HTML code.
-    return Html::serialize($html_dom);
+    $inner_html = '';
+    foreach ($node->childNodes as $child) {
+      $inner_html .= $html_dom->saveHTML($child);
+    }
+
+    return $inner_html;
   }
 
 }

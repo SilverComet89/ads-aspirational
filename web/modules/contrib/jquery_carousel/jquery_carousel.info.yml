@@ -1,10 +1,10 @@
-name: jquery carousel
+name: jQuery Carousel
 description: 'Formats data in form of a carousel.'
-# core: 8.x
+core: 8.x
 type: module
+core_version_requirement: ^8 || ^9
 
-# Information added by Drupal.org packaging script on 2016-08-08
-version: '8.x-1.0-beta1'
-core: '8.x'
+# Information added by Drupal.org packaging script on 2020-04-28
+version: '8.x-1.0'
 project: 'jquery_carousel'
-datestamp: 1470658140
+datestamp: 1588076443

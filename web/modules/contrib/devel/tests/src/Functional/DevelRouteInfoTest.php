@@ -3,37 +3,21 @@
 namespace Drupal\Tests\devel\Functional;
 
 use Drupal\Core\Url;
-use Drupal\Tests\BrowserTestBase;
 
 /**
  * Tests routes info pages and links.
  *
  * @group devel
  */
-class DevelRouteInfoTest extends BrowserTestBase {
+class DevelRouteInfoTest extends DevelBrowserTestBase {
 
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['devel', 'devel_test', 'block'];
-
-  /**
-   * The user for the test.
-   *
-   * @var \Drupal\user\UserInterface
-   */
-  protected $develUser;
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
-
     $this->drupalPlaceBlock('system_menu_block:devel');
     $this->drupalPlaceBlock('page_title_block');
-
-    $this->develUser = $this->drupalCreateUser(['access devel information']);
     $this->drupalLogin($this->develUser);
   }
 
@@ -52,7 +36,7 @@ class DevelRouteInfoTest extends BrowserTestBase {
     $page = $this->getSession()->getPage();
 
     // Ensures that the expected table headers are found.
-    /* @var $headers \Behat\Mink\Element\NodeElement[] */
+    /** @var \Behat\Mink\Element\NodeElement[] $headers */
     $headers = $page->findAll('css', 'table.devel-route-list thead th');
     $this->assertEquals(4, count($headers));
 
@@ -94,7 +78,7 @@ class DevelRouteInfoTest extends BrowserTestBase {
       $row = $page->find('css', sprintf('table.devel-route-list tbody tr:contains("%s")', $route_name));
       $this->assertNotNull($row);
 
-      /* @var $cells \Behat\Mink\Element\NodeElement[] */
+      /** @var \Behat\Mink\Element\NodeElement[] $cells */
       $cells = $row->findAll('css', 'td');
       $this->assertEquals(4, count($cells));
 
@@ -133,7 +117,7 @@ class DevelRouteInfoTest extends BrowserTestBase {
    */
   public function testRouteDetail() {
     $expected_title = 'Route detail';
-    $xpath_warning_messages = '//div[contains(@class, "messages--warning")]';
+    $xpath_warning_messages = '//div[@aria-label="Warning message"]';
 
     // Ensures that devel route detail link in the menu works properly.
     $url = $this->develUser->toUrl();
@@ -144,7 +128,7 @@ class DevelRouteInfoTest extends BrowserTestBase {
     $this->assertSession()->statusCodeEquals(200);
     $this->assertSession()->pageTextContains($expected_title);
     $expected_url = Url::fromRoute('devel.route_info.item', [], ['query' => ['path' => $path]]);
-    $this->assertSession()->addressEquals($expected_url);
+    $this->assertSession()->addressEquals($expected_url->toString());
     $this->assertSession()->elementNotExists('xpath', $xpath_warning_messages);
 
     // Ensures that devel route detail works properly even when dynamic cache
@@ -157,7 +141,7 @@ class DevelRouteInfoTest extends BrowserTestBase {
     $this->assertSession()->statusCodeEquals(200);
     $this->assertSession()->pageTextContains($expected_title);
     $expected_url = Url::fromRoute('devel.route_info.item', [], ['query' => ['path' => $path]]);
-    $this->assertSession()->addressEquals($expected_url);
+    $this->assertSession()->addressEquals($expected_url->toString());
     $this->assertSession()->elementNotExists('xpath', $xpath_warning_messages);
 
     // Ensures that if a non existent path is passed as input, a warning

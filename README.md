@@ -88,3 +88,10 @@ Visual regression testing uses a headless browser to take screenshots of web pag
 ## Updating your site
 
 When using this repository to manage your Drupal site, you will no longer use the Pantheon dashboard to update your Drupal version. Instead, you will manage your updates using Composer. Ensure your site is in Git mode, clone it locally, and then run composer commands from there.  Commit and push your files back up to Pantheon as usual.
+
+## Local development (Drupal 9.5, PHP 8.1)
+
+- Local URL: https://aspirational.test (Laravel Valet, isolated to PHP 8.1: `valet isolate php@8.1`).
+- Run Drush with `./drush.sh <command>` (e.g. `./drush.sh uli`, `./drush.sh user:password NAME 'PASS'`). It uses PHP 8.1 and `--uri=https://aspirational.test`; override with `DRUSH_PHP` / `DRUSH_URI`.
+- `md_slider` has no Drupal 9 release and is maintained locally in `web/modules/custom/md_slider`.
+- Config sync directory is set via `$settings['config_sync_directory']` in `settings.php`.

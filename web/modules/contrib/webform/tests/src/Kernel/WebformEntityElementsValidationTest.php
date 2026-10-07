@@ -17,7 +17,7 @@ class WebformEntityElementsValidationTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['system', 'webform', 'user'];
+  protected static $modules = ['system', 'webform', 'user'];
 
   /**
    * The webform elements validator.
@@ -29,7 +29,7 @@ class WebformEntityElementsValidationTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $this->validator = \Drupal::service('webform.elements_validator');
   }
@@ -152,6 +152,43 @@ duplicate:
           'The <em class="placeholder">root</em> (webform_wizard_page) is a root element that can not be used as child to another element',
         ],
       ],
+
+      // Check validate table hierarchy.
+      [
+        'getElementsRaw' => 'empty: empty',
+        'getElementsOriginalRaw' => 'empty: empty',
+        'getElementsInitializedAndFlattened' => [
+          'table' => [
+            '#type' => 'webform_table',
+            '#webform_key' => 'table',
+          ],
+          'table_row' => [
+            '#type' => 'webform_table_row',
+            '#webform_key' => 'table_row',
+            '#webform_parent_key' => 'table',
+          ],
+          'table_row_invalid' => [
+            '#type' => 'webform_table_row',
+            '#webform_key' => 'table_row',
+            '#webform_parent_key' => NULL,
+          ],
+        ],
+        'messages' => [
+          'The <em class="placeholder">table_row_invalid</em> (webform_table_row) must be with in a <em class="placeholder">Table</em> (webform_table) element.',
+        ],
+      ],
+
+      // Check validate pages.
+      [
+        'getElementsRaw' => "page:
+  '#type': webform_wizard_page
+card:
+  '#type': webform_card",
+        'messages' => [
+          'Pages and cards cannot be used in the same webform. Please remove or convert the pages/cards to the same element type.',
+        ],
+      ],
+// phpcs:disable
 /*
       // Check validate rendering.
       [
@@ -170,6 +207,7 @@ duplicate:
         ],
       ],
 */
+// phpcs:enable
     ];
 
     // Check invalid YAML.

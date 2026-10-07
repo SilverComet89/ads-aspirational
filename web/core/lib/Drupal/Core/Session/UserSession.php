@@ -7,6 +7,7 @@ namespace Drupal\Core\Session;
  *
  * @todo: Change all properties to protected.
  */
+#[\AllowDynamicProperties]
 class UserSession implements AccountInterface {
 
   /**
@@ -154,14 +155,6 @@ class UserSession implements AccountInterface {
   /**
    * {@inheritdoc}
    */
-  public function getUsername() {
-    @trigger_error('\Drupal\Core\Session\AccountInterface::getUsername() is deprecated in Drupal 8.0.0, will be removed before Drupal 9.0.0. Use \Drupal\Core\Session\AccountInterface::getAccountName() or \Drupal\user\UserInterface::getDisplayName() instead. See https://www.drupal.org/node/2572493', E_USER_DEPRECATED);
-    return $this->getAccountName();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getAccountName() {
     return $this->name;
   }
@@ -203,7 +196,7 @@ class UserSession implements AccountInterface {
    *   The role storage object.
    */
   protected function getRoleStorage() {
-    return \Drupal::entityManager()->getStorage('user_role');
+    return \Drupal::entityTypeManager()->getStorage('user_role');
   }
 
 }

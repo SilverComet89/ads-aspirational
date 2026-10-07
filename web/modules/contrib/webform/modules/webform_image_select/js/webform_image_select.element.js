@@ -3,7 +3,7 @@
  * JavaScript behaviors for webform_image_select and jQuery Image Picker integration.
  */
 
-(function ($, Drupal) {
+(function ($, Drupal, once) {
 
   'use strict';
 
@@ -23,7 +23,7 @@
         return;
       }
 
-      $('.js-webform-image-select', context).once('webform-image-select').each(function () {
+      $(once('webform-image-select', '.js-webform-image-select', context)).each(function () {
         var $select = $(this);
         var isMultiple = $select.attr('multiple');
 
@@ -89,7 +89,7 @@
           .on('keydown', function (event) {
             if (event.which === 32) {
               // Space.
-              $(this).click();
+              $(this).trigger('click');
               event.preventDefault();
             }
             else if (event.which === 37 || event.which === 38) {
@@ -99,7 +99,7 @@
                 $prev = $prev.prev();
               }
               while ($prev.length && $prev.is(':hidden'));
-              $prev.find('.thumbnail').focus();
+              $prev.find('.thumbnail').trigger('focus');
               event.preventDefault();
             }
             else if (event.which === 39 || event.which === 40) {
@@ -109,7 +109,7 @@
                 $next = $next.next();
               }
               while ($next.length && $next.is(':hidden'));
-              $next.find('.thumbnail').focus();
+              $next.find('.thumbnail').trigger('focus');
               event.preventDefault();
             }
           })
@@ -121,4 +121,4 @@
     }
   };
 
-})(jQuery, Drupal);
+})(jQuery, Drupal, once);

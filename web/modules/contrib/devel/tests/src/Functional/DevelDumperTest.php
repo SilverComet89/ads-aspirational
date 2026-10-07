@@ -2,14 +2,12 @@
 
 namespace Drupal\Tests\devel\Functional;
 
-use Drupal\Tests\BrowserTestBase;
-
 /**
  * Tests pluggable dumper feature.
  *
  * @group devel
  */
-class DevelDumperTest extends BrowserTestBase {
+class DevelDumperTest extends DevelBrowserTestBase {
 
   /**
    * Modules to enable.
@@ -21,11 +19,9 @@ class DevelDumperTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
-
-    $admin_user = $this->drupalCreateUser(['administer site configuration', 'access devel information']);
-    $this->drupalLogin($admin_user);
+    $this->drupalLogin($this->adminUser);
   }
 
   /**
@@ -38,73 +34,46 @@ class DevelDumperTest extends BrowserTestBase {
     $this->assertSession()->fieldExists('dumper');
 
     // Ensures that the 'default' dumper is enabled by default.
-    $this->assertSession()->checkboxChecked('edit-dumper-default');
+    // Disable since devel_install does dynamic default now.
+    // $this->assertSession()->checkboxChecked('edit-dumper-default');
+    $this->assertTrue(TRUE);
 
-    // Ensures that all dumpers declared by devel are present on the config page
-    // and that only the available dumpers are selectable.
+    // Ensures that all dumpers (both those declared by devel and by other
+    // modules) are present on the config page and that only the available
+    // dumpers are selectable.
     $dumpers = [
-      'default',
-      'drupal_variable',
-      'firephp',
-      'chromephp',
-      'var_dumper',
+      'default' => 'Default',
+      'var_dumper' => 'Symfony var-dumper',
+      'available_test_dumper' => 'Available test dumper',
+      'not_available_test_dumper' => 'Not available test dumper',
     ];
-    $available_dumpers = ['default', 'drupal_variable', 'var_dumper'];
+    $available_dumpers = ['default', 'var_dumper', 'available_test_dumper'];
 
-    foreach ($dumpers as $dumper) {
-      $this->assertFieldByXPath('//input[@type="radio" and @name="dumper"]', $dumper);
+    foreach ($dumpers as $dumper => $label) {
+      // Check that a radio option exists for the specified dumper.
+      $this->assertSession()->elementExists('xpath', '//input[@type="radio" and @name="dumper" and @value="' . $dumper . '"]');
+      $this->assertSession()->pageTextContains($label);
+
+      // Check that the available dumpers are enabled and the non-available
+      // dumpers are not enabled.
       if (in_array($dumper, $available_dumpers)) {
-        $this->assertFieldByXPath('//input[@name="dumper" and not(@disabled="disabled")]', $dumper);
+        $this->assertSession()->elementExists('xpath', '//input[@name="dumper" and not(@disabled="disabled") and @value="' . $dumper . '"]');
       }
       else {
-        $this->assertFieldByXPath('//input[@name="dumper" and @disabled="disabled"]', $dumper);
+        $this->assertSession()->elementExists('xpath', '//input[@name="dumper" and @disabled="disabled" and @value="' . $dumper . '"]');
       }
     }
 
-    // Ensures that dumper plugins declared by other modules are present on the
-    // config page and that only the available dumpers are selectable.
-    $this->assertFieldByXPath('//input[@name="dumper"]', 'available_test_dumper');
-    $this->assertSession()->pageTextContains('Available test dumper.');
-    $this->assertSession()->pageTextContains('Drupal dumper for testing purposes (available).');
-    $this->assertFieldByXPath('//input[@name="dumper" and not(@disabled="disabled")]', 'available_test_dumper', 'Available dumper input not is disabled.');
-
-    $this->assertFieldByXPath('//input[@name="dumper"]', 'not_available_test_dumper');
-    $this->assertSession()->pageTextContains('Not available test dumper.');
-    $this->assertSession()->pageTextContains('Drupal dumper for testing purposes (not available).Not available. You may need to install external dependencies for use this plugin.');
-    $this->assertFieldByXPath('//input[@name="dumper" and @disabled="disabled"]', 'not_available_test_dumper', 'Non available dumper input is disabled.');
-
     // Ensures that saving of the dumpers configuration works as expected.
     $edit = [
-      'dumper' => 'drupal_variable',
+      'dumper' => 'var_dumper',
     ];
-    $this->drupalPostForm('admin/config/development/devel', $edit, t('Save configuration'));
-    $this->assertSession()->pageTextContains(t('The configuration options have been saved.'));
+    $this->submitForm($edit, 'Save configuration');
+    $this->assertSession()->pageTextContains('The configuration options have been saved.');
+    $this->assertSession()->checkboxChecked('Symfony var-dumper');
 
     $config = \Drupal::config('devel.settings')->get('devel_dumper');
-    $this->assertEquals('drupal_variable', $config, 'The configuration options have been properly saved');
-
-    // Ensure that if the chosen dumper is not available (e.g. the module that
-    // provide it is uninstalled) the 'default' dumper appears selected in the
-    // config page.
-    \Drupal::service('module_installer')->install(['kint']);
-
-    $this->drupalGet('admin/config/development/devel');
-    $this->assertFieldByXPath('//input[@name="dumper"]', 'kint');
-
-    $edit = [
-      'dumper' => 'kint',
-    ];
-    $this->drupalPostForm('admin/config/development/devel', $edit, t('Save configuration'));
-    $this->assertSession()->pageTextContains(t('The configuration options have been saved.'));
-
-    $config = \Drupal::config('devel.settings')->get('devel_dumper');
-    $this->assertEquals('kint', $config, 'The configuration options have been properly saved');
-
-    \Drupal::service('module_installer')->uninstall(['kint']);
-
-    $this->drupalGet('admin/config/development/devel');
-    $this->assertNoFieldByXPath('//input[@name="dumper"]', 'kint');
-    $this->assertSession()->checkboxChecked('edit-dumper-default');
+    $this->assertEquals('var_dumper', $config, 'The configuration options have been properly saved');
   }
 
   /**
@@ -114,31 +83,31 @@ class DevelDumperTest extends BrowserTestBase {
     $edit = [
       'dumper' => 'available_test_dumper',
     ];
-    $this->drupalPostForm('admin/config/development/devel', $edit, t('Save configuration'));
-    $this->assertSession()->pageTextContains(t('The configuration options have been saved.'));
+    $this->drupalGet('admin/config/development/devel');
+    $this->submitForm($edit, 'Save configuration');
+    $this->assertSession()->pageTextContains('The configuration options have been saved.');
 
     $this->drupalGet('devel_dumper_test/dump');
     $elements = $this->xpath('//body/pre[contains(text(), :message)]', [':message' => 'AvailableTestDumper::dump() Test output']);
-    $this->assertTrue(!empty($elements), 'Dumped message is present.');
+    $this->assertNotEmpty($elements, 'Dumped message is present.');
 
     $this->drupalGet('devel_dumper_test/message');
-    $elements = $this->xpath('//div[contains(@class, "messages")]/pre[contains(text(), :message)]', [':message' => 'AvailableTestDumper::export() Test output']);
-    $this->assertTrue(!empty($elements), 'Dumped message is present.');
+    $elements = $this->xpath('//div[@aria-label="Status message"]/pre[contains(text(), :message)]', [':message' => 'AvailableTestDumper::export() Test output']);
+    $this->assertNotEmpty($elements, 'Dumped message is present.');
 
     $this->drupalGet('devel_dumper_test/export');
     $elements = $this->xpath('//div[@class="layout-content"]//pre[contains(text(), :message)]', [':message' => 'AvailableTestDumper::export() Test output']);
-    $this->assertTrue(!empty($elements), 'Dumped message is present.');
+    $this->assertNotEmpty($elements, 'Dumped message is present.');
 
     $this->drupalGet('devel_dumper_test/export_renderable');
     $elements = $this->xpath('//div[@class="layout-content"]//pre[contains(text(), :message)]', [':message' => 'AvailableTestDumper::exportAsRenderable() Test output']);
-    $this->assertTrue(!empty($elements), 'Dumped message is present.');
+    $this->assertNotEmpty($elements, 'Dumped message is present.');
     // Ensures that plugins can add libraries to the page when the
     // ::exportAsRenderable() method is used.
     $this->assertSession()->responseContains('devel_dumper_test/css/devel_dumper_test.css');
     $this->assertSession()->responseContains('devel_dumper_test/js/devel_dumper_test.js');
 
-    $debug_filename = file_directory_temp() . '/drupal_debug.txt';
-
+    $debug_filename = \Drupal::service('file_system')->getTempDirectory() . '/' . 'drupal_debug.txt';
     $this->drupalGet('devel_dumper_test/debug');
     $file_content = file_get_contents($debug_filename);
     $expected = <<<EOF

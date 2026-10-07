@@ -5,126 +5,118 @@
  * This is the module to create a drop-down menu for the core toolbar.
  */
 
-use Drupal\Core\Menu\MenuTreeParameters;
-use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\Core\Url;
+declare(strict_types=1);
+
 use Drupal\Component\Utility\Html;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
-
-/**
- * Implements hook_toolbar_alter().
- */
-function admin_toolbar_toolbar_alter(&$items) {
-  $items['administration']['tray']['toolbar_administration']['#pre_render'] = ['admin_toolbar_prerender_toolbar_administration_tray'];
-  $items['administration']['#attached']['library'][] = 'admin_toolbar/toolbar.tree';
-
-  $items['administration_search'] = [
-    "#type" => "toolbar_item",
-    'tab' => [
-      '#type' => 'link',
-      '#title' => new TranslatableMarkup('Search'),
-      '#url' => URL::fromRoute('system.admin'),
-      '#attributes' => [
-        'class' => [
-          'toolbar-icon',
-        ],
-      ],
-    ],
-    'tray' => [
-      'search' => [
-        '#title' => 'Search',
-        '#type' => 'textfield',
-        '#size' => 60,
-        '#attributes' => [
-          'id' => 'admin-toolbar-search-input',
-        ],
-      ],
-    ],
-    '#attached' => [
-      'library' => [
-        'admin_toolbar/search',
-      ],
-    ],
-    '#wrapper_attributes' => [
-      "id" => "admin-toolbar-search-tab",
-    ],
-  ];
-}
+use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Url;
+use Drupal\admin_toolbar\Render\Element\AdminToolbar;
 
 /**
  * Implements hook_help().
  */
-function admin_toolbar_help($route_name, RouteMatchInterface $route_match) {
+function admin_toolbar_help($route_name) {
   switch ($route_name) {
     case 'help.page.admin_toolbar':
       $variables = [
         ':toolbar' => Url::fromRoute('help.page', ['name' => 'toolbar'])->toString(),
         ':automated_cron' => (\Drupal::moduleHandler()->moduleExists('automated_cron')) ? Url::fromRoute('help.page', ['name' => 'automated_cron'])->toString() : '#',
       ];
-
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
       $output .= '<p>' . t('The Admin Toolbar module enhances the <a href=":toolbar">Toolbar</a> module by providing fast access to all the administrative links at the top of your site. Admin Toolbar remains a very "lightweight" module by closely integrating with all Toolbar functionality. It can be used in conjunction with all the sub modules included on Admin Toolbar, for quick access to system commands such as Flush all caches, <a href=":automated_cron">Run cron</a>, Run Updates, etc.', $variables) . '</p>';
       $output .= '<h3>' . t('Uses') . '</h3>';
       $output .= '<p>' . t('The Admin Toolbar greatly improves the user experience for those who regularly interact with the site Toolbar by providing fast, full access to all links in the site Toolbar without having to click to get there.') . '</p>';
-
       return $output;
   }
 }
 
 /**
- * Renders the toolbar's administration tray.
- *
- * This is a clone of core's toolbar_prerender_toolbar_administration_tray()
- * function, which uses setMaxDepth(4) instead of setTopLevelOnly().
- *
- * @param array $element
- *   A renderable array.
- *
- * @return array
- *   The updated renderable array.
- *
- * @see toolbar_prerender_toolbar_administration_tray()
+ * Implements hook_toolbar_alter().
  */
-function admin_toolbar_prerender_toolbar_administration_tray(array $element) {
-  $menu_tree = \Drupal::service('toolbar.menu_tree');
-  $parameters = new MenuTreeParameters();
-  $parameters->setRoot('system.admin')->excludeRoot()->setMaxDepth(4)->onlyEnabledLinks();
-  $tree = $menu_tree->load(NULL, $parameters);
-  $manipulators = [
-    ['callable' => 'menu.default_tree_manipulators:checkAccess'],
-    ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
-    ['callable' => 'toolbar_tools_menu_navigation_links'],
+function admin_toolbar_toolbar_alter(&$items) {
+  $items['administration']['tray']['toolbar_administration']['#pre_render'] = [
+    [AdminToolbar::class, 'preRenderTray'],
   ];
-  $tree = $menu_tree->transform($tree, $manipulators);
-  $element['administration_menu'] = $menu_tree->build($tree);
+  $admin_toolbar_config = \Drupal::config('admin_toolbar.settings');
+  $items['administration']['#attached']['library'][] = 'admin_toolbar/toolbar.tree';
 
-  return $element;
+  // Add sticky behavior libraries based on the configuration.
+  $sticky_behavior = $admin_toolbar_config->get('sticky_behavior') ?? 'enabled';
+  switch ($sticky_behavior) {
+    case 'disabled':
+      $items['administration']['#attached']['library'][] = 'admin_toolbar/toolbar.disable_sticky';
+      break;
+
+    case 'hide_on_scroll_down':
+      $items['administration']['#attached']['library'][] = 'admin_toolbar/toolbar.sticky_behavior';
+      break;
+
+    default:
+      break;
+  }
+  // Add the hoverIntent behavior library if enabled.
+  $hoverintent_behavior = $admin_toolbar_config->get('hoverintent_behavior');
+  if (!empty($hoverintent_behavior['enabled'])) {
+    // Use the hoverIntent plugin library.
+    $items['administration']['#attached']['library'][] = 'admin_toolbar/toolbar.tree.hoverintent';
+    // Add the configured hoverIntent settings values to the JS of the toolbar.
+    $items['administration']['#attached']['drupalSettings']['hoverIntentTimeout'] = $hoverintent_behavior['timeout'];
+  }
+  else {
+    // Use default Admin Toolbar hover library.
+    $items['administration']['#attached']['library'][] = 'admin_toolbar/toolbar.tree.hover';
+  }
+
+  // Add the toggle toolbar keyboard shortcut library if enabled.
+  if ($admin_toolbar_config->get('enable_toggle_shortcut')) {
+    $items['administration']['#attached']['library'][] = 'admin_toolbar/toolbar.toggle_shortcut';
+  }
 }
 
 /**
- * Adds toolbar-specific attributes to the menu link tree.
+ * Adds admin toolbar specific attributes to the menu link tree.
+ *
+ * Mostly adds icon CSS classes to each link based on its route and a title
+ * attribute with the link description for accessibility.
  *
  * @param \Drupal\Core\Menu\MenuLinkTreeElement[] $tree
  *   The menu link tree to manipulate.
  *
  * @return \Drupal\Core\Menu\MenuLinkTreeElement[]
  *   The manipulated menu link tree.
+ *
+ * @see \Drupal\admin_toolbar\Render\Element\AdminToolbar::preRenderTray()
+ * @see admin_toolbar_toolbar_alter()
  */
+// phpcs:ignore Drupal.NamingConventions.ValidFunctionName.InvalidPrefix, Drupal.Commenting.FunctionComment.Missing
 function toolbar_tools_menu_navigation_links(array $tree) {
   foreach ($tree as $element) {
+    // Loop recursively through all subtree elements.
     if ($element->subtree) {
       toolbar_tools_menu_navigation_links($element->subtree);
     }
-    $link = $element->link;
+    // Get the menu link from the tree element.
+    $menu_link = $element->link;
 
-    // Get the non-localized title to make the icon class.
-    $definition = $link->getPluginDefinition();
+    // Get the plugin ID of the link, which is its route to make the icon class.
+    $link_definition = $menu_link->getPluginDefinition();
+    // Replace dots, spaces and underscores with hyphens in the route name.
+    $link_plugin_route = strtolower(str_replace(['.', ' ', '_'], ['-', '-', '-'], $link_definition['id']));
+    $element_options = [
+      'attributes' => [
+        'class' => [
+          'toolbar-icon',
+          // Add a specific class for each link based on its route.
+          'toolbar-icon-' . Html::cleanCssIdentifier($link_plugin_route),
+        ],
+        // Add a title attribute for accessibility.
+        'title' => $menu_link->getDescription(),
+      ],
+    ];
 
-    $element->options['attributes']['class'][] = 'toolbar-icon';
-    $string = strtolower(str_replace(['.', ' ', '_'], ['-', '-', '-'], $definition['id']));
-    $element->options['attributes']['class'][] = Html::cleanCssIdentifier('toolbar-icon-' . $string);
-    $element->options['attributes']['title'] = $link->getDescription();
+    // Merge the new options with the existing ones.
+    $element->options = NestedArray::mergeDeep($element->options, $element_options);
   }
   return $tree;
 }

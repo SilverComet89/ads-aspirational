@@ -25,27 +25,20 @@ class WebformSubmissionAccessControlHandler extends EntityAccessControlHandler i
   protected $accessRulesManager;
 
   /**
-   * WebformSubmissionAccessControlHandler constructor.
+   * The current request.
    *
-   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
-   *   The entity type definition.
-   * @param \Drupal\webform\WebformAccessRulesManagerInterface $access_rules_manager
-   *   Webform access rules manager service.
+   * @var \Symfony\Component\HttpFoundation\Request
    */
-  public function __construct(EntityTypeInterface $entity_type, WebformAccessRulesManagerInterface $access_rules_manager) {
-    parent::__construct($entity_type);
-
-    $this->accessRulesManager = $access_rules_manager;
-  }
+  protected $request;
 
   /**
    * {@inheritdoc}
    */
   public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
-    return new static(
-      $entity_type,
-      $container->get('webform.access_rules_manager')
-    );
+    $instance = new static($entity_type);
+    $instance->accessRulesManager = $container->get('webform.access_rules_manager');
+    $instance->request = $container->get('request_stack')->getCurrentRequest();
+    return $instance;
   }
 
   /**
@@ -69,6 +62,16 @@ class WebformSubmissionAccessControlHandler extends EntityAccessControlHandler i
       return WebformAccessResult::allowed($entity, TRUE);
     }
 
+    // Check view and delete operations token access.
+    if (($operation === 'view' || $operation === 'delete')
+      && $entity->getWebform()->getSetting('token_' . $operation)) {
+      $token = $this->request->query->get('token');
+      if ($token === $entity->getToken()) {
+        return WebformAccessResult::allowed($entity)
+          ->addCacheContexts(['url.query_args:token']);
+      }
+    }
+
     // Check 'any' or 'own' webform submission permissions.
     $operations = [
       'view' => 'view',
@@ -85,6 +88,17 @@ class WebformSubmissionAccessControlHandler extends EntityAccessControlHandler i
       if ($account->hasPermission("$action own webform submission") && $entity->isOwner($account)) {
         return WebformAccessResult::allowed($entity, TRUE);
       }
+    }
+
+    // Check other operations.
+    switch ($operation) {
+      case 'duplicate':
+        // Check for 'create' or 'update' access.
+        return WebformAccessResult::allowedIf($entity->access('create', $account) || $entity->access('update', $account));
+
+      case 'resend':
+        // Check for 'update any submission' access.
+        return WebformAccessResult::allowedIf($entity->getWebform()->access('submission_update_any', $account));
     }
 
     // Check webform access rules.

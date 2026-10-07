@@ -37,37 +37,36 @@ function _jquery_carousel_config_validate($selector) {
  * Implements hook_theme().
  */
 function jquery_carousel_theme() {
-  return array(
-    'jquery_carousel_field_formatter' => array(
-      'variables' => array(
-        'elements' => array(),
-        'items' => array(),
+  return [
+    'jquery_carousel_field_formatter' => [
+      'variables' => [
+        'elements' => [],
+        'items' => [],
         'display' => NULL,
-        'settings' => array()
-      ),
-      'function' => 'theme_jquery_carousel_field_formatter',
-    ),
-  );
+        'settings' => [],
+      ],
+    ],
+  ];
 }
 
 /**
  * Theme callback for jQuery carousel field formatter.
  */
-function theme_jquery_carousel_field_formatter(&$vars) {
+function template_preprocess_jquery_carousel_field_formatter(&$vars) {
   if (is_array($vars['elements']) && (count($vars['elements']) > 1)) {
-    $items = array();
-    $selector_class = new Attribute(array('class' => $vars['settings']['selector']));
+    $items = [];
+    $selector_class = new Attribute(['class' => $vars['settings']['selector']]);
     foreach ((array) $vars['elements'] as $key => $elem) {
       if (isset($vars['settings']['style_name'])) {
-        $items[$key] = array(
+        $items[$key] = [
           '#theme' => 'image_style',
           '#style_name' => $vars['settings']['style_name'],
-        );
+        ];
       }
       else {
-        $items[$key] = array(
+        $items[$key] = [
           '#theme' => 'image',
-        );
+        ];
       }
       $items[$key]['#title'] = $elem->title;
       if (($entity = $elem->entity) && empty($elem->uri)) {
@@ -76,14 +75,14 @@ function theme_jquery_carousel_field_formatter(&$vars) {
       else {
         $items[$key]['#uri'] = $elem->getFileUri();
       }
-      foreach (array('width', 'height', 'alt') as $prop) {
+      foreach (['width', 'height', 'alt'] as $prop) {
         $items[$key]["#$prop"] = $elem->$prop;
       }
     }
-    $output = array(
+    $output = [
       '#theme' => 'item_list',
       '#items' => $items,
-    );
+    ];
     _jquery_carousel_settings_format($vars['settings']);
     _jquery_carousel_include_css_js($output, $vars['settings']);
     return '<div ' . $selector_class . '>' . \Drupal::service('renderer')
@@ -92,15 +91,15 @@ function theme_jquery_carousel_field_formatter(&$vars) {
   else {
     $elem = $vars['elements'][0];
     if (isset($vars['settings']['style_name'])) {
-      $output = array(
+      $output = [
         '#theme' => 'image_style',
         '#style_name' => $vars['settings']['style_name'],
-      );
+      ];
     }
     else {
-      $output = array(
+      $output = [
         '#theme' => 'image',
-      );
+      ];
     }
     $output['#title'] = $elem->title;
     if (($entity = $elem->entity) && empty($elem->uri)) {
@@ -109,7 +108,7 @@ function theme_jquery_carousel_field_formatter(&$vars) {
     else {
       $output['#uri'] = $elem->getFileUri();
     }
-    foreach (array('width', 'height', 'alt') as $prop) {
+    foreach (['width', 'height', 'alt'] as $prop) {
       $output["#$prop"] = $elem->$prop;
     }
     return \Drupal::service('renderer')->render($output, FALSE);
@@ -121,7 +120,7 @@ function theme_jquery_carousel_field_formatter(&$vars) {
  *
  * Default template: views-view-jquery_carousel.html.twig.
  *
- * @param array $variables
+ * @param array $vars
  *   An associative array containing:
  *   - view: A ViewExecutable object.
  *   - rows: The raw row data.
@@ -130,9 +129,9 @@ function template_preprocess_views_view_jquery_carousel(&$vars) {
   _jquery_carousel_settings_format($vars['view']->style_plugin->options);
   _jquery_carousel_include_css_js($vars, $vars['view']->style_plugin->options);
   $vars['selector_class'] = new Attribute(
-    array(
-      'class' => array($vars['view']->style_plugin->options['selector']),
-    )
+    [
+      'class' => [$vars['view']->style_plugin->options['selector']],
+    ]
   );
 }
 
@@ -140,122 +139,122 @@ function template_preprocess_views_view_jquery_carousel(&$vars) {
  * Helper function to create config form. Reusable for field formatter & views.
  */
 function jquery_carousel_config_form() {
-  $form = $themes = array();
+  $form = $themes = [];
   foreach (jquery_carousel_themes() as $key => $theme) {
     $themes[$key] = $theme['title'];
   }
   $themes[''] = t('None');
-  $form['theme'] = array(
+  $form['theme'] = [
     '#type' => 'select',
     '#title' => t('jQuery Carousel Theme'),
     '#description' => t('Select the theme to be applied to the carousel'),
     '#options' => $themes,
     '#default_value' => '',
-  );
-  $form['selector'] = array(
+  ];
+  $form['selector'] = [
     '#type' => 'textfield',
     '#title' => t('Selector for this carousel configuration'),
     '#description' => t('The carousel will be wrapped in this class & JS with the config below gets applied to this selector. Please make sure the selector contains only alphabets. No special characters or spaces allowed.'),
     '#required' => TRUE,
     '#default_value' => 'rs-carousel',
-  );
-  $form['itemsPerTransition'] = array(
+  ];
+  $form['itemsPerTransition'] = [
     '#type' => 'textfield',
     '#title' => t('Items per transition'),
     '#description' => t('number of items moved with each transition, default: auto'),
     '#default_value' => 'auto',
-  );
-  $form['orientation'] = array(
+  ];
+  $form['orientation'] = [
     '#type' => 'select',
     '#title' => t('Orientation'),
     '#description' => t('Sets the orientation of the carousel, either horizontal or vertical.'),
-    '#options' => array(
+    '#options' => [
       'horizontal' => t('Horizontal'),
-      'vertical' => t('Vertical')
-    ),
+      'vertical' => t('Vertical'),
+    ],
     '#default_value' => 1,
-  );
-  $form['loop'] = array(
+  ];
+  $form['loop'] = [
     '#type' => 'select',
     '#title' => t('Loop'),
     '#description' => t('If set to true carousel will loop back to first or last page accordingly.'),
-    '#options' => array(0 => t('False'), 1 => t('True')),
+    '#options' => [0 => t('False'), 1 => t('True')],
     '#default_value' => 1,
     '#boolean' => TRUE,
-  );
+  ];
 
-  $form['whitespace'] = array(
+  $form['whitespace'] = [
     '#type' => 'select',
     '#title' => t('Whitespace'),
     '#description' => t("If set to true the carousel will allow whitespace to be seen when there aren't enough items to fill the last page."),
-    '#options' => array(0 => t('False'), 1 => t('True')),
+    '#options' => [0 => t('False'), 1 => t('True')],
     '#default_value' => 1,
     '#boolean' => TRUE,
-  );
-  $form['nextPrevActions'] = array(
+  ];
+  $form['nextPrevActions'] = [
     '#type' => 'select',
     '#title' => t('Next & Previous Links'),
     '#description' => t('whether next and prev links will be included'),
-    '#options' => array(0 => t('False'), 1 => t('True')),
+    '#options' => [0 => t('False'), 1 => t('True')],
     '#default_value' => 1,
     '#boolean' => TRUE,
-  );
-  $form['pagination'] = array(
+  ];
+  $form['pagination'] = [
     '#type' => 'select',
     '#title' => t('Pagination'),
     '#description' => t('whether pagination links will be included'),
-    '#options' => array(0 => t('False'), 1 => t('True')),
+    '#options' => [0 => t('False'), 1 => t('True')],
     '#default_value' => 1,
     '#boolean' => TRUE,
-  );
-  $form['speed'] = array(
+  ];
+  $form['speed'] = [
     '#type' => 'select',
     '#title' => t('Speed'),
     '#description' => t('Animation speed'),
-    '#options' => array(
+    '#options' => [
       'normal' => t('Normal'),
       'fast' => t('Fast'),
       'slow' => t('Slow'),
-    ),
+    ],
     '#default_value' => 'normal',
-  );
-  $form['easing'] = array(
+  ];
+  $form['easing'] = [
     '#type' => 'select',
     '#title' => t('Easing'),
     '#description' => t('supports the jQuery easing plugin'),
-    '#options' => array('linear' => t('Linear'), 'swing' => t('Swing')),
+    '#options' => ['linear' => t('Linear'), 'swing' => t('Swing')],
     '#default_value' => 'linear',
-  );
-  $form['autoScroll'] = array(
+  ];
+  $form['autoScroll'] = [
     '#type' => 'select',
     '#title' => t('Autoscroll'),
     '#description' => t("Set to true to invoke auto scrolling, note when the mouse enters the carousel the interval will stop, it'll consequently begin when the mouse leaves."),
-    '#options' => array(0 => t('False'), 1 => t('True')),
+    '#options' => [0 => t('False'), 1 => t('True')],
     '#default_value' => 1,
     '#boolean' => TRUE,
-  );
-  $form['interval'] = array(
+  ];
+  $form['interval'] = [
     '#type' => 'textfield',
     '#title' => t('Interval'),
     '#description' => t('Sets the amount of time in milliseconds the carousel waits before it automatically scrolls.'),
     '#default_value' => 8000,
-  );
-  $form['continuous'] = array(
+  ];
+  $form['continuous'] = [
     '#type' => 'select',
     '#title' => t('Continuous'),
     '#description' => t('If set to true the carousel will continuously loop through its pages rather than scrolling all the way back to the first page.'),
-    '#options' => array(0 => t('False'), 1 => t('True')),
+    '#options' => [0 => t('False'), 1 => t('True')],
     '#default_value' => 1,
     '#boolean' => TRUE,
-  );
-  $form['touch'] = array(
+  ];
+  $form['touch'] = [
     '#type' => 'select',
     '#title' => t('Touch'),
     '#description' => t('If set to true the carousel will become draggable allowing you to flick through pages.'),
-    '#options' => array(0 => t('False'), 1 => t('True')),
+    '#options' => [0 => t('False'), 1 => t('True')],
     '#default_value' => 1,
     '#boolean' => TRUE,
-  );
+  ];
   return $form;
 }
 
@@ -287,24 +286,24 @@ function _jquery_carousel_include_css_js(&$vars, $settings) {
   if (isset($settings['touch']) && ($settings['touch'])) {
     $vars['#attached']['library'][] = 'jquery_carousel/jquery_ui_carousel_touch';
   }
-  $vars['#attached']['drupalSettings']['jquery_carousel'] = array(
+  $vars['#attached']['drupalSettings']['jquery_carousel'] = [
     $settings['selector'] => $settings,
-  );
+  ];
 }
 
 /**
  * Implements hook_carousel_theme_info().
  */
 function jquery_carousel_carousel_theme_info() {
-  $themes = array();
-  $themes['default'] = array(
+  $themes = [];
+  $themes['default'] = [
     'title' => t('Default'),
     'library' => 'jquery_carousel/jquery_carousel.jcarousel_themes_default',
-  );
-  $themes['glass'] = array(
+  ];
+  $themes['glass'] = [
     'title' => t('Glass'),
     'library' => 'jquery_carousel/jquery_carousel.jcarousel_themes_glass',
-  );
+  ];
   return $themes;
 }
 
@@ -320,7 +319,7 @@ function jquery_carousel_themes() {
   }
 
   // Build a list of themes from other modules.
-  $themes = array();
+  $themes = [];
   foreach (\Drupal::moduleHandler()
              ->getImplementations('carousel_theme_info') as $module) {
     $function = $module . '_carousel_theme_info';

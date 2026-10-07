@@ -6,11 +6,12 @@
  */
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\Core\Menu\MenuLinkInterface;
+use Drupal\Core\File\FileSystemInterface;
+use Drupal\Component\Utility\Html;
 
 define('RESPONSIVE_MENU_BREAKPOINT_FILENAME', '/responsive_menu_breakpoint.css');
 
@@ -20,9 +21,9 @@ define('RESPONSIVE_MENU_BREAKPOINT_FILENAME', '/responsive_menu_breakpoint.css')
 function responsive_menu_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
     case 'responsive_menu.settings':
-      $readme = Link::fromTextAndUrl('README.md', Url::fromUri('base:' . drupal_get_path('module', 'responsive_menu') . '/README.md'))->toRenderable();
+      $readme = Link::fromTextAndUrl('README.md', Url::fromUri('base:' . \Drupal::service('extension.list.module')->getPath('responsive_menu') . '/README.md'))->toRenderable();
       return '<p>' . t('3rd party libraries are required to enable some of the features. See the @readme file for more information about where to download and place them.', [
-        '@readme' => render($readme),
+        '@readme' => \Drupal::service('renderer')->render($readme),
       ]) . '</p><p>' . t("At a minimum you need to place the 'Responsive menu mobile icon' block in a region. If you want to display a horizontal menu at a specified breakpoint then you also need to place the 'Horizontal menu' block, although this is optional.") . '</p>';
   }
 }
@@ -61,6 +62,11 @@ function responsive_menu_theme($existing, $type, $theme, $path) {
   $return['responsive_menu_page_wrapper'] = [
     'template' => 'responsive-menu-page-wrapper',
     'variables' => ['children' => []],
+  ];
+
+  $return['responsive_menu_off_canvas'] = [
+    'template' => 'responsive-menu-off-canvas',
+    'variables' => ['menu_name' => NULL, 'items' => [], 'attributes' => []],
   ];
 
   return $return;
@@ -113,6 +119,17 @@ function responsive_menu_page_bottom(&$page) {
   // Get the configuration.
   $config = \Drupal::config('responsive_menu.settings');
 
+  // A developer may not want to output the off-canvas menu's HTML into the DOM
+  // and activate the mmenu library. We allow a variable to by altered by a
+  // custom hook. If the value is FALSE then rendering does not continue and no
+  // output is added to page bottom.
+  $off_canvas_output = TRUE;
+  \Drupal::ModuleHandler()
+    ->alter('responsive_menu_off_canvas_output', $off_canvas_output);
+  if ($off_canvas_output === FALSE) {
+    return;
+  }
+
   // A site builder can allow this module to work with the admin theme.
   if ($config->get('allow_admin') == FALSE && _current_theme_is_admin()) {
     return;
@@ -121,7 +138,7 @@ function responsive_menu_page_bottom(&$page) {
   $output = [
     '#prefix' => '<div class="off-canvas-wrapper"><div id="off-canvas">',
     '#suffix' => '</div></div>',
-    '#pre_render' => ['responsive_menu_off_canvas_pre_render'],
+    '#pre_render' => ['\Drupal\responsive_menu\OffCanvas::preRender'],
   ];
 
   // Determine whether the breakpoint code should be used.
@@ -135,14 +152,16 @@ function responsive_menu_page_bottom(&$page) {
     $output['#attached']['library'][] = 'responsive_menu/responsive_menu.breakpoint';
   }
 
-  // Add the hammerjs library if the user has requested it.
-  $hammerjs_setting = $config->get('hammerjs');
-  if ($hammerjs_setting) {
-    $output['#attached']['library'][] = 'responsive_menu/responsive_menu.hammerjs';
-  }
-
   // Add the mmenu library.
   $output['#attached']['library'][] = 'responsive_menu/responsive_menu.mmenu';
+
+  // If the polyfills are requested and the file exists then add it too.
+  // Note that in the past the final build files have not included the
+  // polyfills file (see d.o issues #3143984, #3111949) so we need to
+  // check if its actually there to avoid a 404.
+  if ($config->get('use_polyfills') && file_exists(DRUPAL_ROOT . '/libraries/mmenu/dist/mmenu.polyfills.js')) {
+    $output['#attached']['library'][] = 'responsive_menu/responsive_menu.polyfills';
+  }
 
   // Add this module's configuration javascript.
   $output['#attached']['library'][] = 'responsive_menu/responsive_menu.config';
@@ -152,20 +171,31 @@ function responsive_menu_page_bottom(&$page) {
     $output['#attached']['library'][] = 'responsive_menu/responsive_menu.styling';
   }
 
+  // Add the bootstrap specific code if needed.
+  if ($config->get('use_bootstrap')) {
+    $output['#attached']['library'][] = 'responsive_menu/responsive_menu.bootstrap';
+  }
+
   // Add some of the config as javascript settings.
   $output['#attached']['drupalSettings']['responsive_menu'] = [
     'position' => $config->get('off_canvas_position'),
     'theme' => $config->get('off_canvas_theme'),
     'pagedim' => $config->get('pagedim'),
+    'modifyViewport' => $config->get('modify_viewport'),
+    'use_bootstrap' => $config->get('use_bootstrap'),
     'breakpoint' => $config->get('horizontal_media_query'),
-    'extension_keyboard' => $config->get('extension_keyboard'),
-    'superfish' => [
-      'active' => $config->get('horizontal_superfish'),
-      'delay' => $config->get('horizontal_superfish_delay'),
-      'speed' => $config->get('horizontal_superfish_speed'),
-      'speedOut' => $config->get('horizontal_superfish_speed_out'),
-    ],
+    'drag' => $config->get('drag'),
   ];
+
+  // Allow for the menu position to be based on the language direction.
+  // @see issue #3095162 for details.
+  if ($config->get('off_canvas_position') === 'contextual') {
+    $language = \Drupal::languageManager()->getCurrentLanguage()->getDirection();
+    $output['#attached']['drupalSettings']['responsive_menu']['position'] = $language === 'rtl' ? 'right' : 'left';
+  }
+  else {
+    $output['#attached']['drupalSettings']['responsive_menu']['position'] = $config->get('off_canvas_position');
+  }
 
   $output['#cache']['keys'] = [
     'responsive_menu',
@@ -199,57 +229,48 @@ function responsive_menu_page_bottom(&$page) {
 }
 
 /**
- * Pre render callback to assemble the menu as markup.
- *
- * @param array $build
- *   The render array to modify.
- *
- * @return array
- *   The built render array.
+ * Implements hook_responsive_menu_off_canvas_tree_alter().
  */
-function responsive_menu_off_canvas_pre_render(array $build) {
-  $off_canvas_menus = \Drupal::config('responsive_menu.settings')
-    ->get('off_canvas_menus');
-
-  // Other modules can modify the menu names so we need to take this into
-  // account when building the menu.
-  \Drupal::ModuleHandler()
-    ->alter('responsive_menu_off_canvas_menu_names', $off_canvas_menus);
-
-  $menus = explode(',', $off_canvas_menus);
-
-  $combined_tree = [];
-  $menu_tree = \Drupal::menuTree();
-  $manipulators = [
-    // Show links to nodes that are accessible for the current user.
-    ['callable' => 'menu.default_tree_manipulators:checkNodeAccess'],
-    // Only show links that are accessible for the current user.
-    ['callable' => 'menu.default_tree_manipulators:checkAccess'],
-    // Use the default sorting of menu links.
-    ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
-  ];
-  // Iterate over the menus and merge them together.
-  foreach ($menus as $menu_name) {
-    $menu_name = trim($menu_name);
-    $parameters = $menu_tree->getCurrentRouteMenuTreeParameters($menu_name);
-    // Force the entire tree to be build by setting expandParents to an
-    // empty array.
-    $parameters->expandedParents = [];
-    $tree_items = $menu_tree->load($menu_name, $parameters);
-    $tree_manipulated = $menu_tree->transform($tree_items, $manipulators);
-    $combined_tree = array_merge($combined_tree, $tree_manipulated);
-    $build['#cache']['contexts'][] = 'route.menu_active_trails:' . $menu_name;
-    $build['#cache']['tags'][] = 'config:system.menu.' . $menu_name;
+function responsive_menu_responsive_menu_off_canvas_tree_alter(array &$menu) {
+  // Iterate over the top level of menu items and call the recursive function
+  // which adds a unique class to each item and it's children.
+  if (!empty($menu['#items'])) {
+    foreach ($menu['#items'] as &$item) {
+      responsive_menu_off_canvas_add_classes($item);
+    }
   }
+}
 
-  $menu = $menu_tree->build($combined_tree);
-
-  // Allow other modules to manipulate the built tree data.
-  \Drupal::ModuleHandler()->alter('responsive_menu_off_canvas_tree', $menu);
-
-  $build['#markup'] = \Drupal::service("renderer")->renderRoot($menu);
-
-  return $build;
+/**
+ * Recursively adds the uuid of each menu item as a class.
+ *
+ * @param array $item
+ *   The render array of a menu item.
+ */
+function responsive_menu_off_canvas_add_classes(array &$item) {
+  if (!empty($item['original_link'])) {
+    $link = $item['original_link'];
+    $id = $link->getPluginId();
+    // User created menu link ids take the form 'menu_link_content:{uuid}'.
+    if (strpos($id, ':')) {
+      $parts = explode(':', $id);
+    }
+    // Module menu link ids take the form '{module}.{uuid}'.
+    else {
+      $parts = explode('.', $id);
+    }
+    $uuid = Html::cleanCssIdentifier($parts[1]);
+    $item['attributes']->addClass('menu-item--' . $uuid);
+    // Get the name of the menu and add it to the menu item's class list
+    $link__menu_name = $link->getMenuName();
+    $menu_name = Html::cleanCssIdentifier($link__menu_name);
+    $item['attributes']->addClass('menu-name--' . $menu_name);
+  }
+  if (!empty($item['below'])) {
+    foreach ($item['below'] as &$below) {
+      responsive_menu_off_canvas_add_classes($below);
+    }
+  }
 }
 
 /**
@@ -260,7 +281,7 @@ function responsive_menu_off_canvas_pre_render(array $build) {
 function responsive_menu_form_menu_link_content_form_alter(&$form, FormStateInterface $form_state) {
   $menu_link = $form_state->getFormObject()->getEntity();
   $menu_link_options = $menu_link->link->first()->options ?: [];
-  $flyleft = isset($menu_link_options['attributes']['flyleft']) ? TRUE : FALSE;
+  $flyleft = isset($menu_link_options['attributes']['flyleft']);
 
   // Determine whether this menu item has a grandparent which means that this
   // menu item is of depth 3 or greater and therefore is able to have the
@@ -342,12 +363,7 @@ function responsive_menu_assign_attributes_to_item(array &$item) {
  *   Return a TRUE or FALSE depending on whether the flyleft class was found.
  */
 function responsive_menu_get_flyleft_attribute(MenuLinkInterface $menu_link_content_plugin) {
-  try {
-    $plugin_id = $menu_link_content_plugin->getPluginId();
-  }
-  catch (PluginNotFoundException $e) {
-    return FALSE;
-  }
+  $plugin_id = $menu_link_content_plugin->getPluginId();
 
   if (strpos($plugin_id, ':') === FALSE) {
     return FALSE;
@@ -356,7 +372,7 @@ function responsive_menu_get_flyleft_attribute(MenuLinkInterface $menu_link_cont
   list($entity_type, $uuid) = explode(':', $plugin_id, 2);
 
   if ($entity_type == 'menu_link_content') {
-    $entity = \Drupal::entityManager()->loadEntityByUuid($entity_type, $uuid);
+    $entity = \Drupal::service('entity.repository')->loadEntityByUuid($entity_type, $uuid);
 
     if ($entity) {
       $options = $entity->link->first()->options;
@@ -438,11 +454,11 @@ function responsive_menu_generate_breakpoint_css($breakpoint) {
   $path = _get_breakpoint_css_filepath();
   // Ensure the directory exists, if not create it.
   if (!file_exists($path)) {
-    file_prepare_directory($path, FILE_CREATE_DIRECTORY);
+    \Drupal::service('file_system')->prepareDirectory($path, FileSystemInterface::CREATE_DIRECTORY);
   }
   $filepath = $path . RESPONSIVE_MENU_BREAKPOINT_FILENAME;
   // Save out the css file.
-  file_unmanaged_save_data($css, $filepath, FILE_EXISTS_REPLACE);
+  \Drupal::service('file_system')->saveData($css, $filepath, FileSystemInterface::EXISTS_REPLACE);
 }
 
 /**
@@ -498,5 +514,5 @@ function _current_theme_is_admin() {
     $theme_info['admin_theme'] = $theme_info['system_theme']->get('admin');
     $theme_info['current_theme'] = \Drupal::service('theme.manager')->getActiveTheme()->getName();
   }
-  return $theme_info['current_theme'] == $theme_info['admin_theme'] ? TRUE : FALSE;
+  return $theme_info['current_theme'] == $theme_info['admin_theme'];
 }

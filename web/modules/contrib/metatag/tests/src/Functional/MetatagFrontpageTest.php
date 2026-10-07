@@ -16,13 +16,18 @@ class MetatagFrontpageTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     'token',
     'metatag',
     'node',
     'system',
     'test_page_test',
   ];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * The path to a node that is created for testing.
@@ -34,21 +39,26 @@ class MetatagFrontpageTest extends BrowserTestBase {
   /**
    * Setup basic environment.
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     // Login user 1.
     $this->loginUser1();
 
     // Create content type.
-    $this->drupalCreateContentType(['type' => 'page', 'display_submitted' => FALSE]);
+    $this->drupalCreateContentType([
+      'type' => 'page',
+      'display_submitted' => FALSE,
+    ]);
     $this->nodeId = $this->drupalCreateNode(
       [
         'title' => $this->randomMachineName(8),
         'promote' => 1,
       ])->id();
 
-    $this->config('system.site')->set('page.front', '/node/' . $this->nodeId)->save();
+    $this->config('system.site')
+      ->set('page.front', '/node/' . $this->nodeId)
+      ->save();
   }
 
   /**
@@ -57,23 +67,32 @@ class MetatagFrontpageTest extends BrowserTestBase {
   public function testFrontPageMetatagsEnabledConfig() {
     // Add something to the front page config.
     $this->drupalGet('admin/config/search/metatag/front');
-    $this->assertResponse(200);
+    $session = $this->assertSession();
+    $session->statusCodeEquals(200);
     $edit = [
       'title' => 'Test title',
       'description' => 'Test description',
       'keywords' => 'testing,keywords',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save'));
-    $this->assertResponse(200);
-    $this->assertText(t('Saved the Front page Metatag defaults.'));
+    $this->submitForm($edit, 'Save');
+    $session->statusCodeEquals(200);
+    $session->pageTextContains('Saved the Front page Metatag defaults.');
 
     // Testing front page metatags.
     $this->drupalGet('<front>');
     foreach ($edit as $metatag => $metatag_value) {
       $xpath = $this->xpath("//meta[@name='" . $metatag . "']");
-      $this->assertEqual(count($xpath), 1, 'Exactly one ' . $metatag . ' meta tag found.');
-      $value = $xpath[0]->getAttribute('content');
-      $this->assertEqual($value, $metatag_value);
+      if ($metatag == 'title') {
+        $this->assertCount(0, $xpath, 'Title meta tag not found.');
+        $xpath = $this->xpath("//title");
+        $this->assertCount(1, $xpath, 'Head title tag found.');
+        $value = $xpath[0]->getText();
+      }
+      else {
+        $this->assertCount(1, $xpath, 'Exactly one ' . $metatag . ' meta tag found.');
+        $value = $xpath[0]->getAttribute('content');
+      }
+      $this->assertEquals($value, $metatag_value);
     }
 
     $node_path = '/node/' . $this->nodeId;
@@ -81,9 +100,17 @@ class MetatagFrontpageTest extends BrowserTestBase {
     $this->drupalGet($node_path);
     foreach ($edit as $metatag => $metatag_value) {
       $xpath = $this->xpath("//meta[@name='" . $metatag . "']");
-      $this->assertEqual(count($xpath), 1, 'Exactly one ' . $metatag . ' meta tag found.');
-      $value = $xpath[0]->getAttribute('content');
-      $this->assertEqual($value, $metatag_value);
+      if ($metatag == 'title') {
+        $this->assertCount(0, $xpath, 'Title meta tag not found.');
+        $xpath = $this->xpath("//title");
+        $this->assertCount(1, $xpath, 'Head title tag found.');
+        $value = $xpath[0]->getText();
+      }
+      else {
+        $this->assertCount(1, $xpath, 'Exactly one ' . $metatag . ' meta tag found.');
+        $value = $xpath[0]->getAttribute('content');
+      }
+      $this->assertEquals($value, $metatag_value);
     }
 
     // Change the front page to a valid custom route.
@@ -91,20 +118,22 @@ class MetatagFrontpageTest extends BrowserTestBase {
       'site_frontpage' => '/test-page',
     ];
     $this->drupalGet('admin/config/system/site-information');
-    $this->assertResponse(200);
-    $this->drupalPostForm(NULL, $site_edit, t('Save configuration'));
-    $this->assertText(t('The configuration options have been saved.'), 'The front page path has been saved.');
-    return;
+    $session->statusCodeEquals(200);
+    $this->submitForm($site_edit, 'Save configuration');
+    $session->pageTextContains('The configuration options have been saved.');
 
     // @todo Finish this?
-    $this->drupalGet('test-page');
-    $this->assertResponse(200);
-    foreach ($edit as $metatag => $metatag_value) {
-      $xpath = $this->xpath("//meta[@name='" . $metatag . "']");
-      $this->assertEqual(count($xpath), 1, 'Exactly one ' . $metatag . ' meta tag found.');
-      $value = $xpath[0]->getAttribute('content');
-      $this->assertEqual($value, $metatag_value);
-    }
+    // @code
+    // $this->drupalGet('test-page');
+    // $session->statusCodeEquals(200);
+    // foreach ($edit as $metatag => $metatag_value) {
+    //   $xpath = $this->xpath("//meta[@name='" . $metatag . "']");
+    //   $assert_message = 'Exactly one ' . $metatag . ' meta tag found.';
+    //   $this->assertCount(1, $xpath, $assert_message);
+    //   $value = $xpath[0]->getAttribute('content');
+    //   $this->assertEquals($value, $metatag_value);
+    // }
+    // @endcode
   }
 
   /**
@@ -113,56 +142,73 @@ class MetatagFrontpageTest extends BrowserTestBase {
   public function testFrontPageMetatagDisabledConfig() {
     // Disable front page metatag, enable node metatag & check.
     $this->drupalGet('admin/config/search/metatag/front/delete');
-    $this->assertResponse(200);
-    $this->drupalPostForm(NULL, [], t('Delete'));
-    $this->assertResponse(200);
-    $this->assertText(t('Deleted Front page defaults.'));
+    $session = $this->assertSession();
+    $session->statusCodeEquals(200);
+    $this->submitForm([], 'Delete');
+    $session->statusCodeEquals(200);
+    $session->pageTextContains('Deleted Front page defaults.');
 
     // Update the Metatag Node defaults.
     $this->drupalGet('admin/config/search/metatag/node');
-    $this->assertResponse(200);
+    $session->statusCodeEquals(200);
     $edit = [
       'title' => 'Test title for a node.',
       'description' => 'Test description for a node.',
     ];
-    $this->drupalPostForm(NULL, $edit, 'Save');
-    $this->assertText('Saved the Content Metatag defaults.');
+    $this->submitForm($edit, 'Save');
+    $session->pageTextContains('Saved the Content Metatag defaults.');
     $this->drupalGet('<front>');
     foreach ($edit as $metatag => $metatag_value) {
       $xpath = $this->xpath("//meta[@name='" . $metatag . "']");
-      $this->assertEqual(count($xpath), 1, 'Exactly one ' . $metatag . ' meta tag found.');
-      $value = $xpath[0]->getAttribute('content');
-      $this->assertEqual($value, $metatag_value);
+      if ($metatag == 'title') {
+        $this->assertCount(0, $xpath, 'Title meta tag not found.');
+        $xpath = $this->xpath("//title");
+        $this->assertCount(1, $xpath, 'Head title tag found.');
+        $value = $xpath[0]->getText();
+      }
+      else {
+        $this->assertCount(1, $xpath, 'Exactly one ' . $metatag . ' meta tag found.');
+        $value = $xpath[0]->getAttribute('content');
+      }
+      $this->assertEquals($value, $metatag_value);
     }
 
     // Change the front page to a valid path.
     $this->drupalGet('admin/config/system/site-information');
-    $this->assertResponse(200);
+    $session->statusCodeEquals(200);
     $edit = [
       'site_frontpage' => '/test-page',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save configuration'));
-    $this->assertText(t('The configuration options have been saved.'), 'The front page path has been saved.');
+    $this->submitForm($edit, 'Save configuration');
+    $session->pageTextContains('The configuration options have been saved.');
 
     // Front page is custom route.
     // Update the Metatag Node global.
     $this->drupalGet('admin/config/search/metatag/global');
-    $this->assertResponse(200);
+    $session->statusCodeEquals(200);
     $edit = [
       'title' => 'Test title.',
       'description' => 'Test description.',
     ];
-    $this->drupalPostForm(NULL, $edit, 'Save');
-    $this->assertText('Saved the Global Metatag defaults.');
+    $this->submitForm($edit, 'Save');
+    $session->pageTextContains('Saved the Global Metatag defaults.');
 
     // Test Metatags.
     $this->drupalGet('test-page');
-    $this->assertResponse(200);
+    $session->statusCodeEquals(200);
     foreach ($edit as $metatag => $metatag_value) {
       $xpath = $this->xpath("//meta[@name='" . $metatag . "']");
-      $this->assertEqual(count($xpath), 1, 'Exactly one ' . $metatag . ' meta tag found.');
-      $value = $xpath[0]->getAttribute('content');
-      $this->assertEqual($value, $metatag_value);
+      if ($metatag == 'title') {
+        $this->assertCount(0, $xpath, 'Title meta tag not found.');
+        $xpath = $this->xpath("//title");
+        $this->assertCount(1, $xpath, 'Head title tag found.');
+        $value = $xpath[0]->getText();
+      }
+      else {
+        $this->assertCount(1, $xpath, 'Exactly one ' . $metatag . ' meta tag found.');
+        $value = $xpath[0]->getAttribute('content');
+      }
+      $this->assertEquals($value, $metatag_value);
     }
   }
 

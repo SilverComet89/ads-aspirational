@@ -6,6 +6,8 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\path_redirect_import\ImporterService;
 use Drupal\Core\Language\Language;
+use Drupal\Component\Utility\Environment;
+use Drupal\Core\Entity\EntityStorageInterface;
 
 /**
  * Class RedirectImportForm.
@@ -56,14 +58,14 @@ class RedirectImportForm extends FormBase {
     ];
     $validators = [
       'file_validate_extensions' => ['csv'],
-      'file_validate_size' => [file_upload_max_size()],
+      'file_validate_size' => [Environment::getUploadMaxSize()],
     ];
     $form['csv']['csv_file'] = [
       '#type' => 'file',
       '#title' => $this->t('CSV File'),
       '#description' => [
         '#theme' => 'file_upload_help',
-        '#description' => $this->t('The CSV file must include the following columns in this order: "From URL","To URL","Redirect Status","Redirect Language". Defaults for status and language can be set in the advanced options, below.'),
+        '#description' => $this->t('The CSV file must include the following columns in this order: "From URL","To URL","Redirect Status","Redirect Language". Defaults for status and language can be set in the advanced options, below. The Language column will be ignored if the language module is not in use.'),
       ],
       '#upload_validators' => $validators,
     ];
@@ -100,6 +102,11 @@ class RedirectImportForm extends FormBase {
       '#title' => $this->t('Suppress displaying line-specific messages on screen'),
       '#description' => $this->t('Consider checking this if you are importing a very large amount of redirects. Reporting will still be logged, and general import messages will still print.'),
     ];
+    $form['advanced']['allow_nonexistent'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Allow nonexistent paths to be imported'),
+      '#description' => $this->t('Consider checking this if you want to have nonexistent paths imported.'),
+    ];
     $form['actions']['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Import'),
@@ -128,7 +135,7 @@ class RedirectImportForm extends FormBase {
     ini_set('auto_detect_line_endings', TRUE);
     // Don't do anything if no valid file.
     if (!isset($this->file)) {
-      drupal_set_message($this->t('No valid file was found. No redirects have been imported.'), 'warning');
+      $this->messenger()->addWarning($this->t('No valid file was found. No redirects have been imported.'));
       return;
     }
     $options = [
@@ -138,12 +145,13 @@ class RedirectImportForm extends FormBase {
       'delimiter' => $form_state->getValue('delimiter'),
       'language' => $form_state->getValue('language') ?: Language::LANGCODE_NOT_SPECIFIED,
       'suppress_messages' => $form_state->getValue('suppress_messages'),
+      'allow_nonexistent' => $form_state->getValue('allow_nonexistent'),
     ];
 
     ImporterService::import($this->file, $options);
 
     // Remove file from Drupal managed files & from filesystem.
-    file_delete($this->file->id());
+    \Drupal::service('entity_type.manager')->getStorage('file')->delete([$this->file]);
   }
 
 }

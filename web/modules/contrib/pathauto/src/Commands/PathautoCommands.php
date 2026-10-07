@@ -41,7 +41,7 @@ class PathautoCommands extends DrushCommands {
   /**
    * The alias storage helper.
    *
-   * @var \Drupal\pathauto\AliasStorageHelper
+   * @var \Drupal\pathauto\AliasStorageHelperInterface
    */
   protected $aliasStorageHelper;
 
@@ -225,7 +225,7 @@ class PathautoCommands extends DrushCommands {
     $input = $commandData->input();
 
     // Convert the comma-separated list of types to an array with no duplicates.
-    $types = explode(',', $input->getArgument('types'));
+    $types = explode(',', $input->getArgument('types') ?? '');
     $types = array_map('trim', $types);
     sort($types);
     $types = array_unique($types);

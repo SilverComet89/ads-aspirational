@@ -1,0 +1,5 @@
+
+services:
+  Drupal\views_fieldsets\Hook\ViewsFieldsetsHooks:
+    class: Drupal\views_fieldsets\Hook\ViewsFieldsetsHooks
+    autowire: true

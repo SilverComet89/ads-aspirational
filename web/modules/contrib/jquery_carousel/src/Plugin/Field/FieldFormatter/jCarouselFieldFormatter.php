@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\jquery_carousel\Plugin\Field\FieldFormatter\jCarouselFieldFormatter.
- */
-
 namespace Drupal\jquery_carousel\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Entity\EntityStorageInterface;
@@ -88,7 +83,7 @@ class jCarouselFieldFormatter extends ImageFormatterBase implements ContainerFac
    * {@inheritdoc}
    */
   public static function defaultSettings() {
-    return array(
+    return [
       'theme' => 'default',
       'selector' => 'rs-carousel',
       'style_name' => 'thumbnail',
@@ -104,7 +99,18 @@ class jCarouselFieldFormatter extends ImageFormatterBase implements ContainerFac
       'interval' => 8000,
       'continuous' => FALSE,
       'touch' => TRUE,
-    ) + parent::defaultSettings();
+    ] + parent::defaultSettings();
+  }
+
+  /**
+   * Element validate; Check selector is valid.
+   */
+  public static function jqueryCarouselSelectorValidate(array &$element, FormStateInterface $form_state) {
+    $selector = $element['#value'];
+    $error = _jquery_carousel_config_validate($selector);
+    if ($error) {
+      $form_state->setErrorByName('selector', t("Selector should not contain any special characters or spaces. Only special character allowed is '-'"));
+    }
   }
 
   /**
@@ -113,16 +119,21 @@ class jCarouselFieldFormatter extends ImageFormatterBase implements ContainerFac
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $elements = parent::settingsForm($form, $form_state);
     $carousel_config_form = jquery_carousel_config_form();
-    $carousel_config_form['style_name'] = array(
+    $carousel_config_form['style_name'] = [
       '#type' => 'select',
       '#title' => t('Image Style'),
       '#description' => t('Select the image style to be associated.'),
       '#options' => image_style_options(),
       '#weight' => -1,
       '#default_value' => '',
-    );
+    ];
     $elements = array_merge($elements, $carousel_config_form);
-    $elements['selector']['#element_validate'] = array(array(get_class($this), 'jqueryCarouselSelectorValidate'));
+    $elements['selector']['#element_validate'] = [
+      [
+        get_class($this),
+        'jqueryCarouselSelectorValidate',
+      ],
+    ];
     foreach (array_keys($elements) as $key) {
       if (isset($elements[$key]) && is_array($elements[$key])) {
         $elements[$key]['#default_value'] = $this->getSetting($key);
@@ -132,21 +143,10 @@ class jCarouselFieldFormatter extends ImageFormatterBase implements ContainerFac
   }
 
   /**
-   * Element validate; Check selector is valid.
-   */
-  public static function jqueryCarouselSelectorValidate(array &$element, FormStateInterface $form_state) {
-    $selector = $element['#value'];
-    $error = _jquery_carousel_config_validate($selector);
-    if($error) {
-      $form_state->setErrorByName('selector', t("Selector should not contain any special characters or spaces. Only special character allowed is '-'"));
-    }
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function settingsSummary() {
-    $summary = array();
+    $summary = [];
     $summary[] = t('Displays multivalued image field content in form of a carousel.');
     return $summary;
   }
@@ -155,24 +155,24 @@ class jCarouselFieldFormatter extends ImageFormatterBase implements ContainerFac
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-    $elements = array();
+    $elements = [];
     $files = $this->getEntitiesToView($items, $langcode);
     // Early opt-out if the field is empty.
     if (empty($files)) {
       return $elements;
     }
-    $items = array();
+    $items = [];
     foreach ($files as $delta => $file) {
       $item = $file->_referringItem;
       $items[$delta] = $item;
     }
-    $elements = array(
+    $elements = [
       '#theme' => 'jquery_carousel_field_formatter',
       '#elements' => $items,
       '#items' => $files,
       '#display' => $this->viewMode,
       '#settings' => $this->getSettings(),
-    );
+    ];
     return $elements;
   }
 

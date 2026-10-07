@@ -12,8 +12,3 @@ libraries:
       type: "get"
       url: "https://api.github.com/repos/joeldbirch/superfish/zipball"
       directory_name: "superfish"
-  hammerjs:
-    download:
-      type: "get"
-      url: "https://api.github.com/repos/hammerjs/hammer.js/zipball"
-      directory_name: "hammerjs"

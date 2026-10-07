@@ -2,14 +2,15 @@
 
 namespace Drupal\webform;
 
-use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\StringTranslation\PluralTranslatableMarkup;
 use Drupal\webform\Entity\WebformOptions;
 use Drupal\webform\Utility\WebformArrayHelper;
 use Drupal\webform\Utility\WebformDialogHelper;
 use Drupal\webform\Utility\WebformOptionsHelper;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a form to set options.
@@ -17,10 +18,26 @@ use Drupal\webform\Utility\WebformOptionsHelper;
 class WebformOptionsForm extends EntityForm {
 
   /**
+   * Module extension list.
+   *
+   * @var \Drupal\Core\Extension\ModuleExtensionList
+   */
+  protected $moduleExtensionList;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    $instance = parent::create($container);
+    $instance->moduleExtensionList = $container->get('extension.list.module');
+    return $instance;
+  }
+
+  /**
    * {@inheritdoc}
    */
   protected function prepareEntity() {
-    if ($this->operation == 'duplicate') {
+    if ($this->operation === 'duplicate') {
       $this->setEntity($this->getEntity()->createDuplicate());
     }
 
@@ -89,7 +106,7 @@ class WebformOptionsForm extends EntityForm {
     $form['likert'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Use as likert'),
-      '#description' => $this->t("If checked, options will be available as answers to Likert elements. The 'Likert:' prefix will be removed from the option's label when listed as answers for a Likert elment."),
+      '#description' => $this->t("If checked, options will be available as answers to Likert elements. The 'Likert:' prefix will be removed from the option's label when listed as answers for a Likert element."),
       '#default_value' => $webform_options->get('likert'),
       '#return_value' => TRUE,
     ];
@@ -161,13 +178,11 @@ class WebformOptionsForm extends EntityForm {
     }
 
     $hook_name = 'webform_options_' . $webform_options->id() . '_alter';
-    $alter_hooks = $this->moduleHandler->getImplementations($hook_name);
-    $module_info = system_get_info('module');
+    $module_info = $this->moduleExtensionList->getAllInstalledInfo();
     $module_names = [];
-    foreach ($alter_hooks as $options_alter_hook) {
-      $module_name = str_replace($hook_name, '', $options_alter_hook);
+    $this->moduleHandler->invokeAllWith($hook_name, function (callable $hook, string $module_name) use (&$module_names, $module_info) {
       $module_names[] = $module_info[$module_name]['name'];
-    }
+    });
     return $module_names;
   }
 
@@ -189,6 +204,7 @@ class WebformOptionsForm extends EntityForm {
       '#title' => $this->t('Options (YAML)'),
       '#description' => $this->t('Key-value pairs MUST be specified as "safe_key: \'Some readable option\'". Use of only alphanumeric characters and underscores is recommended in keys. One option per line. Option groups can be created by using just the group name followed by indented group options.') . ' ' .
         $this->t("Descriptions, which are only applicable to radios and checkboxes, can be delimited using ' -- '."),
+      '#attributes' => ['style' => 'min-height: 200px'],
       '#default_value' => Yaml::encode($this->getOptions()),
     ];
     return $form;

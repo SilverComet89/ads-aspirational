@@ -24,10 +24,16 @@ abstract class ImageUtility {
    *   The computed length.
    */
   public static function percentFilter($length_specification, $current_length) {
-    if (strpos($length_specification, '%') !== FALSE) {
-      $length_specification = $current_length !== NULL ? str_replace('%', '', $length_specification) * 0.01 * $current_length : NULL;
+    if ($length_specification === NULL) {
+      return NULL;
     }
-    return is_null($length_specification) ? NULL : (int) $length_specification;
+    if (strpos((string) $length_specification, '%') !== FALSE) {
+      if ($current_length === NULL) {
+        return NULL;
+      }
+      return (int) (str_replace('%', '', $length_specification) * 0.01 * $current_length);
+    }
+    return (int) $length_specification;
   }
 
   /**
@@ -83,6 +89,40 @@ abstract class ImageUtility {
     }
 
     return $dimensions;
+  }
+
+  /**
+   * Returns the offset in pixels from the anchor.
+   *
+   * @param string $anchor
+   *   The anchor ('top', 'left', 'bottom', 'right', 'center').
+   * @param int $current_size
+   *   The current size, in pixels.
+   * @param int $new_size
+   *   The new size, in pixels.
+   *
+   * @return int
+   *   The offset from the anchor, in pixels.
+   *
+   * @throws \InvalidArgumentException
+   *   When the $anchor argument is not valid.
+   */
+  public static function getKeywordOffset(string $anchor, int $current_size, int $new_size): int {
+    switch ($anchor) {
+      case 'bottom':
+      case 'right':
+        return $current_size - $new_size;
+
+      case 'center':
+        return (int) round($current_size / 2 - $new_size / 2);
+
+      case 'top':
+      case 'left':
+        return 0;
+
+    }
+
+    throw new \InvalidArgumentException("Invalid anchor '{$anchor}' provided to getKeywordOffset()");
   }
 
 }

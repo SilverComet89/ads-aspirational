@@ -17,6 +17,11 @@ abstract class EntityEmbedTestBase extends BrowserTestBase {
   use TestFileCreationTrait;
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * Modules to enable.
    *
    * @var array
@@ -45,7 +50,7 @@ abstract class EntityEmbedTestBase extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     // Create a page content type.

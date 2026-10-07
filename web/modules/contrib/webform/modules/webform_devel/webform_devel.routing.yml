@@ -1,15 +1,16 @@
-entity.webform.schema_form:
-  path: '/admin/structure/webform/manage/{webform}/schema'
+entity.webform.fapi_export_form:
+  path: '/admin/structure/webform/manage/{webform}/fapi'
   defaults:
-    _entity_form: 'webform.schema'
+    _entity_form: 'webform.fapi_export'
     _title_callback: '\Drupal\webform\Controller\WebformEntityController::title'
   requirements:
     _permission: 'access devel information'
 
-webform_devel.schema.export:
-  path: '/admin/structure/webform/manage/{webform}/schema/export'
+entity.webform.fapi_test_form:
+  path: '/admin/structure/webform/manage/{webform}/fapi/test'
   defaults:
-    _controller: '\Drupal\webform_devel\Controller\WebformDevelSchemaController::index'
+    _entity_form: 'webform.fapi_test'
+    _title_callback: '\Drupal\webform\Controller\WebformEntityController::title'
   requirements:
     _permission: 'access devel information'
 

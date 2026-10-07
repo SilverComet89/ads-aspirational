@@ -2,8 +2,8 @@
 
 namespace Drupal\Tests\webform\Unit\Utility;
 
-use Drupal\webform\Utility\WebformOptionsHelper;
 use Drupal\Tests\UnitTestCase;
+use Drupal\webform\Utility\WebformOptionsHelper;
 
 /**
  * Tests webform options utility.
@@ -42,6 +42,7 @@ class WebformOptionsHelperTest extends UnitTestCase {
     $tests[] = ['value', ['value' => 'text'], TRUE];
     $tests[] = ['value', [], FALSE];
     $tests[] = [3, [1 => 'One', 2 => 'Two', 'optgroup' => [3 => 'Three']], TRUE];
+    $tests[] = ['3', [1 => 'One', 2 => 'Two', 'optgroup' => [3 => 'Three']], TRUE];
     $tests[] = ['optgroup', [1 => 'One', 2 => 'Two', 'optgroup' => [3 => 'Three']], FALSE];
     return $tests;
   }
@@ -73,6 +74,7 @@ class WebformOptionsHelperTest extends UnitTestCase {
   public function providerGetOptionsText() {
     $tests[] = [['value'], ['value' => 'text'], ['text']];
     $tests[] = [[1, 3], [1 => 'One', 2 => 'Two', 'optgroup' => [3 => 'Three']], ['One', 'Three']];
+    $tests[] = [[2], ['optgroup1' => [1 => 'One'], 'optgroup2' => [2 => 'Two']], ['Two']];
     return $tests;
   }
 
@@ -100,7 +102,6 @@ class WebformOptionsHelperTest extends UnitTestCase {
    */
   public function providerConvertOptionsToString() {
     $tests[] = [[99 => 99], ['99' => 99]];
-    $tests[] = [[99.11 => 99], ['99' => 99]];
     $tests[] = [[TRUE => 99], ['1' => 99]];
     return $tests;
   }

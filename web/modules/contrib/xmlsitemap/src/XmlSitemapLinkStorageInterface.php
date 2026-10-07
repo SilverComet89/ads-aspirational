@@ -2,7 +2,9 @@
 
 namespace Drupal\xmlsitemap;
 
+use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\Query\QueryInterface;
 
 /**
  * Provides an interface defining a XmlSitemapLinkStorage service.
@@ -42,10 +44,8 @@ interface XmlSitemapLinkStorageInterface {
    *
    * @return bool
    *   TRUE if the link is changed, or FALSE otherwise.
-   *
-   * @codingStandardsIgnoreStart
    */
-  public function checkChangedLink(array $link, $original_link = NULL, $flag = FALSE);
+  public function checkChangedLink(array $link, array $original_link = NULL, $flag = FALSE);
 
   /**
    * Check if there is a visible sitemap link given a certain set of conditions.
@@ -60,8 +60,6 @@ interface XmlSitemapLinkStorageInterface {
    *
    * @return bool
    *   TRUE if there is a visible link, or FALSE otherwise.
-   *
-   * @codingStandardsIgnoreEnd
    */
   public function checkChangedLinks(array $conditions = [], array $updates = [], $flag = FALSE);
 
@@ -114,10 +112,8 @@ interface XmlSitemapLinkStorageInterface {
    *
    * @return int
    *   The number of links that were updated.
-   *
-   * @codingStandardsIgnoreStart
    */
-  public function updateMultiple($updates = [], $conditions = [], $check_flag = TRUE);
+  public function updateMultiple(array $updates = [], array $conditions = [], $check_flag = TRUE);
 
   /**
    * Load a specific sitemap link from the database.
@@ -129,8 +125,6 @@ interface XmlSitemapLinkStorageInterface {
    *
    * @return array
    *   A sitemap link (array) or FALSE if the conditions were not found.
-   *
-   * @codingStandardsIgnoreEnd
    */
   public function load($entity_type, $entity_id);
 
@@ -145,5 +139,36 @@ interface XmlSitemapLinkStorageInterface {
    *   An array of sitemap link arrays.
    */
   public function loadMultiple(array $conditions = []);
+
+  /**
+   * Get a select query for entity XML sitemap link IDs.
+   *
+   * @param string $entity_type_id
+   *   The entity type ID.
+   * @param string[] $bundles
+   *   The entity bundle IDs.
+   *
+   * @return \Drupal\Core\Database\Query\SelectInterface
+   *   The select query.
+   */
+  public function getEntityLinkQuery(string $entity_type_id, array $bundles = []): SelectInterface;
+
+  /**
+   * Get an entity query for XML sitemap indexing or querying.
+   *
+   * @param string $entity_type_id
+   *   The entity type ID.
+   * @param string[] $bundles
+   *   The entity bundle IDs.
+   * @param null|\Drupal\Core\Database\Query\SelectInterface $subquery
+   *   The optional subquery on the xmlsitemap table to match against the
+   *   entity ID values.
+   * @param string $subquery_operator
+   *   The optional subquery operator. Possible values are 'IN' or 'NOT IN'.
+   *
+   * @return \Drupal\Core\Entity\Query\QueryInterface
+   *   The entity query object.
+   */
+  public function getEntityQuery(string $entity_type_id, array $bundles = [], SelectInterface $subquery = NULL, string $subquery_operator = 'IN'): QueryInterface;
 
 }

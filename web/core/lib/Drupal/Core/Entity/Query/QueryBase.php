@@ -2,7 +2,6 @@
 
 namespace Drupal\Core\Entity\Query;
 
-use Drupal\Core\Database\Query\PagerSelectExtender;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Utility\TableSort;
 
@@ -61,7 +60,7 @@ abstract class QueryBase implements QueryInterface {
   protected $groupBy = [];
 
   /**
-   * Aggregate Conditions
+   * Aggregate Conditions.
    *
    * @var \Drupal\Core\Entity\Query\ConditionAggregateInterface
    */
@@ -96,11 +95,11 @@ abstract class QueryBase implements QueryInterface {
   protected $alterTags;
 
   /**
-   * Whether access check is requested or not. Defaults to TRUE.
+   * Whether access check is requested or not.
    *
-   * @var bool
+   * @var bool|null
    */
-  protected $accessCheck = TRUE;
+  protected $accessCheck;
 
   /**
    * Flag indicating whether to query the current revision or all revisions.
@@ -131,6 +130,11 @@ abstract class QueryBase implements QueryInterface {
    * @var array
    */
   protected $namespaces = [];
+
+  /**
+   * Defines how the conditions on the query need to match.
+   */
+  protected $conjunction;
 
   /**
    * Constructs this object.
@@ -289,10 +293,7 @@ abstract class QueryBase implements QueryInterface {
     // Even when not using SQL, storing the element PagerSelectExtender is as
     // good as anywhere else.
     if (!isset($element)) {
-      $element = PagerSelectExtender::$maxElement++;
-    }
-    elseif ($element >= PagerSelectExtender::$maxElement) {
-      PagerSelectExtender::$maxElement = $element + 1;
+      $element = \Drupal::service('pager.manager')->getMaxPagerElementId() + 1;
     }
 
     $this->pager = [
@@ -310,11 +311,11 @@ abstract class QueryBase implements QueryInterface {
    */
   protected function initializePager() {
     if ($this->pager && !empty($this->pager['limit']) && !$this->count) {
-      $page = pager_find_page($this->pager['element']);
+      $page = \Drupal::service('pager.parameters')->findPage($this->pager['element']);
       $count_query = clone $this;
       $this->pager['total'] = $count_query->count()->execute();
       $this->pager['start'] = $page * $this->pager['limit'];
-      pager_default_initialize($this->pager['total'], $this->pager['limit'], $this->pager['element']);
+      \Drupal::service('pager.manager')->createPager($this->pager['total'], $this->pager['limit'], $this->pager['element']);
       $this->range($this->pager['start'], $this->pager['limit']);
     }
   }
@@ -334,7 +335,7 @@ abstract class QueryBase implements QueryInterface {
     $direction = TableSort::getSort($headers, \Drupal::request());
     foreach ($headers as $header) {
       if (is_array($header) && ($header['data'] == $order['name'])) {
-        $this->sort($header['specifier'], $direction, isset($header['langcode']) ? $header['langcode'] : NULL);
+        $this->sort($header['specifier'], $direction, $header['langcode'] ?? NULL);
       }
     }
 
@@ -389,7 +390,7 @@ abstract class QueryBase implements QueryInterface {
    * {@inheritdoc}
    */
   public function getMetaData($key) {
-    return isset($this->alterMetaData[$key]) ? $this->alterMetaData[$key] : NULL;
+    return $this->alterMetaData[$key] ?? NULL;
   }
 
   /**

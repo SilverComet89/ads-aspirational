@@ -8,8 +8,14 @@ use Drupal\Core\Url;
  * Delete feed items from a feed.
  *
  * @group aggregator
+ * @group legacy
  */
 class DeleteFeedItemTest extends AggregatorTestBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * Tests running "delete items" from 'admin/config/services/aggregator' page.

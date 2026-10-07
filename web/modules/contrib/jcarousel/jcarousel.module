@@ -4,12 +4,13 @@
  * @file
  * Provides integration with 3rd party modules and the jCarousel library.
  */
-use Drupal\Core\Asset;
 use Drupal\Core\Template\Attribute;
-use Drupal\jcarousel;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Url;
+
+define('JCAROUSEL_WEBSITE_URL', 'https://sorgalla.com/jcarousel/');
+
 
 /**
  * Implements hook_help().
@@ -257,7 +258,7 @@ function _jcarousel_help_skins() {
     <code><pre>
     myskin:
       label: 'My Skin'
-      file: assets/vendor/jcarousel/skins/myskin/jcarousel-myskin.css
+      file: skins/myskin/jcarousel-myskin.css
       weight: 1</pre></code>"),
   ];
 
@@ -492,6 +493,8 @@ function jcarousel_theme() {
 function jcarousel_add($options = []) {
   // Add the jCarousel library and any global settings.
   $attachments['library'][] = 'jcarousel/jcarousel';
+  $attachments['library'][] = 'jcarousel/jcarousel.swipe';
+  $attachments['library'][] = 'jcarousel/drupal.jcarousel';
 
   $options += [
     'skin' => 'default',
@@ -511,18 +514,42 @@ function jcarousel_add($options = []) {
  * Add skins as libraries.
  */
 function jcarousel_library_info_alter(&$libraries, $extension) {
-  if ($extension == 'jcarousel') {
-    $skins = \Drupal::service('jcarousel.skins.manager')->getDefinitions();
-    foreach ($skins as $key => $data) {
-      $libraries["skin.$key"] = [
-        'version' => 'VERSION',
-        'css' => [
-          'theme' => [
-            $data['file'] => [],
-          ],
+  if ($extension != 'jcarousel') {
+    return;
+  }
+
+  if (isset($libraries['jcarousel'])) {
+    // Set jCarousel library path.
+    $jcarousel_js_path = _jcarousel_get_library_path('jcarousel');
+    $minified = file_exists($jcarousel_js_path . '/dist/jquery.jcarousel.min.js');
+    $jcarousel_js_path = '/' . $jcarousel_js_path;
+    $jcarousel_js = $minified
+      ? $jcarousel_js_path . '/dist/jquery.jcarousel.min.js'
+      : $jcarousel_js_path . '/dist/jquery.jcarousel.js';
+    $libraries['jcarousel']['js'][$jcarousel_js] = ['minified' => $minified];
+  }
+
+  if (isset($libraries['jcarousel.swipe'])) {
+    // Set jCarousel library path.
+    $jcarousel_swipe_js_path = _jcarousel_get_library_path('jcarousel.swipe');
+    $minified = file_exists($jcarousel_swipe_js_path . '/dist/jquery.jcarousel-swipe.min.js');
+    $jcarousel_swipe_js_path = '/' . $jcarousel_swipe_js_path;
+    $jcarousel_swipe_js = $minified
+      ? $jcarousel_swipe_js_path . '/dist/jquery.jcarousel-swipe.min.js'
+      : $jcarousel_swipe_js_path . '/dist/jquery.jcarousel-swipe.js';
+    $libraries['jcarousel']['js'][$jcarousel_swipe_js] = ['minified' => $minified];
+  }
+
+  $skins = \Drupal::service('jcarousel.skins.manager')->getDefinitions();
+  foreach ($skins as $key => $data) {
+    $libraries["skin.$key"] = [
+      'version' => 'VERSION',
+      'css' => [
+        'theme' => [
+          $data['file'] => [],
         ],
-      ];
-    }
+      ],
+    ];
   }
 }
 
@@ -543,6 +570,8 @@ function template_preprocess_jcarousel(&$variables) {
 
   // Add the jCarousel library and any global settings.
   $variables['#attached']['library'][] = 'jcarousel/jcarousel';
+  $variables['#attached']['library'][] = 'jcarousel/jcarousel.swipe';
+  $variables['#attached']['library'][] = 'jcarousel/drupal.jcarousel';
 
   // Allow other modules to modify these settings.
   \Drupal::moduleHandler()->alter('jcarousel_options', $options, $class_name);
@@ -561,9 +590,10 @@ function template_preprocess_jcarousel(&$variables) {
  * Preprocess function for views-view-jcarousel.html.twig.
  */
 function template_preprocess_views_view_jcarousel(&$variables) {
+  /** @var \Drupal\views\ViewExecutable $view */
   $view = &$variables['view'];
   $variables['options'] = $view->style_plugin->options;
-  $position = array_search('jcarousel/jcarousel', $view->element['#attached']['library']);
+  $position = array_search('jcarousel/drupal.jcarousel', $view->element['#attached']['library']);
   $library = array_splice($view->element['#attached']['library'], $position, 1);
   $view->element['#attached']['library'] = array_merge($view->element['#attached']['library'], $library);
 
@@ -615,11 +645,23 @@ function _jcarousel_generate_attributes($items, $options) {
   // Scroll all visible elements at a time if scroll = 'auto'
   $scroll = !empty($options['scroll']) ? $options['scroll'] : $options['visible'];
 
-  if ($options['auto'] > 0 && $options['autoPause'] && empty($options['events']['jcarousel']['jcarousel:createend'])) {
-    $options['events']['jcarousel']['jcarousel:createend'] = 'jcarousel.autoPauseCallback';
+  if ($options['swipe']) {
+    $draggable = $options['draggable'] ? 'true' : 'false';
+    $attributes['attributes']->setAttribute('data-jcarousel-swipe', 'true');
+    $attributes['attributes']->setAttribute('data-jcarousel-swipe-draggable', $draggable);
+    $attributes['attributes']->setAttribute('data-jcarousel-swipe-method', $options['method']);
+    // Swipe the same items as scroll.
+    $attributes['attributes']->setAttribute('data-jcarousel-swipe-perSwipe', $scroll);
+  }
+
+  if ($options['auto'] > 0) {
     $attributes['attributes']->setAttribute('data-autoscroll-interval', $options['auto'] * 1000);
     $attributes['attributes']->setAttribute('data-autoscroll-autostart', 'true');
     $attributes['attributes']->setAttribute('data-autoscroll-target', '+=' . $scroll);
+
+    if ($options['autoPause'] && empty($options['events']['jcarousel']['jcarousel:createend'])) {
+      $options['events']['jcarousel']['jcarousel:createend'] = 'jcarousel.autoPauseCallback';
+    }
   }
 
   if ($options['responsive'] && empty($options['events']['jcarousel']['jcarousel:reload'])) {
@@ -652,7 +694,7 @@ function _jcarousel_generate_attributes($items, $options) {
 
   $attributes['attributes_wrapper']->addClass('jcarousel-wrapper');
 
-  if ($options['visible']) {
+  if (!empty($options['visible'])) {
     $attributes['attributes_wrapper']->addClass('jcarousel-visible-' . $options['visible']);
   }
 
@@ -706,6 +748,8 @@ function jcarousel_page_attachments(&$page) {
 
   // Add the jCarousel library and any global settings.
   $page['#attached']['library'][] = 'jcarousel/jcarousel';
+  $page['#attached']['library'][] = 'jcarousel/jcarousel.swipe';
+  $page['#attached']['library'][] = 'jcarousel/drupal.jcarousel';
 
   // Allow other modules to modify these settings.
   \Drupal::moduleHandler()->alter('jcarousel_options', $options, $class_name);
@@ -715,4 +759,50 @@ function jcarousel_page_attachments(&$page) {
   foreach ($skins as $id => $skin) {
     $variables['#attached']['library'][] = 'jcarousel/skin.' . $id;
   }
+}
+
+/**
+ * Get the location of the jCarousel library.
+ *
+ * @return string
+ *   The location of the library, or FALSE if the library isn't installed.
+ */
+function _jcarousel_get_library_path($library) {
+  $supported_libraries = [
+    'jcarousel' => [
+      'path' => '/jcarousel/dist/jquery.jcarousel.js',
+      'path_min' => '/jcarousel/dist/jquery.jcarousel.min.js',
+      'folder' => '/jcarousel',
+    ],
+    'jcarousel.swipe' => [
+      'path' => '/jcarouselSwipe/dist/jquery.jcarousel-swipe.js',
+      'path_min' => '/jcarouselSwipe/dist/jquery.jcarousel-swipe.min.js',
+      'folder' => '/jcarouselSwipe',
+    ],
+  ];
+
+  if (!isset($supported_libraries[$library])) {
+    return FALSE;
+  }
+    // The following logic is taken from libraries_get_libraries()
+    $searchdir = [];
+
+    // Similar to 'modules' and 'themes' directories inside an installation
+    // profile, installation profiles may want to place libraries into a
+    // 'libraries' directory.
+    $searchdir[] = 'profiles/' . \Drupal::installProfile() . '/libraries';
+
+    // Always search libraries.
+    $searchdir[] = 'libraries';
+
+    // Also search sites/<domain>/*.
+    $searchdir[] = \Drupal::service('site.path') . '/libraries';
+
+    foreach ($searchdir as $dir) {
+        if (file_exists($dir . $supported_libraries[$library]['path_min']) || file_exists($dir . $supported_libraries[$library]['path'])) {
+            return $dir . $supported_libraries[$library]['folder'];
+        }
+    }
+
+    return FALSE;
 }

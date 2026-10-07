@@ -7,7 +7,8 @@
 .imce-settings-form th > a {
   display: inline;
 }
-.imce-settings-form th > a:after {
+
+.imce-settings-form th > a::after {
   display: none;
 }
 
@@ -15,9 +16,10 @@
 .imce-profile-form {
   counter-reset: folder;
 }
-.folder-container > .form-type-textfield:before {
-  counter-increment: folder;
+
+.folder-container > .form-type-textfield::before {
   content: counter(folder) ". ";
+  counter-increment: folder;
 }
 
 /* Number fields */
@@ -35,12 +37,29 @@
   float: left;
   min-width: 13em;
 }
+
 .folder-permissions .form-type-checkbox:first-child {
   float: none;
 }
 
 /* Dimensions */
 .dimensions-wrapper > .form-item {
-  margin: 0;
   display: inline-block;
+  margin: 0;
+}
+
+iframe.imce-browser {
+  width: 100%;
+  height: 600px;
+  border: 0;
+}
+
+.ckeditor5-toolbar-button.ckeditor5-toolbar-button-imce_image {
+  background-image: url(images/image.png);
+  background-size: 16px;
+}
+
+.ckeditor5-toolbar-button.ckeditor5-toolbar-button-imce_link {
+  background-image: url(images/link.png);
+  background-size: 16px;
 }

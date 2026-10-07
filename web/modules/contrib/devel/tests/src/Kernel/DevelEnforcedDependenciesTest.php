@@ -23,7 +23,7 @@ class DevelEnforcedDependenciesTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->installEntitySchema('user');
@@ -36,7 +36,7 @@ class DevelEnforcedDependenciesTest extends KernelTestBase {
    * Tests devel menu enforced dependencies.
    */
   public function testMenuEnforcedDependencies() {
-    /* @var \Drupal\Core\Config\ConfigManagerInterface $config_manager */
+    /** @var \Drupal\Core\Config\ConfigManagerInterface $config_manager */
     $config_manager = $this->container->get('config.manager');
 
     // Ensure that the Devel menu has explicit enforced dependencies on devel
@@ -60,9 +60,9 @@ class DevelEnforcedDependenciesTest extends KernelTestBase {
     $block->save();
 
     // Ensure that the menu and block instance depend on devel module.
-    $dependents = $config_manager->findConfigEntityDependents('module', ['devel']);
-    $this->assertTrue(isset($dependents['system.menu.devel']));
-    $this->assertTrue(isset($dependents['block.block.' . $block_id]));
+    $dependents = $config_manager->findConfigEntityDependencies('module', ['devel']);
+    $this->assertArrayHasKey('system.menu.devel', $dependents);
+    $this->assertArrayHasKey('block.block.' . $block_id, $dependents);
 
     $this->container->get('module_installer')->uninstall(['devel']);
 
@@ -72,9 +72,9 @@ class DevelEnforcedDependenciesTest extends KernelTestBase {
     $this->assertNull(Block::load($block_id));
 
     // Ensure that no config entities depend on devel once uninstalled.
-    $dependents = $config_manager->findConfigEntityDependents('module', ['devel']);
-    $this->assertFalse(isset($dependents['system.menu.devel']));
-    $this->assertFalse(isset($dependents['block.block.' . $block_id]));
+    $dependents = $config_manager->findConfigEntityDependencies('module', ['devel']);
+    $this->assertArrayNotHasKey('system.menu.devel', $dependents);
+    $this->assertArrayNotHasKey('block.block.' . $block_id, $dependents);
   }
 
 }

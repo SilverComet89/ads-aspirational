@@ -2,127 +2,67 @@
 
 namespace Drupal\webform\Commands;
 
+use Drupal\webform\Entity\Webform;
 use Drush\Commands\DrushCommands;
-use Drush\Drush;
-use Drush\Exceptions\UserAbortException;
-use Psr\Log\LogLevel;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Base class for Webform commands for Drush 9.x.
+ * Webform commands for Drush 9.x and 10.x.
  */
 abstract class WebformCommandsBase extends DrushCommands {
 
   /**
-   * The webform CLI service.
-   *
-   * @var \Drupal\webform\Commands\WebformCliServiceInterface
+   * JSON encoding flags.
    */
-  protected $cliService;
+  const JSON_ENCODE_FLAGS = JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE;
 
   /**
-   * Constructs a WebformCommandsBase object.
+   * Validate webform_id argument and source entity-type and entity-id options.
    *
-   * @param \Drupal\webform\Commands\WebformCliServiceInterface $cli_service
-   *   The webform CLI service.
+   * @param string $webform
+   *   THe webform id being validated.
    */
-  public function __construct(WebformCliServiceInterface $cli_service) {
-    $this->cliService = $cli_service;
+  protected function validateWebform($webform = NULL) {
+    $webform = $webform ?? $this->input()->getArgument('webform');
 
-    // Injecting the WebformCommand into the CLI service so that calls to
-    // drush functions can be delegatef back the below methods.
-    // @see \Drupal\webform\Commands\WebformCliService::__call
-    $this->cliService->setCommand($this);
-  }
-
-  public function drush_confirm($question) {
-    return $this->io()->confirm($question);
-  }
-
-  public function drush_choice($choices, $msg, $default = NULL) {
-    return $this->io()->choice($msg, $choices, $default);
-  }
-
-  public function drush_log($message, $type = LogLevel::INFO) {
-    $this->logger()->log($type, $message);
-  }
-
-  public function drush_print($message) {
-    $this->output()->writeln($message);
-  }
-
-  public function drush_get_option($name) {
-    return $this->input()->getOption($name);
-  }
-
-  public function drush_user_abort() {
-    throw new UserAbortException();
-  }
-
-  public function drush_set_error($error) {
-    throw new \Exception($error);
-  }
-
-  public function drush_redispatch_get_options() {
-    return Drush::redispatchOptions();
-  }
-
-  public function drush_download_file($url, $destination) {
-    // Copied from: \Drush\Commands\SyncViaHttpCommands::downloadFile
-    static $use_wget;
-    if ($use_wget === NULL) {
-      $use_wget = drush_shell_exec('which wget');
+    if (empty($webform)) {
+      throw new \Exception(dt('Webform id required'));
     }
 
-    $destination_tmp = drush_tempnam('download_file');
-    if ($use_wget) {
-      drush_shell_exec("wget -q --timeout=30 -O %s %s", $destination_tmp, $url);
+    if (!Webform::load($webform)) {
+      throw new \Exception(dt('Webform @id not recognized.', ['@id' => $webform]));
     }
-    else {
-      drush_shell_exec("curl -s -L --connect-timeout 30 -o %s %s", $destination_tmp, $url);
-    }
-    if (!drush_file_not_empty($destination_tmp) && $file = @file_get_contents($url)) {
-      @file_put_contents($destination_tmp, $file);
-    }
-    if (!drush_file_not_empty($destination_tmp)) {
-      // Download failed.
-      throw new \Exception(dt("The URL !url could not be downloaded.", ['!url' => $url]));
-    }
-    if ($destination) {
-      $fs = new Filesystem();
-      $fs->rename($destination_tmp, $destination, TRUE);
-      return $destination;
-    }
-    return $destination_tmp;
-  }
 
-  public function drush_move_dir($src, $dest) {
-    $fs = new Filesystem();
-    $fs->rename($src, $dest, TRUE);
-    return TRUE;
-  }
+    $entity_type = $this->input()->getOption('entity-type');
+    $entity_id = $this->input()->getOption('entity-id');
+    if ($entity_type || $entity_id) {
+      if (empty($entity_type)) {
+        throw new \Exception(dt('Entity type is required when entity id is specified.'));
+      }
+      if (empty($entity_id)) {
+        throw new \Exception(dt('Entity id is required when entity type is specified.'));
+      }
 
-  public function drush_mkdir($path) {
-    $fs = new Filesystem();
-    $fs->mkdir($path);
-    return TRUE;
-  }
+      $dt_args = [
+        '@webform_id' => $webform,
+        '@entity_type' => $entity_type,
+        '@entity_id' => $entity_id,
+      ];
 
-  public function drush_tarball_extract($path, $destination = FALSE) {
-    $this->drush_mkdir($destination);
-    if (preg_match('/\.tgz$/', $path)) {
-      $return = drush_shell_cd_and_exec(dirname($path), "tar -xvzf %s -C %s", $path, $destination);
-      if (!$return) {
-        throw new \Exception(dt('Unable to extract !filename.' . PHP_EOL . implode(PHP_EOL, drush_shell_exec_output()), ['!filename' => $path]));
+      $source_entity = \Drupal::entityTypeManager()->getStorage($entity_type)->load($entity_id);
+      if (!$source_entity) {
+        throw new \Exception(dt('Unable to load @entity_type:@entity_id', $dt_args));
+      }
+
+      $dt_args['@title'] = $source_entity->label();
+
+      if (empty($source_entity->webform) || empty($source_entity->webform->target_id)) {
+        throw new \Exception(dt("'@title' (@entity_type:@entity_id) does not reference a webform.", $dt_args));
+      }
+
+      if ($source_entity->webform->target_id !== $webform) {
+        throw new \Exception(dt("'@title' (@entity_type:@entity_id) does not have a '@webform_id' webform associated with it.", $dt_args));
       }
     }
-    else {
-      $return = drush_shell_cd_and_exec(dirname($path), "unzip %s -d %s", $path, $destination);
-      if (!$return) {
-        throw new \Exception(dt('Unable to extract !filename.' . PHP_EOL . implode(PHP_EOL, drush_shell_exec_output()), ['!filename' => $path]));
-      }
-    }
-    return $return;
   }
 
 }

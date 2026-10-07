@@ -3,7 +3,7 @@
  * JavaScript behaviors for element #states.
  */
 
-(function ($, Drupal, drupalSettings) {
+(function ($, Drupal, drupalSettings, once) {
 
   'use strict';
 
@@ -14,7 +14,7 @@
    */
   Drupal.behaviors.webformElementStates = {
     attach: function (context) {
-      $(context).find('.webform-states-table--condition').once('webform-element-states-condition').each(function () {
+      $(once('webform-element-states-condition', '.webform-states-table--condition', context)).each(function () {
         var $condition = $(this);
         var $selector = $condition.find('.webform-states-table--selector select');
         var $value = $condition.find('.webform-states-table--value input');
@@ -26,7 +26,7 @@
         });
 
         // Initialize trigger and selector.
-        $trigger.on('change', function () {$selector.change();});
+        $trigger.on('change', function () {$selector.trigger('change');});
 
         $selector.on('change', function () {
           var selector = $selector.val();
@@ -45,14 +45,17 @@
               .autocomplete('option', 'source', [])
               .removeClass('form-autocomplete');
           }
-        }).change();
+          // Always disable browser auto completion.
+          var off = /chrom(e|ium)/.test(window.navigator.userAgent.toLowerCase()) ? 'chrome-off-' + Math.floor(Math.random() * 100000000) : 'off';
+          $value.attr('autocomplete', off);
+        }).trigger('change');
       });
 
       // If the states:state is required or optional the required checkbox
       // should be checked and disabled.
       var $state = $(context).find('.webform-states-table--state select');
       if ($state.length) {
-        $state.once('webform-element-states-state')
+        $(once('webform-element-states-state', $state))
           .on('change', toggleRequiredCheckbox);
         toggleRequiredCheckbox();
       }
@@ -96,7 +99,7 @@
         requiredChecked = null;
       }
     }
-    $input.change();
+    $input.trigger('change');
   }
 
-})(jQuery, Drupal, drupalSettings);
+})(jQuery, Drupal, drupalSettings, once);

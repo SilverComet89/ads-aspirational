@@ -251,7 +251,7 @@ $databases = [];
  *   ];
  * @endcode
  */
-$config_directories = [];
+$settings['config_sync_directory'] = dirname(__DIR__, 3) . '/config';
 
 /**
  * Settings:
@@ -803,4 +803,6 @@ if (isset($GLOBALS['request']) and '/web/index.php' === $GLOBALS['request']->ser
 $local_settings = __DIR__ . "/settings.local.php";
 if (file_exists($local_settings)) {
     include $local_settings;
+    // Local only: the synced DB has no auto-increment keys, so strict SQL mode rejects inserts.
+    $databases['default']['default']['init_commands']['sql_mode'] = "SET sql_mode = ''";
 }

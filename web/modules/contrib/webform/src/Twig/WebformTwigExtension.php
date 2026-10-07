@@ -3,16 +3,27 @@
 namespace Drupal\webform\Twig;
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\webform\Element\WebformHtmlEditor;
 use Drupal\webform\Element\WebformMessage;
+use Drupal\webform\Utility\WebformElementHelper;
 use Drupal\webform\Utility\WebformHtmlHelper;
 use Drupal\webform\Utility\WebformLogicHelper;
+use Drupal\webform\Utility\WebformXss;
+use Drupal\webform\Utility\WebformYaml;
 use Drupal\webform\WebformSubmissionInterface;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
 
 /**
  * Twig extension with some useful functions and filters.
  */
-class WebformTwigExtension extends \Twig_Extension {
+class WebformTwigExtension extends AbstractExtension {
 
+  /**
+   * Twig options.
+   *
+   * @var string[]
+   */
   protected static $options = [
     'html' => 'webform_token_options_html',
     'email' => 'webform_token_options_email',
@@ -23,7 +34,9 @@ class WebformTwigExtension extends \Twig_Extension {
    */
   public function getFunctions() {
     return [
-      new \Twig_SimpleFunction('webform_token', [$this, 'webformToken']),
+      new TwigFunction('webform_html_editor_check_markup', [$this, 'webformHtmlEditorCheckMarkup']),
+      new TwigFunction('webform_debug', [$this, 'webformDebug']),
+      new TwigFunction('webform_token', [$this, 'webformToken']),
     ];
   }
 
@@ -32,6 +45,47 @@ class WebformTwigExtension extends \Twig_Extension {
    */
   public function getName() {
     return 'webform';
+  }
+
+  /**
+   * Runs HTML markup through (optional) text format.
+   *
+   * @param string $text
+   *   The text to be filtered.
+   * @param array $options
+   *   HTML markup options.
+   *
+   * @return array
+   *   Render array containing 'processed_text' or 'webform_html_editor_markup'.
+   *
+   * @see \Drupal\webform\Element\WebformHtmlEditor::checkMarkup
+   */
+  public function webformHtmlEditorCheckMarkup($text, array $options = []) {
+    return WebformHtmlEditor::checkMarkup($text, $options);
+  }
+
+  /**
+   * Debug data by outputting YAML.
+   *
+   * @param mixed $data
+   *   Data to be outputted.
+   *
+   * @return string
+   *   Data serialized to YAML.
+   */
+  public function webformDebug($data) {
+    try {
+      if (is_array($data)) {
+        WebformElementHelper::convertRenderMarkupToStrings($data);
+        return WebformYaml::encode($data);
+      }
+      else {
+        return $data;
+      }
+    }
+    catch (\Exception $exception) {
+      return $exception->getMessage();
+    }
   }
 
   /**
@@ -52,7 +106,9 @@ class WebformTwigExtension extends \Twig_Extension {
    *
    * @see \Drupal\Core\Utility\Token::replace
    */
-  public function webformToken($token, EntityInterface $entity = NULL, array $data = [], array $options = []) {
+  public function webformToken($token, EntityInterface $entity = NULL, array $data = [], array $options = NULL) {
+    $options = $options ?: [];
+
     // Allow the webform_token function to be tested during validation without
     // a valid entity.
     if (!$entity) {
@@ -86,15 +142,15 @@ class WebformTwigExtension extends \Twig_Extension {
       return '';
     }
 
-    return (WebformHtmlHelper::containsHtml($value)) ? ['#markup' => $value] : $value;
+    return (WebformHtmlHelper::containsHtml($value)) ? ['#markup' => $value, '#allowed_tags' => WebformXss::getAdminTagList()] : $value;
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Token methods used by the 'WebformComputedTwig' and 'EmailWebformHandler'.
   //
   // @see \Drupal\webform\Plugin\WebformElement\WebformComputedTwig
   // @see \Drupal\webform\Plugin\WebformHandler\EmailWebformHandler
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * Build reusable Twig help.
@@ -117,7 +173,9 @@ class WebformTwigExtension extends \Twig_Extension {
 
     $variables = array_merge($variables, [
       '{{ data.element_key }}',
+      '{{ data[\'element_key\'] }}',
       '{{ data.element_key.delta }}',
+      '{{ data[\'element_key\'][\'delta\'] }}',
       '{{ data.composite_element_key.subelement_key }}',
       '{{ data.composite_element_key.delta.subelement_key }}',
       '{{ original_data }}',
@@ -133,7 +191,7 @@ class WebformTwigExtension extends \Twig_Extension {
     ]);
 
     $t_args = [
-      ':twig_href' => 'https://twig.sensiolabs.org/',
+      ':twig_href' => 'https://twig.symfony.com/',
       ':drupal_href' => 'https://www.drupal.org/docs/8/theming/twig',
     ];
     $output = [];
@@ -152,6 +210,12 @@ class WebformTwigExtension extends \Twig_Extension {
     ];
     $output[] = [
       '#markup' => "<pre>{{ webform_token('[webform_submission:values:element_value]', webform_submission, [], options) }}</pre>",
+    ];
+    $output[] = [
+      '#markup' => '<p>' . t("You can debug data using the <code>webform_debug()</code> function.") . '</p>',
+    ];
+    $output[] = [
+      '#markup' => "<pre>{{ webform_debug(data) }}</pre>",
     ];
     if (\Drupal::currentUser()->hasPermission('administer modules') && !\Drupal::moduleHandler()->moduleExists('twig_tweak')) {
       $t_args = [
@@ -193,7 +257,7 @@ class WebformTwigExtension extends \Twig_Extension {
    */
   public static function renderTwigTemplate(WebformSubmissionInterface $webform_submission, $template, array $options = [], array $context = []) {
     try {
-      $build = self::buildTwigTemplate($webform_submission, $template, $options, $context);
+      $build = static::buildTwigTemplate($webform_submission, $template, $options, $context);
       return \Drupal::service('renderer')->renderPlain($build);
     }
     catch (\Exception $exception) {
@@ -248,6 +312,7 @@ class WebformTwigExtension extends \Twig_Extension {
       'elements' => $webform_submission->getWebform()->getElementsDecoded(),
       'elements_flattened' => $webform_submission->getWebform()->getElementsDecodedAndFlattened(),
       'options' => $options,
+      'data' => $webform_submission->getData(),
       'original_data' => $webform_submission->getOriginalData(),
     ] + $webform_submission->toArray(TRUE);
 

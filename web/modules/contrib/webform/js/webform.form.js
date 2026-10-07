@@ -3,11 +3,9 @@
  * JavaScript behaviors for webforms.
  */
 
-(function ($, Drupal) {
+(function ($, Drupal, once) {
 
   'use strict';
-
-  var isChrome = (/chrom(e|ium)/.test(window.navigator.userAgent.toLowerCase()));
 
   /**
    * Remove single submit event listener.
@@ -25,41 +23,8 @@
         var $form = $(e.currentTarget);
         $form.removeAttr('data-drupal-form-submit-last');
       }
-      $('body')
-        .once('webform-single-submit')
+      $(once('webform-single-submit', 'body'))
         .on('submit.singleSubmit', 'form.webform-remove-single-submit', onFormSubmit);
-    }
-  };
-
-  /**
-   * Autofocus first input.
-   *
-   * @type {Drupal~behavior}
-   *
-   * @prop {Drupal~behaviorAttach} attach
-   *   Attaches the behavior for the webform autofocusing.
-   */
-  Drupal.behaviors.webformAutofocus = {
-    attach: function (context) {
-      $(context).find('.webform-submission-form.js-webform-autofocus :input:visible:enabled:first')
-        .focus();
-    }
-  };
-
-  /**
-   * Autocomplete.
-   *
-   * @type {Drupal~behavior}
-   *
-   * @prop {Drupal~behaviorAttach} attach
-   *   Attaches the behavior for the webform autofocusing.
-   */
-  Drupal.behaviors.webformAutocomplete = {
-    attach: function (context) {
-      if (isChrome) {
-        $(context).find('.webform-submission-form input[autocomplete="off"]')
-          .attr('autocomplete', 'chrome-off');
-      }
     }
   };
 
@@ -75,52 +40,16 @@
    */
   Drupal.behaviors.webformDisableAutoSubmit = {
     attach: function (context) {
+      // Not using context so that inputs loaded via Ajax will have autosubmit
+      // disabled.
       // @see http://stackoverflow.com/questions/11235622/jquery-disable-form-submit-on-enter
-      $(context).find('.webform-submission-form.js-webform-disable-autosubmit input')
-        .not(':button, :submit, :reset, :image, :file')
-        .once('webform-disable-autosubmit')
+      $(once('webform-disable-autosubmit', $('.js-webform-disable-autosubmit input').not(':button, :submit, :reset, :image, :file')))
         .on('keyup keypress', function (e) {
           if (e.which === 13) {
             e.preventDefault();
             return false;
           }
         });
-    }
-  };
-
-  /**
-   * Skip client-side validation when submit button is pressed.
-   *
-   * @type {Drupal~behavior}
-   *
-   * @prop {Drupal~behaviorAttach} attach
-   *   Attaches the behavior for the skipping client-side validation.
-   *
-   * @deprecated in Webform 8.x-5.x and will be removed in Webform 8.x-6.x.
-   *   Use 'formnovalidate' attribute instead.
-   */
-  Drupal.behaviors.webformSubmitNoValidate = {
-    attach: function (context) {
-      $(context).find(':submit.js-webform-novalidate')
-        .once('webform-novalidate')
-        .attr('formnovalidate', 'formnovalidate');
-    }
-  };
-
-  /**
-   * Attach behaviors to trigger submit button from input onchange.
-   *
-   * @type {Drupal~behavior}
-   *
-   * @prop {Drupal~behaviorAttach} attach
-   *   Attaches form trigger submit events.
-   */
-  Drupal.behaviors.webformSubmitTrigger = {
-    attach: function (context) {
-      $('[data-webform-trigger-submit]').once('webform-trigger-submit').on('change', function () {
-        var submit = $(this).attr('data-webform-trigger-submit');
-        $(submit).mousedown();
-      });
     }
   };
 
@@ -137,7 +66,7 @@
    **/
   Drupal.behaviors.webformRequiredError = {
     attach: function (context) {
-      $(context).find(':input[data-webform-required-error], :input[data-webform-pattern-error]').once('webform-required-error')
+      $(once('webform-required-error', $(context).find(':input[data-webform-required-error], :input[data-webform-pattern-error]')))
         .on('invalid', function () {
           this.setCustomValidity('');
           if (this.valid) {
@@ -151,7 +80,7 @@
             this.setCustomValidity($(this).attr('data-webform-required-error'));
           }
         })
-        .on('input, change', function () {
+        .on('input change', function () {
           // Find all related elements by name and reset custom validity.
           // This specifically applies to required radios and checkboxes.
           var name = $(this).attr('name');
@@ -165,15 +94,8 @@
   // When #state:required is triggered we need to reset the target elements
   // custom validity.
   $(document).on('state:required', function (e) {
-    $(e.target).filter('[data-webform-required-error]')
+    $(e.target).filter(':input[data-webform-required-error]')
       .each(function () {this.setCustomValidity('');});
   });
 
-  if (window.imceInput) {
-    window.imceInput.processUrlInput = function (i, el) {
-      var button = imceInput.createUrlButton(el.id, el.getAttribute('data-imce-type'));
-      el.parentNode.insertAfter(button, el);
-    };
-  }
-
-})(jQuery, Drupal);
+})(jQuery, Drupal, once);

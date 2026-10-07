@@ -16,7 +16,7 @@ class DateFormatterTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['language', 'system'];
+  protected static $modules = ['language', 'system'];
 
   /**
    * Arbitrary langcode for a custom language.
@@ -26,7 +26,7 @@ class DateFormatterTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->installConfig(['system']);
@@ -36,7 +36,7 @@ class DateFormatterTest extends KernelTestBase {
       'Long month name' => ['March' => 'marzo'],
     ]);
 
-    $formats = $this->container->get('entity.manager')
+    $formats = $this->container->get('entity_type.manager')
       ->getStorage('date_format')
       ->loadMultiple(['long', 'medium', 'short']);
     $formats['long']->setPattern('l, j. F Y - G:i')->save();

@@ -4,12 +4,10 @@ namespace Drupal\webform;
 
 use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityViewBuilder;
-use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\Core\Language\LanguageManagerInterface;
-use Drupal\webform\Plugin\WebformElementManagerInterface;
+use Drupal\webform\Plugin\WebformElementAttachmentInterface;
+use Drupal\webform\Plugin\WebformElementCompositeInterface;
 use Drupal\webform\Twig\WebformTwigExtension;
 use Drupal\webform\Utility\WebformElementHelper;
 use Drupal\webform\Utility\WebformYaml;
@@ -28,7 +26,7 @@ class WebformSubmissionViewBuilder extends EntityViewBuilder implements WebformS
   protected $routeMatch;
 
   /**
-   * Webform request handler.
+   * The webform request handler.
    *
    * @var \Drupal\webform\WebformRequestInterface
    */
@@ -49,46 +47,15 @@ class WebformSubmissionViewBuilder extends EntityViewBuilder implements WebformS
   protected $conditionsValidator;
 
   /**
-   * Constructs a WebformSubmissionViewBuilder.
-   *
-   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
-   *   The entity type definition.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager service.
-   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
-   *   The language manager.
-   * @param \Drupal\webform\WebformRequestInterface $webform_request
-   *   The webform request handler.
-   * @param \Drupal\webform\Plugin\WebformElementManagerInterface $element_manager
-   *   The webform element manager service.
-   * @param \Drupal\webform\WebformSubmissionConditionsValidatorInterface $conditions_validator
-   *   The webform submission conditions (#states) validator.
-   * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
-   *   The route match object.
-   *
-   * @todo Webform 8.x-6.x: Move $route_match before $webform_request.
-   */
-  public function __construct(EntityTypeInterface $entity_type, EntityManagerInterface $entity_manager, LanguageManagerInterface $language_manager, WebformRequestInterface $webform_request, WebformElementManagerInterface $element_manager, WebformSubmissionConditionsValidatorInterface $conditions_validator, RouteMatchInterface $route_match = NULL) {
-    parent::__construct($entity_type, $entity_manager, $language_manager);
-    $this->requestHandler = $webform_request;
-    $this->elementManager = $element_manager;
-    $this->conditionsValidator = $conditions_validator;
-    $this->routeMatch = $route_match ?: \Drupal::routeMatch();
-  }
-
-  /**
    * {@inheritdoc}
    */
   public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
-    return new static(
-      $entity_type,
-      $container->get('entity.manager'),
-      $container->get('language_manager'),
-      $container->get('webform.request'),
-      $container->get('plugin.manager.webform.element'),
-      $container->get('webform_submission.conditions_validator'),
-      $container->get('current_route_match')
-    );
+    $instance = parent::createInstance($container, $entity_type);
+    $instance->requestHandler = $container->get('webform.request');
+    $instance->elementManager = $container->get('plugin.manager.webform.element');
+    $instance->conditionsValidator = $container->get('webform_submission.conditions_validator');
+    $instance->routeMatch = $container->get('current_route_match');
+    return $instance;
   }
 
   /**
@@ -100,6 +67,12 @@ class WebformSubmissionViewBuilder extends EntityViewBuilder implements WebformS
     if ($webform_submissions_view_mode = \Drupal::request()->request->get('_webform_submissions_view_mode')) {
       $view_mode = $webform_submissions_view_mode;
     }
+
+    // Apply variants.
+    /** @var \Drupal\webform\WebformSubmissionInterface $entity */
+    /** @var \Drupal\webform\WebformInterface $webform */
+    $webform = $entity->getWebform();
+    $webform->applyVariants($entity);
 
     return parent::view($entity, $view_mode, $langcode);
   }
@@ -160,7 +133,7 @@ class WebformSubmissionViewBuilder extends EntityViewBuilder implements WebformS
           // @see \Drupal\webform_entity_print_attachment\Element\WebformEntityPrintAttachment::getFileContent
           $build[$id]['data'] = WebformTwigExtension::buildTwigTemplate(
             $webform_submission,
-            $webform_submission->_webform_view_mode_twig
+            $webform_submission->webformViewModeTwig
           );
           break;
 
@@ -168,6 +141,9 @@ class WebformSubmissionViewBuilder extends EntityViewBuilder implements WebformS
           // Note that the YAML view ignores all access controls and excluded
           // settings.
           $data = $webform_submission->toArray(TRUE, TRUE);
+          // Covert computed element value markup to strings to
+          // 'Object support when dumping a YAML file has been disabled' errors.
+          WebformElementHelper::convertRenderMarkupToStrings($data);
           $build[$id]['data'] = [
             '#theme' => 'webform_codemirror',
             '#code' => WebformYaml::encode($data),
@@ -221,7 +197,7 @@ class WebformSubmissionViewBuilder extends EntityViewBuilder implements WebformS
         $build[$key] = $build_element;
         if (!$this->isElementVisible($element, $webform_submission, $options)) {
           $build[$key]['#access'] = FALSE;
-        };
+        }
       }
     }
 
@@ -293,6 +269,17 @@ class WebformSubmissionViewBuilder extends EntityViewBuilder implements WebformS
       return FALSE;
     }
 
+    // Checked excluded attachments, except from composite elements.
+    // @see \Drupal\webform\Plugin\WebformElement\WebformCompositeBase::formatComposite
+    if (!empty($options['exclude_attachments'])) {
+      /** @var \Drupal\webform\Plugin\WebformElementInterface $webform_element */
+      $webform_element = $this->elementManager->getElementInstance($element, $webform_submission);
+      if ($webform_element instanceof WebformElementAttachmentInterface
+        && !$webform_element instanceof WebformElementCompositeInterface) {
+        return FALSE;
+      }
+    }
+
     // Check if the element is conditionally hidden.
     if (!$this->conditionsValidator->isElementVisible($element, $webform_submission)) {
       return FALSE;
@@ -311,7 +298,7 @@ class WebformSubmissionViewBuilder extends EntityViewBuilder implements WebformS
 
     // Finally, check the element's 'view' access.
     /** @var \Drupal\webform\Plugin\WebformElementInterface $webform_element */
-    $webform_element = $this->elementManager->getElementInstance($element);
+    $webform_element = $this->elementManager->getElementInstance($element, $webform_submission);
     return $webform_element->checkAccessRules('view', $element) ? TRUE : FALSE;
   }
 

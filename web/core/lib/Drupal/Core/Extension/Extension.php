@@ -10,6 +10,7 @@ namespace Drupal\Core\Extension;
  *
  * @see https://bugs.php.net/bug.php?id=66052
  */
+#[\AllowDynamicProperties]
 class Extension {
 
   /**
@@ -63,6 +64,8 @@ class Extension {
    *   (optional) The filename of the main extension file; e.g., 'node.module'.
    */
   public function __construct($root, $type, $pathname, $filename = NULL) {
+    // @see \Drupal\Core\Theme\ThemeInitialization::getActiveThemeByName()
+    assert($pathname === 'core/core.info.yml' || ($pathname[0] !== '/' && file_exists($root . '/' . $pathname)), sprintf('The file specified by the given app root, relative path and file name (%s) do not exist.', $root . '/' . $pathname));
     $this->root = $root;
     $this->type = $type;
     $this->pathname = $pathname;
@@ -155,7 +158,7 @@ class Extension {
    */
   public function __call($method, array $args) {
     if (!isset($this->splFileInfo)) {
-      $this->splFileInfo = new \SplFileInfo($this->pathname);
+      $this->splFileInfo = new \SplFileInfo($this->root . '/' . $this->pathname);
     }
     return call_user_func_array([$this->splFileInfo, $method], $args);
   }
@@ -180,8 +183,44 @@ class Extension {
    * Magic method implementation to unserialize the extension object.
    */
   public function __wakeup() {
-    // Get the app root from the container.
-    $this->root = \Drupal::hasService('app.root') ? \Drupal::root() : DRUPAL_ROOT;
+    // Get the app root from the container. While compiling the container we
+    // have to discover all the extension service files in
+    // \Drupal\Core\DrupalKernel::initializeServiceProviders(). This results in
+    // creating extension objects before the container has the kernel.
+    // Specifically, this occurs during the call to
+    // \Drupal\Core\Extension\ExtensionDiscovery::scanDirectory().
+    $container = \Drupal::hasContainer() ? \Drupal::getContainer() : FALSE;
+    $this->root = $container && $container->hasParameter('app.root') ? $container->getParameter('app.root') : DRUPAL_ROOT;
+  }
+
+  /**
+   * Checks if an extension is marked as experimental.
+   *
+   * @return bool
+   *   TRUE if an extension is marked as experimental, FALSE otherwise.
+   */
+  public function isExperimental(): bool {
+    // Currently, this function checks for both the key/value pairs
+    // 'experimental: true' and 'lifecycle: experimental' to determine if an
+    // extension is marked as experimental.
+    // @todo Remove the check for 'experimental: true' as part of
+    // https://www.drupal.org/node/3250342
+    return (isset($this->info['experimental']) && $this->info['experimental'])
+    || (isset($this->info[ExtensionLifecycle::LIFECYCLE_IDENTIFIER])
+        && $this->info[ExtensionLifecycle::LIFECYCLE_IDENTIFIER] === ExtensionLifecycle::EXPERIMENTAL);
+  }
+
+  /**
+   * Checks if an extension is marked as obsolete.
+   *
+   * @return bool
+   *   TRUE if an extension is marked as obsolete, FALSE otherwise.
+   */
+  public function isObsolete(): bool {
+    // This function checks for 'lifecycle: obsolete' to determine if an
+    // extension is marked as obsolete.
+    return (isset($this->info[ExtensionLifecycle::LIFECYCLE_IDENTIFIER])
+        && $this->info[ExtensionLifecycle::LIFECYCLE_IDENTIFIER] === ExtensionLifecycle::OBSOLETE);
   }
 
 }

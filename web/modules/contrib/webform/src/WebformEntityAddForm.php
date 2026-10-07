@@ -5,8 +5,9 @@ namespace Drupal\webform;
 use Drupal\Core\Entity\BundleEntityFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
-use Drupal\webform\Entity\Webform;
 use Drupal\webform\Form\WebformDialogFormTrait;
+use Drupal\webform\Utility\WebformElementHelper;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a webform add form.
@@ -16,10 +17,49 @@ class WebformEntityAddForm extends BundleEntityFormBase {
   use WebformDialogFormTrait;
 
   /**
+   * The state service.
+   *
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected $state;
+
+  /**
+   * The current route match.
+   *
+   * @var \Drupal\Core\Routing\RouteMatchInterface
+   */
+  protected $routeMatch;
+
+  /**
+   * The module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
+   * The language manager.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected $languageManager;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    $instance = parent::create($container);
+    $instance->state = $container->get('state');
+    $instance->routeMatch = $container->get('current_route_match');
+    $instance->languageManager = $container->get('language_manager');
+    return $instance;
+  }
+
+  /**
    * {@inheritdoc}
    */
   protected function prepareEntity() {
-    if ($this->operation == 'duplicate') {
+    if ($this->operation === 'duplicate') {
       $this->setEntity($this->getEntity()->createDuplicate());
     }
     parent::prepareEntity();
@@ -33,7 +73,7 @@ class WebformEntityAddForm extends BundleEntityFormBase {
     $webform = $this->getEntity();
 
     // Customize title for duplicate webform.
-    if ($this->operation == 'duplicate') {
+    if ($this->operation === 'duplicate') {
       // Display custom title.
       $form['#title'] = $this->t("Duplicate '@label' form", ['@label' => $webform->label()]);
     }
@@ -57,6 +97,7 @@ class WebformEntityAddForm extends BundleEntityFormBase {
         'exists' => '\Drupal\webform\Entity\Webform::load',
         'source' => ['title'],
         'label' => '<br/>' . $this->t('Machine name'),
+
       ],
       '#maxlength' => 32,
       '#field_suffix' => ' (' . $this->t('Maximum @max characters', ['@max' => 32]) . ')',
@@ -81,13 +122,15 @@ class WebformEntityAddForm extends BundleEntityFormBase {
     ];
     /** @var \Drupal\webform\WebformEntityStorageInterface $webform_storage */
     $webform_storage = $this->entityTypeManager->getStorage('webform');
-    $form['category'] = [
+    $form['categories'] = [
       '#type' => 'webform_select_other',
-      '#title' => $this->t('Category'),
-      '#options' => $webform_storage->getCategories(),
-      '#empty_option' => $this->t('- None -'),
-      '#default_value' => $webform->get('category'),
+      '#title' => $this->t('Categories'),
+      '#options' => $webform_storage->getCategories(NULL, TRUE),
+      '#multiple' => TRUE,
+      '#select2' => TRUE,
+      '#default_value' => $webform->get('categories'),
     ];
+    WebformElementHelper::process($form['categories']);
     $form['status'] = [
       '#type' => 'radios',
       '#title' => $this->t('Status'),
@@ -98,6 +141,20 @@ class WebformEntityAddForm extends BundleEntityFormBase {
       ],
       '#options_display' => 'side_by_side',
     ];
+
+    if ($this->moduleHandler->moduleExists('config_translation')) {
+      $langcode_options = [];
+      foreach ($this->languageManager->getLanguages() as $language) {
+        $langcode_options[$language->getId()] = $language->getName();
+      }
+      $form['langcode'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Language'),
+        '#options' => $langcode_options,
+        '#default_value' => $this->languageManager->getCurrentLanguage()->getId(),
+        '#access' => (count($langcode_options) > 1),
+      ];
+    }
 
     $form = $this->protectBundleIdElement($form);
 
@@ -111,33 +168,41 @@ class WebformEntityAddForm extends BundleEntityFormBase {
     parent::submitForm($form, $form_state);
 
     if ($this->operation === 'duplicate') {
-      $original_id = \Drupal::routeMatch()->getRawParameter('webform');
+      $original_id = $this->routeMatch->getRawParameter('webform');
       $duplicate_id = $this->getEntity()->id();
 
-      // Poormans duplication of translated webform configuration.
-      // This completely bypasses the config translation system and just
-      // duplicates any translated webform config stored in the database.
-      $result = \Drupal::database()->select('config', 'c')
-        ->fields('c', ['collection', 'name', 'data'])
-        ->condition('c.name', 'webform.webform.' . $original_id )
-        ->condition('c.collection', 'language.%', 'LIKE')
-        ->execute();
-      while ($record = $result->fetchAssoc()) {
-        $record['name'] = 'webform.webform.' . $duplicate_id;
-        \Drupal::database()->insert('config')
-          ->fields(['collection', 'name', 'data'])
-          ->values($record)
-          ->execute();
+      // Copy translations.
+      if ($this->moduleHandler->moduleExists('config_translation')) {
+        $original_name = 'webform.webform.' . $original_id;
+        $duplicate_name = 'webform.webform.' . $duplicate_id;
+        $current_langcode = $this->languageManager->getConfigOverrideLanguage()->getId();
+        $languages = $this->languageManager->getLanguages();
+        foreach ($languages as $language) {
+          $langcode = $language->getId();
+          if ($langcode !== $current_langcode) {
+            $original_translation = $this->languageManager->getLanguageConfigOverride($langcode, $original_name)->get();
+            if ($original_translation) {
+              $duplicate_translation = $this->languageManager->getLanguageConfigOverride($langcode, $duplicate_name);
+              $duplicate_translation->setData($original_translation);
+              $duplicate_translation->save();
+            }
+          }
+        }
       }
 
       // Copy webform export and results from state.
-      $state = \Drupal::state()->get("webform.webform.$original_id");
+      $state = $this->state->get("webform.webform.$original_id");
       // Remove node (source entity) keys.
       unset($state['results.export.node'], $state['results.custom.node']);
       if ($state) {
-        \Drupal::state()->set("webform.webform.$duplicate_id", $state);
+        $this->state->set("webform.webform.$duplicate_id", $state);
       }
     }
+
+    // Reset webform categories cache.
+    /** @var \Drupal\webform\WebformEntityStorageInterface $webform_storage */
+    $webform_storage = $this->entityTypeManager->getStorage('webform');
+    $webform_storage->resetCategoriesCache();
 
     $form_state->setRedirectUrl(Url::fromRoute('entity.webform.edit_form', ['webform' => $this->getEntity()->id()]));
   }

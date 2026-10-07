@@ -157,6 +157,8 @@ abstract class ExtensionList {
    * We don't reset statically added filenames, as it is a static cache which
    * logically can't change. This is done for performance reasons of the
    * installer.
+   *
+   * @return $this
    */
   public function reset() {
     $this->extensions = NULL;
@@ -310,7 +312,7 @@ abstract class ExtensionList {
     $extensions = $this->doScanExtensions();
 
     // Read info files for each extension.
-    foreach ($extensions as $extension_name => $extension) {
+    foreach ($extensions as $extension) {
       $extension->info = $this->createExtensionInfo($extension);
 
       // Invoke hook_system_info_alter() to give installed modules a chance to
@@ -559,6 +561,39 @@ abstract class ExtensionList {
     $info += $this->defaults;
 
     return $info;
+  }
+
+  /**
+   * Tests the compatibility of an extension.
+   *
+   * @param string $name
+   *   The extension name to check.
+   *
+   * @return bool
+   *   TRUE if the extension is incompatible and FALSE if not.
+   *
+   * @throws \Drupal\Core\Extension\Exception\UnknownExtensionException
+   *   If there is no extension with the supplied name.
+   */
+  public function checkIncompatibility($name) {
+    $extension = $this->get($name);
+    return $extension->info['core_incompatible'] || (isset($extension->info['php']) && version_compare(phpversion(), $extension->info['php']) < 0);
+  }
+
+  /**
+   * Array sorting callback; sorts extensions by their name.
+   *
+   * @param \Drupal\Core\Extension\Extension $a
+   *   The first extension to compare.
+   * @param \Drupal\Core\Extension\Extension $b
+   *   The second extension to compare.
+   *
+   * @return int
+   *   Less than 0 if $a is less than $b, more than 0 if $a is greater than $b,
+   *   and 0 if they are equal.
+   */
+  public static function sortByName(Extension $a, Extension $b): int {
+    return strcasecmp($a->info['name'], $b->info['name']);
   }
 
 }

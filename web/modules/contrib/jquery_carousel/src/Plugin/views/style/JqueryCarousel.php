@@ -44,15 +44,6 @@ class JqueryCarousel extends StylePluginBase {
   /**
    * {@inheritdoc}
    */
-  protected function defineOptions() {
-    $options = parent::defineOptions();
-    $options['selector'] = array('default' => 'rs-carousel');
-    return $options;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     parent::buildOptionsForm($form, $form_state);
     $carousel_config_form = jquery_carousel_config_form();
@@ -68,11 +59,20 @@ class JqueryCarousel extends StylePluginBase {
    * {@inheritdoc}
    */
   public function validateOptionsForm(&$form, FormStateInterface $form_state) {
-    $selector = $form_state->getValue(array('style_options', 'selector'));
+    $selector = $form_state->getValue(['style_options', 'selector']);
     $error = _jquery_carousel_config_validate($selector);
     if ($error) {
       $form_state->setErrorByName('selector', t("Selector should not contain any special characters or spaces. Only special character allowed is '-'"));
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function defineOptions() {
+    $options = parent::defineOptions();
+    $options['selector'] = ['default' => 'rs-carousel'];
+    return $options;
   }
 
 }

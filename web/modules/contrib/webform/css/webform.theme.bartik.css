@@ -40,7 +40,7 @@ table {
   margin: 0;
 }
 
-.webform-multiple-table td.webform-multiple-table--operations,
+.webform-multiple-table th.webform-multiple-table--operations,
 .webform-multiple-table td.webform-multiple-table--operations {
   min-width: 65px;
 }
@@ -49,15 +49,15 @@ table {
  * Tweak details toggle state.
  */
 .webform-details-toggle-state {
-  color: #0071b3;
   text-decoration: none;
+  color: #0071b3;
   border-bottom: 1px dotted;
 }
 
 .webform-details-toggle-state:hover,
 .webform-details-toggle-statelink:focus {
-  color: #018fe2;
   text-decoration: none;
+  color: #018fe2;
   border-bottom-style: solid;
 }
 

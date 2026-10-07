@@ -10,6 +10,8 @@ use Drupal\views\ViewExecutable;
 use Drupal\views_fieldsets\RowFieldset;
 
 /**
+ * {@inheritdoc}
+ *
  * @ingroup views_field_handlers.
  *
  * @ViewsField("fieldset").
@@ -19,27 +21,28 @@ class Fieldset extends FieldPluginBase {
   /**
    * {@inheritdoc}
    */
-  static public function getUIFieldParents(array $fields, $field_name) {
+  public static function getUiFieldParents(array $fields, $field_name) {
     $parents = [];
     $current_field = $field_name;
     while ($parent = self::getUIFieldParent($fields, $current_field)) {
       $parents[] = $parent;
       $current_field = $parent;
     }
+
     return $parents;
   }
 
   /**
    * {@inheritdoc}
    */
-  static public function getUIFieldParent(array $fields, $field_name) {
+  public static function getUiFieldParent(array $fields, $field_name) {
     return $fields[$field_name];
   }
 
   /**
    * {@inheritdoc}
    */
-  static public function getFieldParents(ViewExecutable $view, $field_name) {
+  public static function getFieldParents(ViewExecutable $view, $field_name) {
     $parents = [];
     $current_field = $field_name;
     while ($parent = self::getFieldParent($view, $current_field)) {
@@ -52,7 +55,7 @@ class Fieldset extends FieldPluginBase {
   /**
    * {@inheritdoc}
    */
-  static public function getFieldParent(ViewExecutable $view, $field_name) {
+  public static function getFieldParent(ViewExecutable $view, $field_name) {
     $fieldsets = self::getAllFieldsets($view);
     foreach ($fieldsets as $fieldset_name => $fieldset) {
       if (in_array($field_name, $fieldset->getChildren())) {
@@ -65,7 +68,7 @@ class Fieldset extends FieldPluginBase {
   /**
    * {@inheritdoc}
    */
-  static public function getWrapperTypes() {
+  public static function getWrapperTypes() {
     $types = &drupal_static(__METHOD__);
     if (!$types) {
       // @todo Get from hook_theme() definitions?
@@ -74,6 +77,8 @@ class Fieldset extends FieldPluginBase {
         'fieldset' => 'fieldset',
         'div' => 'div',
       ];
+
+      \Drupal::moduleHandler()->invokeAll('views_fieldsets_wrapper_types_alter', [&$types]);
     }
     return $types;
   }
@@ -81,7 +86,7 @@ class Fieldset extends FieldPluginBase {
   /**
    * {@inheritdoc}
    */
-  static public function isFieldsetView(ViewExecutable $view) {
+  public static function isFieldsetView(ViewExecutable $view) {
     foreach ($view->field as $field) {
       if ($field instanceof self) {
         return TRUE;
@@ -93,7 +98,7 @@ class Fieldset extends FieldPluginBase {
   /**
    * {@inheritdoc}
    */
-  static public function getAllFieldsets(ViewExecutable $view) {
+  public static function getAllFieldsets(ViewExecutable $view) {
     return array_filter($view->field, function ($field) {
       return $field instanceof self;
     });
@@ -102,7 +107,7 @@ class Fieldset extends FieldPluginBase {
   /**
    * {@inheritdoc}
    */
-  static public function replaceFieldsetHandlers(ViewExecutable $view, array &$fields, ResultRow $row) {
+  public static function replaceFieldsetHandlers(ViewExecutable $view, array &$fields, ResultRow $row) {
     $fieldsets = self::getAllFieldsets($view);
     // Replace Fieldsets.
     foreach ($fields as $name => $field) {
@@ -150,9 +155,8 @@ class Fieldset extends FieldPluginBase {
    * {@inheritdoc}
    */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
-    $fake_form = [];
-    parent::buildOptionsForm($fake_form, $form_state);
-    $form['admin_label'] = $fake_form['admin_label'];
+    parent::buildOptionsForm($form, $form_state);
+
     $form['fields'] = [
       '#type' => 'value',
       '#value' => $this->options['fields'],
@@ -175,7 +179,7 @@ class Fieldset extends FieldPluginBase {
       '#type' => 'textfield',
       '#title' => $this->t('Wrapper classes'),
       '#default_value' => $this->options['classes'],
-      '#description' => $help_token . ' ' . $this->t('Separate classes with DOUBLE SPACES. Single spaces and much else will be converted to valid class name.'),
+      '#description' => $help_token . ' ' . $this->t('Separate classes with a comma (,).'),
     ];
     $form['collapsible'] = [
       '#type' => 'checkbox',
@@ -187,7 +191,9 @@ class Fieldset extends FieldPluginBase {
       '#title' => $this->t('Collapsed'),
       '#default_value' => $this->options['collapsed'],
     ];
-    // Available tokens list. Not as pretty as FieldPluginBase, because it doesn't have a reusable method.
+    /* Available tokens list. Not as pretty as FieldPluginBase,
+     * because it doesn't have a reusable method.
+     */
     $form['tokens'] = [
       '#theme' => 'item_list',
       '#title' => $this->t('Replacement patterns'),
@@ -201,7 +207,10 @@ class Fieldset extends FieldPluginBase {
    * {@inheritdoc}
    */
   public function render(ResultRow $values) {
-    // This will be overridden in RowFieldset::render(), which is called by magic through $field->content.
+    /*
+     * This will be overridden in RowFieldset::render(),
+     * which is called by magic through $field->content.
+     */
     return '[' . implode('|', $this->getChildren()) . ']';
   }
 
@@ -223,6 +232,9 @@ class Fieldset extends FieldPluginBase {
    * Override default unneeded method to avoid PHP notices.
    */
   public function submitOptionsForm(&$form, FormStateInterface $form_state) {
+    parent::submitOptionsForm($form, $form_state);
+    $form_state->setValue('collapsible', (bool) $form_state->getValue('collapsible'));
+    $form_state->setValue('collapsed', (bool) $form_state->getValue('collapsed'));
   }
 
 }

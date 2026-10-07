@@ -3,7 +3,7 @@
  * JavaScript behaviors for unsaved webforms.
  */
 
-(function ($, Drupal) {
+(function ($, Drupal, once) {
 
   'use strict';
 
@@ -23,15 +23,23 @@
       // @see Drupal.AjaxCommands.prototype.webformRefresh
       unsaved = false;
     },
+    get: function () {
+      // Get the current unsaved flag state.
+      return unsaved;
+    },
+    set: function (value) {
+      // Set the current unsaved flag state.
+      unsaved = value;
+    },
     attach: function (context) {
       // Look for the 'data-webform-unsaved' attribute which indicates that
       // a multi-step webform has unsaved data.
       // @see \Drupal\webform\WebformSubmissionForm::buildForm
-      if ($('.js-webform-unsaved[data-webform-unsaved]').once('data-webform-unsaved').length) {
+      if ($(once('data-webform-unsaved', '.js-webform-unsaved[data-webform-unsaved]')).length) {
         unsaved = true;
       }
       else {
-        $('.js-webform-unsaved :input:not(:button, :submit, :reset)', context).once('webform-unsaved').on('change keypress', function (event, param1) {
+        $(once('webform-unsaved', $('.js-webform-unsaved :input:not(:button, :submit, :reset, [type="hidden"])'))).on('change keypress', function (event, param1) {
           // Ignore events triggered when #states API is changed,
           // which passes 'webform.states' as param1.
           // @see webform.states.js ::triggerEventHandlers().
@@ -41,17 +49,18 @@
         });
       }
 
-      $('.js-webform-unsaved button, .js-webform-unsaved input[type="submit"]', context).once('webform-unsaved').on('click', function (event) {
-        // For reset button we must confirm unsaved changes before the
-        // before unload event handler.
-        if ($(this).hasClass('webform-button--reset') && unsaved) {
-          if (!window.confirm(Drupal.t('Changes you made may not be saved.') + '\n\n' + Drupal.t('Press OK to leave this page or Cancel to stay.'))) {
-            return false;
+      $(once('webform-unsaved', $('.js-webform-unsaved button, .js-webform-unsaved input[type="submit"]', context))).not('[data-webform-unsaved-ignore]')
+        .on('click', function (event) {
+          // For reset button we must confirm unsaved changes before the
+          // before unload event handler.
+          if ($(this).hasClass('webform-button--reset') && unsaved) {
+            if (!window.confirm(Drupal.t('Changes you made may not be saved.') + '\n\n' + Drupal.t('Press OK to leave this page or Cancel to stay.'))) {
+              return false;
+            }
           }
-        }
 
-        unsaved = false;
-      });
+          unsaved = false;
+        });
 
       // Add submit handler to form.beforeSend.
       // Update Drupal.Ajax.prototype.beforeSend only once.
@@ -94,21 +103,33 @@
    * Date:    19th May 2014
    */
   $(function () {
-    if (!navigator.userAgent.toLowerCase().match(/iphone|ipad|ipod|opera/)) {
+    // @see https://stackoverflow.com/questions/58019463/how-to-detect-device-name-in-safari-on-ios-13-while-it-doesnt-show-the-correct
+    var isIOSorOpera = navigator.userAgent.toLowerCase().match(/iphone|ipad|ipod|opera/)
+      || navigator.platform.toLowerCase().match(/iphone|ipad|ipod/)
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (!isIOSorOpera) {
       return;
     }
-    $('a').bind('click', function (evt) {
-      var href = $(evt.target).closest('a').attr('href');
+
+    $('a:not(.use-ajax)').bind('click', function (evt) {
+      var a = $(evt.target).closest('a');
+      var href = a.attr('href');
       if (typeof href !== 'undefined' && !(href.match(/^#/) || href.trim() === '')) {
         if ($(window).triggerHandler('beforeunload')) {
           if (!window.confirm(Drupal.t('Changes you made may not be saved.') + '\n\n' + Drupal.t('Press OK to leave this page or Cancel to stay.'))) {
             return false;
           }
         }
-        window.location.href = href;
+        var target = a.attr('target');
+        if (target) {
+          window.open(href, target);
+        }
+        else {
+          window.location.href = href;
+        }
         return false;
       }
     });
   });
 
-})(jQuery, Drupal);
+})(jQuery, Drupal, once);

@@ -5,10 +5,10 @@ namespace Drupal\webform\Element;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Form\OptGroup;
-use Drupal\Core\Serialization\Yaml;
-use Drupal\Core\Render\Element\FormElement;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Form\OptGroup;
+use Drupal\Core\Render\Element\FormElement;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\webform\Utility\WebformAccessibilityHelper;
 use Drupal\webform\Utility\WebformArrayHelper;
 use Drupal\webform\Utility\WebformYaml;
@@ -240,7 +240,7 @@ class WebformElementStates extends FormElement {
       if ($triggers) {
         $element['disabled_message'] = [
           '#type' => 'webform_message',
-          '#message_message' => t('<a href="https://www.w3schools.com/tags/att_input_disabled.asp">Disabled</a> elements do not submit data back to the server and the element\'s server-side default or current value will be preserved and saved to the database.'),
+          '#message_message' => t('<a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-disabled">Disabled</a> elements do not submit data back to the server and the element\'s server-side default or current value will be preserved and saved to the database.'),
           '#message_type' => 'warning',
           '#states' => ['visible' => $triggers],
         ];
@@ -260,7 +260,7 @@ class WebformElementStates extends FormElement {
         if (!isset($sources[$sources_key])) {
           foreach ($values as $key => $value) {
             $sources[$sources_key][] = [
-              'label' => (string) $value . ($value != $key ? ' (' . $key . ')' : ''),
+              'label' => (string) $value . ($value !== $key ? ' (' . $key . ')' : ''),
               'value' => (string) $key,
             ];
           }
@@ -468,6 +468,7 @@ class WebformElementStates extends FormElement {
       '#type' => 'textfield',
       '#title' => t('Value'),
       '#title_display' => 'invisible',
+      '#maxlength' => NULL,
       '#size' => 25,
       '#default_value' => $condition['value'],
       '#placeholder' => t('Enter value…'),
@@ -483,7 +484,15 @@ class WebformElementStates extends FormElement {
           'or',
           [$trigger_selector => ['value' => 'greater']],
           'or',
+          [$trigger_selector => ['value' => 'greater_equal']],
+          'or',
           [$trigger_selector => ['value' => 'less']],
+          'or',
+          [$trigger_selector => ['value' => 'less_equal']],
+          'or',
+          [$trigger_selector => ['value' => 'between']],
+          'or',
+          [$trigger_selector => ['value' => '!between']],
         ],
       ],
       '#wrapper_attributes' => ['class' => ['webform-states-table--value']],
@@ -492,12 +501,23 @@ class WebformElementStates extends FormElement {
     ];
     $row['condition']['pattern'] = [
       '#type' => 'container',
-      'description' => ['#markup' => t('Enter a <a href=":href">regular expression</a>', [':href' => 'http://www.w3schools.com/js/js_regexp.asp'])],
+      'description' => ['#markup' => t('Enter a <a href=":href">regular expression</a>', [':href' => 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions'])],
       '#states' => [
         'visible' => [
           [$trigger_selector => ['value' => 'pattern']],
           'or',
           [$trigger_selector => ['value' => '!pattern']],
+        ],
+      ],
+    ];
+    $row['condition']['pattern'] = [
+      '#type' => 'container',
+      'description' => ['#markup' => t('Enter a number range (1:100)')],
+      '#states' => [
+        'visible' => [
+          [$trigger_selector => ['value' => 'between']],
+          'or',
+          [$trigger_selector => ['value' => '!between']],
         ],
       ],
     ];
@@ -526,7 +546,7 @@ class WebformElementStates extends FormElement {
     $operations['add'] = [
       '#type' => 'image_button',
       '#title' => t('Add'),
-      '#src' => drupal_get_path('module', 'webform') . '/images/icons/plus.svg',
+      '#src' => \Drupal::service('extension.list.module')->getPath('webform') . '/images/icons/plus.svg',
       '#limit_validation_errors' => [],
       '#submit' => [[get_called_class(), 'addConditionSubmit']],
       '#ajax' => $ajax_settings,
@@ -536,7 +556,7 @@ class WebformElementStates extends FormElement {
     $operations['remove'] = [
       '#type' => 'image_button',
       '#title' => t('Remove'),
-      '#src' => drupal_get_path('module', 'webform') . '/images/icons/minus.svg',
+      '#src' => \Drupal::service('extension.list.module')->getPath('webform') . '/images/icons/minus.svg',
       '#limit_validation_errors' => [],
       '#submit' => [[get_called_class(), 'removeRowSubmit']],
       '#ajax' => $ajax_settings,
@@ -546,9 +566,9 @@ class WebformElementStates extends FormElement {
     return $operations;
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Callbacks.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * Form submission handler for adding another state.
@@ -602,11 +622,11 @@ class WebformElementStates extends FormElement {
 
     // The $row_index is not sequential so we need to rebuild the value instead
     // of just using an array_slice().
-    $row_index = $button['#row_index'];
+    $row_index = (int) $button['#row_index'];
     $values = [];
     foreach ($element['states']['#value'] as $index => $value) {
       $values[] = $value;
-      if ($index == $row_index) {
+      if ($index === $row_index) {
         $values[] = ['selector' => '', 'trigger' => '', 'value' => ''];
       }
     }
@@ -721,9 +741,9 @@ class WebformElementStates extends FormElement {
     $form_state->setValueForElement($element, $states);
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Helper functions.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * Get unique key used to store the number of options for an element.
@@ -740,9 +760,9 @@ class WebformElementStates extends FormElement {
     return 'webform_states__' . $element['#name'] . '__' . $name;
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Convert functions.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * Convert Form API #states to states array.
@@ -847,7 +867,7 @@ class WebformElementStates extends FormElement {
         foreach ($state_array['conditions'] as $index => $condition) {
           extract(static::getFormApiStatesCondition($condition));
           if ($selector && $trigger) {
-            if ($operator == 'or' || $operator == 'xor') {
+            if ($operator === 'or' || $operator === 'xor') {
               if ($index !== 0) {
                 $states[$state][] = $operator;
               }
@@ -920,7 +940,7 @@ class WebformElementStates extends FormElement {
       if (in_array($trigger, ['value', '!value'])) {
         $value = $condition['value'];
       }
-      elseif (in_array($trigger, ['pattern', '!pattern', 'less', 'greater'])) {
+      elseif (in_array($trigger, ['pattern', '!pattern', 'less', 'less_equal', 'greater', 'greater_equal', 'between', '!between'])) {
         $value = [$trigger => $condition['value']];
         $trigger = 'value';
       }
@@ -956,7 +976,7 @@ class WebformElementStates extends FormElement {
         $index++;
         $states[$index] = [
           'state' => $value['state'],
-          'operator' => (isset($value['operator'])) ? $value['operator'] : 'and',
+          'operator' => $value['operator'] ?? 'and',
           'conditions' => [],
         ];
       }
@@ -1015,7 +1035,7 @@ class WebformElementStates extends FormElement {
           }
 
           // Make sure the same operator is being used between the conditions.
-          if ($operator && $operator != $condition) {
+          if ($operator && $operator !== $condition) {
             return t('Conditional logic (Form API #states) has multiple operators.', ['%operator' => mb_strtoupper($condition)]);
           }
 
@@ -1058,8 +1078,8 @@ class WebformElementStates extends FormElement {
         'optional' => t('Optional'),
       ],
       $value_optgroup => [
-        'checked' => t('Checked'),
-        'unchecked' => t('Unchecked'),
+        'checked' => t('Checked', [], ['context' => 'Add check mark']),
+        'unchecked' => t('Unchecked', [], ['context' => 'Remove check mark']),
       ],
     ];
   }
@@ -1074,14 +1094,18 @@ class WebformElementStates extends FormElement {
     return [
       'empty' => t('Empty'),
       'filled' => t('Filled'),
-      'checked' => t('Checked'),
-      'unchecked' => t('Unchecked'),
+      'checked' => t('Checked', [], ['context' => 'Add check mark']),
+      'unchecked' => t('Unchecked', [], ['context' => 'Remove check mark']),
       'value' => t('Value is'),
       '!value' => t('Value is not'),
       'pattern' => t('Pattern'),
       '!pattern' => t('Not Pattern'),
       'less' => t('Less than'),
+      'less_equal' => t('Less than/Equal to'),
       'greater' => t('Greater than'),
+      'greater_equal' => t('Greater than/Equal to'),
+      'between' => t('Between'),
+      '!between' => t('Not between'),
     ];
   }
 

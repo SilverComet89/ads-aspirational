@@ -4,15 +4,52 @@ namespace Drupal\linked_field\Form;
 
 use Drupal\Component\Serialization\Exception\InvalidDataTypeException;
 use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class ConfigForm.
+ * Class Config Form.
  *
  * @package Drupal\linked_field\Form
  */
 class ConfigForm extends ConfigFormBase {
+
+  /**
+   * Module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
+   * Constructs a ConfigForm object.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The factory for configuration objects.
+   * @param \Drupal\Core\Config\TypedConfigManagerInterface $typed_config_manager
+   *   The typed configuration manager.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *   The module handler.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, TypedConfigManagerInterface $typed_config_manager, ModuleHandlerInterface $module_handler) {
+    parent::__construct($config_factory, $typed_config_manager);
+    $this->moduleHandler = $module_handler;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('config.typed'),
+      $container->get('module_handler')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -39,17 +76,16 @@ class ConfigForm extends ConfigFormBase {
     $conf = ['attributes' => $attributes];
     $config_text = Yaml::encode($conf);
 
-    if (!\Drupal::moduleHandler()->moduleExists('yaml_editor')) {
+    if (!$this->moduleHandler->moduleExists('yaml_editor')) {
       $message = $this->t('It is recommended to install the <a href="@yaml-editor">YAML Editor</a> module for easier editing.', [
         '@yaml-editor' => 'https://www.drupal.org/project/yaml_editor',
       ]);
 
-      drupal_set_message($message, 'warning');
+      $this->messenger()->addWarning($message);
     }
 
-    // Each attribute needs 3 rows + "attributes:" row + 3 extra lines
-    // for adding a new attribute.
-    $rows = (count($config->get('attributes')) * 3) + 4;
+    // Simplified row calculation: 3 rows per attribute + 4 extra lines.
+    $rows = (count($attributes) * 3) + 4;
 
     $form['config'] = [
       '#type' => 'textarea',
@@ -61,7 +97,7 @@ class ConfigForm extends ConfigFormBase {
     ];
 
     // Use module's YAML config file for example structure.
-    $module_path = \Drupal::moduleHandler()->getModule('linked_field')->getPath();
+    $module_path = $this->moduleHandler->getModule('linked_field')->getPath();
     $yml_text = file_get_contents($module_path . '/config/install/linked_field.config.yml');
 
     $form['example'] = [
@@ -91,13 +127,35 @@ class ConfigForm extends ConfigFormBase {
     $config_text = $form_state->getValue('config') ?: 'attributes:';
 
     try {
-      $form_state->set('config', Yaml::decode($config_text));
+      $parsed_config = Yaml::decode($config_text);
+      $this->validateParsedConfig($parsed_config, $form_state);
+
+      $form_state->set('config', $parsed_config);
     }
     catch (InvalidDataTypeException $e) {
       $form_state->setErrorByName('config', $e->getMessage());
     }
 
     parent::validateForm($form, $form_state);
+  }
+
+  /**
+   * Validate that config parsed correctly.
+   */
+  protected function validateParsedConfig($parsed_config, FormStateInterface $form_state): void {
+    if (!is_array($parsed_config)) {
+      $form_state->setErrorByName('config', $this->t('The configuration must be a valid YAML array.'));
+      return;
+    }
+
+    if (!array_key_exists('attributes', $parsed_config)) {
+      $form_state->setErrorByName('config', $this->t('The configuration must contain an "attributes" key.'));
+      return;
+    }
+
+    if (!is_array($parsed_config['attributes'])) {
+      $form_state->setErrorByName('config', $this->t('The attributes must be a valid YAML array.'));
+    }
   }
 
   /**

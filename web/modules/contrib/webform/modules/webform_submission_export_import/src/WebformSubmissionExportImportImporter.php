@@ -6,10 +6,12 @@ use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\webform\EntityStorage\WebformEntityStorageTrait;
 use Drupal\webform\Plugin\WebformElement\WebformCompositeBase;
 use Drupal\webform\Plugin\WebformElement\WebformLikert;
 use Drupal\webform\Plugin\WebformElement\WebformManagedFileBase;
@@ -22,11 +24,12 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Yaml\Dumper;
 
 /**
- * Webform submission export import manager.
+ * Webform submission export importer.
  */
 class WebformSubmissionExportImportImporter implements WebformSubmissionExportImportImporterInterface {
 
   use StringTranslationTrait;
+  use WebformEntityStorageTrait;
 
   /**
    * The configuration object factory.
@@ -50,14 +53,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
   protected $entityTypeManager;
 
   /**
-   * Webform submission storage.
-   *
-   * @var \Drupal\webform\WebformSubmissionStorageInterface
-   */
-  protected $entityStorage;
-
-  /**
-   * Webform element manager.
+   * The webform element manager.
    *
    * @var \Drupal\webform\Plugin\WebformElementManagerInterface
    */
@@ -113,6 +109,20 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
   protected $fieldDefinitions;
 
   /**
+   * The file system service.
+   *
+   * @var \Drupal\Core\File\FileSystemInterface
+   */
+  protected $fileSystem;
+
+  /**
+   * Webform element types.
+   *
+   * @var array
+   */
+  protected $elementTypes;
+
+  /**
    * Constructs a WebformSubmissionExportImport object.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
@@ -123,13 +133,15 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
    *   The entity type manager.
    * @param \Drupal\webform\Plugin\WebformElementManagerInterface $element_manager
    *   The webform element manager.
+   * @param \Drupal\Core\File\FileSystemInterface $file_system
+   *   The file system service.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, LoggerChannelFactoryInterface $logger_factory, EntityTypeManagerInterface $entity_type_manager, WebformElementManagerInterface $element_manager) {
+  public function __construct(ConfigFactoryInterface $config_factory, LoggerChannelFactoryInterface $logger_factory, EntityTypeManagerInterface $entity_type_manager, WebformElementManagerInterface $element_manager, FileSystemInterface $file_system) {
     $this->configFactory = $config_factory;
     $this->loggerFactory = $logger_factory;
     $this->entityTypeManager = $entity_type_manager;
-    $this->entityStorage = $entity_type_manager->getStorage('webform_submission');
     $this->elementManager = $element_manager;
+    $this->fileSystem = $file_system;
   }
 
   /**
@@ -180,7 +192,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
    * {@inheritdoc}
    */
   public function deleteImportUri() {
-    $files = $this->entityTypeManager->getStorage('file')
+    $files = $this->getEntityStorage('file')
       ->loadByProperties(['uri' => $this->getImportUri()]);
     if ($files) {
       $file = reset($files);
@@ -208,7 +220,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
    * {@inheritdoc}
    */
   public function getImportOption($name) {
-    return $this->importOptions[$name];
+    return $this->importOptions[$name] ?? NULL;
   }
 
   /**
@@ -222,9 +234,9 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
     ];
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Webform field definitions and elements.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * {@inheritdoc}
@@ -234,7 +246,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
       return $this->fieldDefinitions;
     }
 
-    $this->fieldDefinitions = $this->entityStorage->getFieldDefinitions();
+    $this->fieldDefinitions = $this->getSubmissionStorage()->getFieldDefinitions();
     return $this->fieldDefinitions;
   }
 
@@ -251,9 +263,9 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
     return $this->elements;
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Export.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * {@inheritdoc}
@@ -283,7 +295,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
           break;
 
         default:
-          $value = (isset($submission_data[$field_name])) ? $submission_data[$field_name] : '';
+          $value = $submission_data[$field_name] ?? '';
           break;
       }
       $record[] = $this->exportValue($value);
@@ -300,7 +312,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
         $files = $element_plugin->getTargetEntities($element, $webform_submission) ?: [];
         $values = [];
         foreach ($files as $file) {
-          $values[] = file_create_url($file->getFileUri());
+          $values[] = $file->createFileUrl(FALSE);
         }
         $value = implode(',', $values);
         $record[] = $this->exportValue($value);
@@ -320,7 +332,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
         $value = $element_plugin->getValue($element, $webform_submission);
         $question_keys = array_keys($element['#questions']);
         foreach ($question_keys as $question_key) {
-          $question_value = (isset($value[$question_key])) ? $value[$question_key] : '';
+          $question_value = $value[$question_key] ?? '';
           $record[] = $this->exportValue($question_value);
         }
       }
@@ -329,7 +341,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
         $value = $element_plugin->getValue($element, $webform_submission);
         $composite_element_keys = array_keys($element_plugin->getCompositeElements());
         foreach ($composite_element_keys as $composite_element_key) {
-          $composite_value = (isset($value[$composite_element_key])) ? $value[$composite_element_key] : '';
+          $composite_value = $value[$composite_element_key] ?? '';
           $record[] = $this->exportValue($composite_value);
         }
       }
@@ -360,9 +372,9 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
     return $record;
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Import.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * {@inheritdoc}
@@ -405,7 +417,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
       // Get CSV values.
       $values = fgetcsv($handle);
       // Complete ignored empty rows.
-      if (empty($values) || $values == ['']) {
+      if (empty($values) || $values === ['']) {
         continue;
       }
       $index++;
@@ -414,8 +426,8 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
       // Track row specific warnings and errors.
       $stats['warnings'][$index] = [];
       $stats['errors'][$index] = [];
-      $row_warnings =& $stats['warnings'][$index];
-      $row_errors =& $stats['errors'][$index];
+      $row_warnings = &$stats['warnings'][$index];
+      $row_errors = &$stats['errors'][$index];
 
       // Make sure expected number of columns and values are equal.
       if (count($column_names) !== count($values)) {
@@ -522,7 +534,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
     $unique_keys = ['uuid', 'token'];
     foreach ($unique_keys as $unique_key) {
       if (!empty($record[$unique_key])) {
-        if ($webform_submissions = $this->entityStorage->loadByProperties([$unique_key => $record[$unique_key]])) {
+        if ($webform_submissions = $this->getSubmissionStorage()->loadByProperties([$unique_key => $record[$unique_key]])) {
           return reset($webform_submissions);
         }
       }
@@ -567,7 +579,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
 
     // Set source entity.
     // Load or convert the source entity id to an internal ID.
-    if ($source_entity) {
+    if ($source_entity && !isset($record['entity_type']) && !isset($record['entity_id'])) {
       $record['entity_type'] = $source_entity->getEntityTypeId();
       $record['entity_id'] = $source_entity->id();
     }
@@ -602,7 +614,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
       }
 
       // Get element and composite key and confirm that the element exists.
-      list($element_key, $composite_key) = explode('__', $name);
+      [$element_key, $composite_key] = explode('__', $name);
       if (!isset($elements[$element_key])) {
         continue;
       }
@@ -625,7 +637,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
         $record[$element_key][$composite_key] = $value;
       }
       elseif ($element_plugin instanceof WebformCompositeBase) {
-        // Get the the composite element element and make sure it exists.
+        // Get the composite element and make sure it exists.
         $composite_elements = $element_plugin->getCompositeElements();
         if (!isset($composite_elements[$composite_key])) {
           continue;
@@ -704,11 +716,11 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
     $element_plugin = $this->elementManager->getElementInstance($element);
 
     // Prepare managed file element with a temp submission.
-    $element_plugin->prepare($element, $this->entityStorage->create(['webform_id' => $webform->id()]));
+    $element_plugin->prepare($element, $this->getSubmissionStorage()->create(['webform_id' => $webform->id()]));
 
     // Get file destination.
-    $file_destination = isset($element['#upload_location']) ? $element['#upload_location'] : NULL;
-    if (isset($file_destination) && !file_prepare_directory($file_destination, FILE_CREATE_DIRECTORY)) {
+    $file_destination = $element['#upload_location'] ?? NULL;
+    if (isset($file_destination) && !$this->fileSystem->prepareDirectory($file_destination, FileSystemInterface::CREATE_DIRECTORY)) {
       $this->loggerFactory->get('file')
         ->notice('The upload directory %directory for the file element %name could not be created or is not accessible. A newly uploaded file could not be saved in this directory as a consequence, and the upload was canceled.', [
           '%directory' => $file_destination,
@@ -725,7 +737,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
     $existing_file_uris = [];
     $existing_files = ($webform_submission) ? $element_plugin->getTargetEntities($element, $webform_submission) ?: [] : [];
     foreach ($existing_files as $existing_file) {
-      $existing_file_uri = file_create_url($existing_file->getFileUri());
+      $existing_file_uri = $existing_file->createFileUrl(FALSE);
       $existing_file_uris[$existing_file_uri] = $existing_file->id();
 
       $existing_file_hash = sha1_file($existing_file->getFileUri());
@@ -755,7 +767,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
 
       // Check URL status code.
       $file_headers = @get_headers($new_file_uri);
-      if (!$file_headers || $file_headers[0] == 'HTTP/1.1 404 Not Found') {
+      if (!$file_headers || $file_headers[0] === 'HTTP/1.1 404 Not Found') {
         $errors[] = $this->t('[@element_key] URL (@url) returns 404 file not found.', $t_args);
         continue;
       }
@@ -784,10 +796,9 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
       fwrite($handle, $temp_file_contents);
       $temp_file_meta_data = stream_get_meta_data($handle);
       $temp_file_path = $temp_file_meta_data['uri'];
-      $temp_file_size = filesize($temp_file_path);
 
       // Mimic Symfony and Drupal's upload file handling.
-      $temp_file_info = new UploadedFile($temp_file_path, basename($new_file_uri), NULL, $temp_file_size);
+      $temp_file_info = new UploadedFile($temp_file_path, basename($new_file_uri));
       $webform_element_key = $element_plugin->getLabel($element);
       $new_file = _webform_submission_export_import_file_save_upload_single($temp_file_info, $webform_element_key, $file_upload_validators, $file_destination);
       if ($new_file) {
@@ -877,7 +888,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
    * Import multiple element.
    *
    * @param array $element
-   *   An element with multiple values..
+   *   An element with multiple values.
    * @param mixed $value
    *   File URI(s) from CSV record.
    * @param \Drupal\webform\WebformSubmissionInterface|null $webform_submission
@@ -938,7 +949,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
       // Create submission.
       unset($record['sid'], $record['serial']);
       $values = $this->importConvertRecordToValues($record);
-      $webform_submission = $this->entityStorage->create($values);
+      $webform_submission = $this->getSubmissionStorage()->create($values);
     }
     $webform_submission->save();
   }
@@ -974,9 +985,9 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
     return $values;
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Summary.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * {@inheritdoc}
@@ -989,8 +1000,8 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
     $total = -1;
     $handle = fopen($this->importUri, 'r');
     while (!feof($handle)) {
-      $line = fgets($handle);
-      if (!empty(trim($line))) {
+      $line = fgetcsv($handle);
+      if (!empty($line) && !is_null(array_pop($line))) {
         $total++;
       }
     }
@@ -1077,9 +1088,9 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
     return $mapping;
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Batch.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * {@inheritdoc}
@@ -1096,9 +1107,9 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
     return ($this->getTotal() > $this->getBatchLimit()) ? TRUE : FALSE;
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Helpers.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * Get an entity's export id or UUID based on the export options.
@@ -1137,7 +1148,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
       return NULL;
     }
 
-    $entity_storage = $this->entityTypeManager->getStorage($entity_type);
+    $entity_storage = $this->getEntityStorage($entity_type);
 
     // Load entity by properties.
     if ($entity_type === 'user') {
@@ -1164,19 +1175,19 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
   }
 
   /**
-   * Export value so that it can be editted in Excel and Google Sheets.
+   * Export value so that it can be edited in Excel and Google Sheets.
    *
    * @param string $value
    *   A value.
    *
    * @return string
-   *   A value that it can be editted in Excel and Googl Sheets.
+   *   A value that it can be edited in Excel and Google Sheets.
    */
   protected function exportValue($value) {
     // Prevent Excel and Google Sheets from convert string beginning with
     // + or - into formulas by adding a space before the string.
     // @see https://stackoverflow.com/questions/4438589/bypass-excel-csv-formula-conversion-on-fields-starting-with-or
-    if (is_string($value) && strpos($value, '+') === 0 || strpos($value, '-') === 0) {
+    if (is_string($value) && in_array(substr($value, 0, 1), ['+', '-'], TRUE)) {
       return ' ' . $value;
     }
     else {

@@ -14,7 +14,7 @@ use Drupal\hal\LinkManager\LinkManagerInterface;
 /**
  * Converts the Drupal entity object structure to a HAL array structure.
  *
- * @deprecated in Drupal 8.5.0, to be removed before Drupal 9.0.0.
+ * @internal
  */
 class FileEntityNormalizer extends ContentEntityNormalizer {
 
@@ -62,22 +62,6 @@ class FileEntityNormalizer extends ContentEntityNormalizer {
   /**
    * {@inheritdoc}
    */
-  public function normalize($entity, $format = NULL, array $context = []) {
-    $data = parent::normalize($entity, $format, $context);
-
-    $this->addCacheableDependency($context, $this->halSettings);
-
-    if ($this->halSettings->get('bc_file_uri_as_url_normalizer')) {
-      // Replace the file url with a full url for the file.
-      $data['uri'][0]['value'] = $this->getEntityUri($entity);
-    }
-
-    return $data;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   protected function getEntityUri(EntityInterface $entity, array $context = []) {
     assert($entity instanceof FileInterface);
     // https://www.drupal.org/project/drupal/issues/2277705 introduced a hack
@@ -88,6 +72,13 @@ class FileEntityNormalizer extends ContentEntityNormalizer {
     // generate the value for the 'uri' field of a file (see ::normalize()), but
     // also for the HAL normalization's '_links' value.
     return $entity->createFileUrl(FALSE);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasCacheableSupportsMethod(): bool {
+    return TRUE;
   }
 
 }

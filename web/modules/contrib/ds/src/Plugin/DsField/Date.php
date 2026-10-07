@@ -2,6 +2,7 @@
 
 namespace Drupal\ds\Plugin\DsField;
 
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -26,11 +27,19 @@ abstract class Date extends DsFieldBase {
   protected $dateFormatter;
 
   /**
+   * The time service.
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
+   */
+  protected $time;
+
+  /**
    * Constructs a Display Suite field plugin.
    */
-  public function __construct($configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, DateFormatterInterface $date_formatter) {
+  public function __construct($configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, DateFormatterInterface $date_formatter, TimeInterface $time) {
     $this->entityTypeManager = $entity_type_manager;
     $this->dateFormatter = $date_formatter;
+    $this->time = $time;
 
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
@@ -44,7 +53,8 @@ abstract class Date extends DsFieldBase {
       $plugin_id,
       $plugin_definition,
       $container->get('entity_type.manager'),
-      $container->get('date.formatter')
+      $container->get('date.formatter'),
+      $container->get('datetime.time')
     );
   }
 
@@ -69,12 +79,12 @@ abstract class Date extends DsFieldBase {
       ->loadMultiple();
 
     $date_formatters = [];
-    foreach ($date_types as $machine_name => $value) {
-      /* @var $value \Drupal\Core\Datetime\DateFormatterInterface */
-      if ($value->isLocked()) {
+    foreach ($date_types as $machine_name => $entity) {
+      /* @var $entity \Drupal\Core\Datetime\DateFormatInterface */
+      if ($entity->isLocked()) {
         continue;
       }
-      $date_formatters['ds_post_date_' . $machine_name] = $this->t($value->id());
+      $date_formatters['ds_post_date_' . $machine_name] = $entity->label() . ' (' . $this->dateFormatter->format($this->time->getRequestTime(), $entity->id()) . ')';
     }
 
     return $date_formatters;

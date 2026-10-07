@@ -9,11 +9,14 @@ use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Config\TypedConfigManager;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Pager\PagerManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
 use Drupal\Core\Plugin\PluginFormInterface;
+use Drupal\Core\Template\Attribute;
 use Drupal\pagerer\Entity\PagererPreset;
 use Drupal\pagerer\Pagerer;
+use Drupal\pagerer\PagererParameters;
 use Drupal\pagerer\Plugin\PagererStyleInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -42,6 +45,13 @@ abstract class PagererStyleBase extends PluginBase implements PagererStyleInterf
    * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
   protected $configFactory;
+
+  /**
+   * The pager manager.
+   *
+   * @var \Drupal\Core\Pager\PagerManagerInterface
+   */
+  protected $pagerManager;
 
   /**
    * The config type plugins manager.
@@ -77,11 +87,14 @@ abstract class PagererStyleBase extends PluginBase implements PagererStyleInterf
    *   The config type plugins manager.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
+   * @param \Drupal\Core\Pager\PagerManagerInterface $pager_manager
+   *   The config factory.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, TypedConfigManager $typed_config_manager, ConfigFactoryInterface $config_factory) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, TypedConfigManager $typed_config_manager, ConfigFactoryInterface $config_factory, PagerManagerInterface $pager_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->typedConfigManager = $typed_config_manager;
     $this->configFactory = $config_factory;
+    $this->pagerManager = $pager_manager;
   }
 
   /**
@@ -93,7 +106,8 @@ abstract class PagererStyleBase extends PluginBase implements PagererStyleInterf
       $plugin_id,
       $plugin_definition,
       $container->get('config.typed'),
-      $container->get('config.factory')
+      $container->get('config.factory'),
+      $container->get('pager.manager')
     );
   }
 
@@ -426,6 +440,7 @@ abstract class PagererStyleBase extends PluginBase implements PagererStyleInterf
       if ($this->getOption('prefix_display')) {
         $items['prefix'] = [
           'text' => $this->getDisplayTag('prefix_label'),
+          'attributes' => new Attribute(),
         ];
       }
       // 3 - Pager.
@@ -435,6 +450,7 @@ abstract class PagererStyleBase extends PluginBase implements PagererStyleInterf
       if ($this->getOption('suffix_display')) {
         $items['suffix'] = [
           'text' => $this->getDisplayTag('suffix_label'),
+          'attributes' => new Attribute(),
         ];
       }
       // 5 - Next + last links.
@@ -457,6 +473,7 @@ abstract class PagererStyleBase extends PluginBase implements PagererStyleInterf
     return [
       [
         'text' => $this->getDisplayTag('pageset_empty'),
+        'attributes' => new Attribute(),
       ],
     ];
   }
@@ -597,9 +614,10 @@ abstract class PagererStyleBase extends PluginBase implements PagererStyleInterf
     //   current page.
     $ret = [
       'text' => $this->getDisplayTag($page_tag_key, $offset),
-      'href' => $this->pager->getHref($this->parameters, $this->pager->getCurrentPage() + $offset, NULL, $set_query),
+      'href' => $this->pagerManager->getHref($this->pager, $this->parameters, $this->pager->getCurrentPage() + $offset, [], $set_query),
       'title' => $this->getDisplayTag($title_tag . '_title', $offset),
       'reader_text' => $this->getDisplayTag($title_tag . '_reader', $offset),
+      'attributes' => new Attribute(),
     ];
     if ($offset == 0) {
       $ret['is_current'] = TRUE;
@@ -646,11 +664,12 @@ abstract class PagererStyleBase extends PluginBase implements PagererStyleInterf
       'text' => $this->getDisplayTag($scope, $offset),
       'title' => $this->getDisplayTag($scope . '_title', $offset),
       'reader_text' => $this->getDisplayTag($scope . '_reader', $offset),
+      'attributes' => new Attribute(),
     ];
 
     // Get the destination URL link if neeeded.
     if ($href) {
-      $ret['href'] = $this->pager->getHref($this->parameters, $this->pager->getCurrentPage() + $offset);
+      $ret['href'] = $this->pagerManager->getHref($this->pager, $this->parameters, $this->pager->getCurrentPage() + $offset);
     }
 
     return $ret;
@@ -670,14 +689,21 @@ abstract class PagererStyleBase extends PluginBase implements PagererStyleInterf
    *   entry.
    */
   protected function prepareJsState(array &$state_settings) {
+    // Determine the page index base number.
+    $settings = $this->configFactory->get('pagerer.settings');
+    $querystring_override = $settings->get('url_querystring.core_override');
+    $index_base = $querystring_override ? $settings->get('url_querystring.index_base') : 0;
+    $querystring_key = $querystring_override ? $settings->get('url_querystring.querystring_key') : 'page';
+    $querystring_value_separator = $querystring_override ? PagererParameters::VALUE_SEPARATOR : ',';
+
     // Prepare query parameters.
     // In the 'page' querystring fragment, the current page is overridden
     // with a text that the js widget will then replace with the content of HTML
     // 'value' attribute.
-    $query = $this->pager->getQueryParameters($this->parameters, 'pagererpage');
+    $query = $this->pagerManager->getPagererUpdatedParameters($this->pager, $this->parameters, 'pagererpage');
 
     // Prepare the query string.
-    $query_string = UrlHelper::buildQuery($query);
+    $querystring = UrlHelper::buildQuery($query);
 
     // Are we displaying pages or items; 'value' HTML attribute will bear
     // the current $current value.
@@ -692,8 +718,11 @@ abstract class PagererStyleBase extends PluginBase implements PagererStyleInterf
 
     // Prepare js widget state.
     $default_settings = [
-      'url'            => $this->pager->getHref([], NULL, NULL, FALSE)->toString(),
-      'queryString'    => $query_string,
+      'url'            => $this->pagerManager->getHref($this->pager, [], NULL, [], FALSE)->toString(),
+      'queryString'    => $querystring,
+      'qsIndexBase'    => $index_base,
+      'qsKey'          => $querystring_key,
+      'qsValueSep'     => $querystring_value_separator,
       'element'        => $this->pager->getElement(),
       'total'          => $this->pager->getTotalPages(),
       'totalItems'     => $this->pager->getTotalItems(),

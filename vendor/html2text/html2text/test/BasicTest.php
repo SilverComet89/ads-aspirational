@@ -2,7 +2,9 @@
 
 namespace Html2Text;
 
-class BasicTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class BasicTest extends TestCase
 {
     public function basicDataProvider() {
         return array(
@@ -78,7 +80,8 @@ EOT
      */
     public function testBasic($html, $expected)
     {
-        $html = new Html2Text($html);
-        $this->assertEquals($expected, $html->getText());
+        $html2Text = new Html2Text($html);
+        $this->assertEquals($expected, $html2Text->getText());
+        $this->assertEquals($html, $html2Text->getHtml());
     }
 }

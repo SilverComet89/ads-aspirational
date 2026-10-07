@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\ctools\Unit;
 
+use Prophecy\PhpUnit\ProphecyTrait;
 use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Component\Uuid\UuidInterface;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
@@ -9,7 +10,6 @@ use Drupal\Core\Display\VariantInterface;
 use Drupal\ctools\Plugin\VariantCollectionTrait;
 use Drupal\ctools\Plugin\VariantPluginCollection;
 use Drupal\Tests\UnitTestCase;
-use Prophecy\Argument;
 
 /**
  * Tests the methods of a variant-aware class.
@@ -20,15 +20,18 @@ use Prophecy\Argument;
  */
 class VariantCollectionTraitTest extends UnitTestCase {
 
+  use ProphecyTrait;
   /**
-   * @var \Drupal\Component\Plugin\PluginManagerInterface|\PHPUnit_Framework_MockObject_MockObject
+   * The variant manager.
+   *
+   * @var \Drupal\Component\Plugin\PluginManagerInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $manager;
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $container = new ContainerBuilder();
     $this->manager = $this->prophesize(PluginManagerInterface::class);
@@ -45,7 +48,7 @@ class VariantCollectionTraitTest extends UnitTestCase {
 
     $variants = $trait_object->getVariants();
     $this->assertInstanceOf(VariantPluginCollection::class, $variants);
-    $this->assertSame(0, count($variants));
+    $this->assertCount(0, $variants);
   }
 
   /**
@@ -65,7 +68,7 @@ class VariantCollectionTraitTest extends UnitTestCase {
 
     $variants = $trait_object->getVariants();
     $this->assertInstanceOf(VariantPluginCollection::class, $variants);
-    $this->assertSame(2, count($variants));
+    $this->assertCount(2, $variants);
     return $variants;
   }
 
@@ -75,7 +78,7 @@ class VariantCollectionTraitTest extends UnitTestCase {
    * @depends testGetVariants
    */
   public function testGetVariantsSort(VariantPluginCollection $variants) {
-    $this->assertSame(['bar' => 'bar', 'foo' => 'foo'], $variants->getInstanceIds());
+    $this->assertEquals(['bar' => 'bar', 'foo' => 'foo'], $variants->getInstanceIds());
   }
 
   /**
@@ -120,7 +123,7 @@ class VariantCollectionTraitTest extends UnitTestCase {
    * @depends testAddVariant
    */
   public function testGetVariant($data) {
-    list($trait_object, $uuid, $plugin) = $data;
+    [$trait_object, $uuid, $plugin] = $data;
     $this->manager->createInstance()->shouldNotBeCalled();
 
     $this->assertSame($plugin, $trait_object->getVariant($uuid));
@@ -133,7 +136,7 @@ class VariantCollectionTraitTest extends UnitTestCase {
    * @depends testGetVariant
    */
   public function testRemoveVariant($data) {
-    list($trait_object, $uuid) = $data;
+    [$trait_object, $uuid] = $data;
 
     $this->assertSame($trait_object, $trait_object->removeVariant($uuid));
     $this->assertFalse($trait_object->getVariants()->has($uuid));
@@ -144,33 +147,41 @@ class VariantCollectionTraitTest extends UnitTestCase {
    * @covers ::getVariant
    *
    * @depends testRemoveVariant
-   *
-   * @expectedException \Drupal\Component\Plugin\Exception\PluginNotFoundException
-   * @expectedExceptionMessage Plugin ID 'test-uuid' was not found.
    */
   public function testGetVariantException($data) {
-    list($trait_object, $uuid) = $data;
+    [$trait_object, $uuid] = $data;
     // Attempt to retrieve a variant that has been removed.
+    $this->expectException('\Drupal\Component\Plugin\Exception\PluginNotFoundException');
+    $this->expectExceptionMessage("Plugin ID 'test-uuid' was not found.");
     $this->assertNull($trait_object->getVariant($uuid));
   }
 
 }
-
+/**
+ * Helper class for testing VariantCollectionTrait.
+ */
 class TestVariantCollectionTrait {
   use VariantCollectionTrait;
 
   /**
+   * The variant configuration array.
+   *
    * @var array
    */
   protected $variantConfig = [];
 
   /**
+   * The UUID generator.
+   *
    * @var \Drupal\Component\Uuid\UuidInterface
    */
   protected $uuidGenerator;
 
   /**
+   * Sets the UUID generator.
+   *
    * @param \Drupal\Component\Uuid\UuidInterface $uuid_generator
+   *   The UUID generator.
    *
    * @return $this
    */

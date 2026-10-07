@@ -24,11 +24,11 @@ Features:
      * Implements hook_carousel_them_info()
      */
     function mymodule_carousel_theme_info() {
-      $themes = array();
+      $themes = [];
 
       $themes['my_custom_theme'] = array(
         'title' => t('My Custom Theme'),
-        'file' => 'my_module/my_custom_theme/jquery-carousel-default.css'
+        'library' => 'mymodule/mymodule.jcarousel_themes_default',
       );
 
       return $themes;
@@ -46,11 +46,12 @@ Requirements:
 
 Installation:
   1. Download the module and place it with other contributed modules
-     (e.g. sites/all/modules/contrib).
+     (e.g. /modules/contrib).
+     https://www.drupal.org/docs/8/extending-drupal/installing-contributed-modules
   2. Enable the jQuery Carousel module on the Modules list page.
   3. Download the jquery ui carousel library form
      http://github.com/richardscarrott/jquery-ui-carousel and save it in
-     sites/all/libraries folder.
+     /libraries folder.
   4. Goto admin/reports/status & make sure jquery ui carousel is not throwing
      errors.
 

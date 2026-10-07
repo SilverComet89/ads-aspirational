@@ -16,7 +16,7 @@ class EntityMaskTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     'block',
     'block_content',
     'ctools_entity_mask',
@@ -34,7 +34,7 @@ class EntityMaskTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $this->installConfig(['block_content', 'entity_mask_test']);
     $this->installEntitySchema('fake_block_content');
@@ -48,7 +48,7 @@ class EntityMaskTest extends KernelTestBase {
       'type' => 'basic',
     ]);
 
-    $this->assertTrue($block->hasField('body'));
+    $this->assertTrue($block->hasField('field_body'));
     $this->assertTrue($block->hasField('field_link'));
     $this->assertTrue($block->hasField('field_image'));
   }
@@ -62,11 +62,18 @@ class EntityMaskTest extends KernelTestBase {
       ->getAllViewModes();
     $this->assertSame($view_modes['block_content'], $view_modes['fake_block_content']);
 
-    $display = entity_get_display('fake_block_content', 'basic', 'default');
+    $storage = $this->container->get('entity_type.manager')->getStorage('entity_view_display');
+    $display = $storage->create([
+      'targetEntityType' => 'fake_block_content',
+      'bundle' => 'basic',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+
     $this->assertTrue($display->isNew());
 
     $components = $display->getComponents();
-    $this->assertArrayHasKey('body', $components);
+    $this->assertArrayHasKey('field_body', $components);
     $this->assertArrayHasKey('field_link', $components);
     $this->assertArrayHasKey('field_image', $components);
   }
@@ -86,11 +93,18 @@ class EntityMaskTest extends KernelTestBase {
       ->getAllFormModes();
     $this->assertSame($form_modes['block_content'], $form_modes['fake_block_content']);
 
-    $display = entity_get_form_display('fake_block_content', 'basic', 'default');
+    $storage = $this->container->get('entity_type.manager')->getStorage('entity_form_display');
+    $display = $storage->create([
+      'targetEntityType' => 'fake_block_content',
+      'bundle' => 'basic',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+
     $this->assertTrue($display->isNew());
 
     $components = $display->getComponents();
-    $this->assertArrayHasKey('body', $components);
+    $this->assertArrayHasKey('field_body', $components);
     $this->assertArrayHasKey('field_link', $components);
     $this->assertArrayHasKey('field_image', $components);
   }
@@ -113,7 +127,7 @@ class EntityMaskTest extends KernelTestBase {
   /**
    * Tests that mask entity types are not exposed to Field UI.
    */
-  public function testNotExposedToFieldUI() {
+  public function testNotExposedToFieldUi() {
     /** @var \Drupal\Core\Entity\EntityTypeInterface $entity_type */
     $entity_type = $this->container
       ->get('entity_type.manager')
@@ -134,14 +148,14 @@ class EntityMaskTest extends KernelTestBase {
     /** @var \Drupal\Core\Entity\EntityInterface $block */
     $block = BlockContent::create([
       'type' => 'basic',
-      'body' => $body,
+      'field_body' => $body,
       'field_link' => $link,
     ]);
 
     $block = serialize($block);
     $block = unserialize($block);
 
-    $this->assertSame($body, $block->body->value);
+    $this->assertSame($body, $block->field_body->value);
     $this->assertSame($link, $block->field_link->uri);
   }
 
@@ -188,6 +202,11 @@ class EntityMaskTest extends KernelTestBase {
   public function testDelete() {
     $block = BlockContent::create(['type' => 'basic']);
     $block->save();
+
+    // Check we created a saved block.
+    $id = $block->id();
+    $this->assertNotEmpty($id);
+
     $block->delete();
   }
 
@@ -204,12 +223,12 @@ class EntityMaskTest extends KernelTestBase {
     /** @var \Drupal\Core\Entity\EntityInterface $block */
     $block = BlockContent::create([
       'type' => 'basic',
-      'body' => $body,
+      'field_body' => $body,
       'field_link' => $link,
     ]);
 
     // Ensure that the field values are preserved after save...
-    $this->assertSame($body, $block->body->value);
+    $this->assertSame($body, $block->field_body->value);
     $this->assertSame($link, $block->field_link->uri);
   }
 

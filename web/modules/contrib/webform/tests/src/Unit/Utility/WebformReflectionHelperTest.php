@@ -2,23 +2,8 @@
 
 namespace Drupal\Tests\webform\Unit\Utility;
 
-use Drupal\webform\Utility\WebformReflectionHelper;
 use Drupal\Tests\UnitTestCase;
-
-/**
- * Reflection test parent.
- */
-class WebformReflectionTestParent {}
-
-/**
- * Reflection test child.
- */
-class WebformReflectionTestChild extends WebformReflectionTestParent {}
-
-/**
- * Reflection test grandchild.
- */
-class WebformReflectionTestGrandChild extends WebformReflectionTestChild {}
+use Drupal\webform\Utility\WebformReflectionHelper;
 
 /**
  * Tests webform reflection utility.
@@ -66,3 +51,18 @@ class WebformReflectionHelperTest extends UnitTestCase {
   }
 
 }
+
+/**
+ * Reflection test parent.
+ */
+class WebformReflectionTestParent {}
+
+/**
+ * Reflection test child.
+ */
+class WebformReflectionTestChild extends WebformReflectionTestParent {}
+
+/**
+ * Reflection test grandchild.
+ */
+class WebformReflectionTestGrandChild extends WebformReflectionTestChild {}

@@ -5,44 +5,33 @@ namespace Drupal\webform\Plugin\Field\FieldWidget;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\webform\Element\WebformAjaxElementTrait;
+use Drupal\webform\Entity\Webform;
 use Drupal\webform\Utility\WebformDateHelper;
 use Drupal\webform\WebformInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Trait for webform entity reference and autocomplete widget.
  */
 trait WebformEntityReferenceWidgetTrait {
 
+  use WebformAjaxElementTrait;
+
   /**
-   * {@inheritdoc}
+   * Webform element manager.
+   *
+   * @var \Drupal\webform\Plugin\WebformElementManagerInterface
    */
-  public static function defaultSettings() {
-    return [
-      'default_data' => TRUE,
-    ] + parent::defaultSettings();
-  }
+  protected $elementManager;
 
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
-    $element = parent::settingsForm($form, $form_state);
-    $element['default_data'] = [
-      '#type' => 'checkbox',
-      '#title' => t('Enable default submission data (YAML)'),
-      '#description' => t('If checked, site builders will be able to define default submission data (YAML)'),
-      '#default_value' => $this->getSetting('default_data'),
-    ];
-    return $element;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function settingsSummary() {
-    $summary = parent::settingsSummary();
-    $summary[] = t('Default submission data: @default_data', ['@default_data' => $this->getSetting('default_data') ? $this->t('Yes') : $this->t('No')]);
-    return $summary;
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    $instance->elementManager = $container->get('plugin.manager.webform.element');
+    return $instance;
   }
 
   /**
@@ -96,6 +85,18 @@ trait WebformEntityReferenceWidgetTrait {
     // Get weight.
     $weight = $element['target_id']['#weight'];
 
+    // Get webform.
+    $target_id = NULL;
+    if ($form_state->isRebuilding()) {
+      $target_id = $form_state->getValue(array_merge($element['target_id']['#field_parents'], [$field_name, $delta, 'target_id']));
+    }
+    else {
+      $target_id = $items[$delta]->target_id;
+    }
+
+    /** @var \Drupal\webform\WebformInterface $webform */
+    $webform = ($target_id) ? Webform::load($target_id) : NULL;
+
     $element['settings'] = [
       '#type' => 'details',
       '#title' => $this->t('@title settings', ['@title' => $element['target_id']['#title']]),
@@ -103,6 +104,34 @@ trait WebformEntityReferenceWidgetTrait {
       '#open' => ($items[$delta]->target_id) ? TRUE : FALSE,
       '#weight' => $weight++,
     ];
+
+    // Disable a warning message about the webform's state using Ajax.
+    $is_webform_closed = ($webform && $webform->isClosed());
+    if ($is_webform_closed) {
+      $t_args = [
+        '%webform' => $webform->label(),
+        ':href' => $webform->toUrl('settings-form')->toString(),
+      ];
+      if ($webform->access('update')) {
+        $message = $this->t('The %webform webform is <a href=":href">closed</a>. The below status will be ignored.', $t_args);
+      }
+      else {
+        $message = $this->t('The %webform webform is <strong>closed</strong>. The below status will be ignored.', $t_args);
+      }
+      $element['settings']['status_message'] = [
+        '#type' => 'webform_message',
+        '#message_type' => 'warning',
+        '#message_message' => $message,
+      ];
+    }
+    else {
+      // Render empty element so that Ajax wrapper is embedded in the page.
+      $element['settings']['status_message'] = [];
+    }
+    $ajax_id = 'webform-entity-reference-' . $field_name . '-' . $delta;
+    $this->buildAjaxElementTrigger($ajax_id, $element['target_id']);
+    $this->buildAjaxElementUpdate($ajax_id, $element);
+    $this->buildAjaxElementWrapper($ajax_id, $element['settings']['status_message']);
 
     $element['settings']['status'] = [
       '#type' => 'radios',
@@ -160,39 +189,54 @@ trait WebformEntityReferenceWidgetTrait {
       $token_manager = \Drupal::service('webform.token_manager');
       $token_types = ['webform', 'webform_submission'];
 
-      $default_data_example = "# This is an example of a comment.
-element_key: 'some value'
-
-# The below example uses a token to get the current node's title.
-# Add ':clear' to the end token to return an empty value when the token is missing.
-title: '[webform_submission:node:title:clear]'
-# The below example uses a token to get a field value from the current node.
-full_name: '[webform_submission:node:field_full_name:clear]";
+      // Get title, description, and code example.
+      // @see \Drupal\webform\Plugin\Block\WebformBlock::blockForm
+      $title = $this->t('Default submission data (YAML)');
+      $placeholder = $this->t("Enter 'name': 'value' pairs…");
+      $description = [
+        'content' => ['#markup' => $this->t('Enter submission data as name and value pairs as <a href=":href">YAML</a> which will be used to prepopulate the selected webform.', [':href' => 'https://en.wikipedia.org/wiki/YAML']), '#suffix' => ' '],
+        'token' => $token_manager->buildTreeLink(),
+      ];
+      $default_data_example = [];
+      $default_data_example[] = '# ' . $this->t('This is an example of a comment.');
+      $default_data_example[] = "element_key: 'some value'";
+      $default_data_example[] = '';
+      $default_data_example[] = '# ' . $this->t("The below example uses a token to get the current node's title.");
+      $default_data_example[] = "title: '[webform_submission:node:title:clear]'";
+      $default_data_example[] = '';
+      $default_data_example[] = '# ' . $this->t("Add ':clear' to the end token to return an empty value when the token is missing.");
+      $default_data_example[] = '# ' . $this->t('The below example uses a token to get a field value from the current node.');
+      $default_data_example[] = "full_name: '[webform_submission:node:field_full_name:clear]'";
       if ($is_paragraph) {
         $token_types[] = 'paragraph';
-        $default_data_example .= PHP_EOL . "# You can also use paragraphs tokens.
-some_value: '[paragraph:some_value:clear]";
+        $default_data_example[] = '';
+        $default_data_example[] = '# ' . $this->t('You can also use paragraphs tokens.');
+        $default_data_example[] = "some_value: '[paragraph:some_value:clear]'";
       }
       $element['settings']['default_data'] = [
         '#type' => 'webform_codemirror',
         '#mode' => 'yaml',
-        '#title' => $this->t('Default submission data (YAML)'),
-        '#placeholder' => $this->t("Enter 'name': 'value' pairs…"),
+        '#title' => $title,
+        '#description' => $description,
+        '#placeholder' => $placeholder,
         '#default_value' => $items[$delta]->default_data,
         '#webform_element' => TRUE,
-        '#description' => [
-          'content' => ['#markup' => $this->t('Enter submission data as name and value pairs as <a href=":href">YAML</a> which will be used to prepopulate the selected webform.', [':href' => 'https://en.wikipedia.org/wiki/YAML']), '#suffix' => ' '],
-          'token' => $token_manager->buildTreeLink($token_types),
-        ],
         '#more_title' => $this->t('Example'),
         '#more' => [
           '#theme' => 'webform_codemirror',
           '#type' => 'yaml',
-          '#code' => $default_data_example,
+          '#code' => implode(PHP_EOL, $default_data_example),
         ],
       ];
-      $element['settings']['token_tree_link'] = $token_manager->buildTreeElement($token_types);
       $token_manager->elementValidate($element['settings']['default_data'], $token_types);
+    }
+    else {
+      // Preserve default data set by variants passed via the URL.
+      // @see webform_node_node_prepare_form().
+      $element['settings']['default_data'] = [
+        '#type' => 'value',
+        '#value' => $items[$delta]->default_data,
+      ];
     }
 
     return $element;
@@ -210,6 +254,15 @@ some_value: '[paragraph:some_value:clear]";
     foreach ($values as &$item) {
       $item += $item['settings'];
       unset($item['settings']);
+
+      // Set default values.
+      $item += [
+        'target_id' => '',
+        'default_data' => NULL,
+        'status' => '',
+        'open' => '',
+        'close' => '',
+      ];
 
       if ($item['status'] === WebformInterface::STATUS_SCHEDULED) {
         $states = ['open', 'close'];

@@ -223,6 +223,39 @@ image.effect.image_effects_opacity:
       type: integer
       label: 'Opacity % of the source image'
 
+image.effect.image_effects_pixelate:
+  type: mapping
+  label: 'Pixelate the image'
+  mapping:
+    size:
+      type: integer
+      label: 'Size of the pixels'
+
+image.effect.image_effects_relative_crop:
+  type: mapping
+  label: 'Relative crop'
+  mapping:
+    width:
+      type: integer
+      label: 'Ratio width'
+    height:
+      type: integer
+      label: 'Ratio height'
+    anchor:
+      type: mapping
+      label: 'Anchor'
+      mapping:
+        width:
+          type: string
+          label: 'Width anchor'
+          constraints:
+            AllowedValues: ['left', 'center', 'right']
+        height:
+          type: string
+          label: 'Height anchor'
+          constraints:
+            AllowedValues: ['top', 'center', 'bottom']
+
 image.effect.image_effects_resize_percentage:
   type: mapping
   label: 'Resize based on percentage'
@@ -233,6 +266,25 @@ image.effect.image_effects_resize_percentage:
     height:
       type: string
       label: 'Height in px or %'
+
+image.effect.image_effects_rotate:
+  type: mapping
+  label: 'Image rotate'
+  mapping:
+    degrees:
+      type: integer
+      label: 'Rotation angle'
+    background_color:
+      label: 'Background color'
+      type: color_hex
+    fallback_transparency_color:
+      label: 'Fallback color for full transparency, when image or toolkit do not support it'
+      type: color_hex
+    method:
+      type: string
+      label: 'Determine how the rotation angle is calculated'
+      constraints:
+        AllowedValues: ['exact', 'pseudorandom', 'random']
 
 image.effect.image_effects_scale_and_smart_crop:
   type: mapping

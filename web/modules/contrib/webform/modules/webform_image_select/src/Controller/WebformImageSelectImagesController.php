@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 class WebformImageSelectImagesController extends ControllerBase {
 
   /**
-   * Returns response for the webform options autocompletion.
+   * Returns response for the webform image select images autocompletion.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The current request object containing the search string.
@@ -27,6 +27,7 @@ class WebformImageSelectImagesController extends ControllerBase {
     $webform_images_storage = $this->entityTypeManager()->getStorage('webform_image_select_images');
 
     $query = $webform_images_storage->getQuery()
+      ->accessCheck()
       ->range(0, 10)
       ->sort('label');
 

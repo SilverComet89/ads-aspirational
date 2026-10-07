@@ -1,3 +1,4 @@
+uuid: null
 langcode: en
 status: open
 dependencies:
@@ -13,7 +14,8 @@ archive: false
 id: test_states_triggers
 title: 'Test: Form API #states: Triggers and Operators'
 description: 'Test Drupal''s #states API triggers (empty, checked, value, and collapsed).'
-category: 'Test: Form API #states'
+categories:
+  - 'Test: Form API #states'
 elements: |
   checked:
     '#type': details
@@ -43,10 +45,10 @@ elements: |
       '#markup': 'Checked multiple triggered using AND operator'
       '#states':
         visible:
-          - ':input[name="checked_multiple_and_trigger[one]"]':
-              checked: true
-          - ':input[name="checked_multiple_and_trigger[two]"]':
-              checked: true
+          ':input[name="checked_multiple_and_trigger[one]"]':
+            checked: true
+          ':input[name="checked_multiple_and_trigger[two]"]':
+            checked: true
   checked_multiple_or:
     '#type': details
     '#title': 'Test Trigger: Checked multiple using OR operator'
@@ -64,6 +66,7 @@ elements: |
         visible:
           - ':input[name="checked_multiple_or_trigger[one]"]':
               checked: true
+          - or
           - ':input[name="checked_multiple_or_trigger[two]"]':
               checked: true
   checked_multiple_xor:
@@ -116,21 +119,6 @@ elements: |
         visible:
           ':input[name="filled_trigger"]':
             filled: true
-  collapsed:
-    '#type': details
-    '#title': 'Test Trigger: Collapsed'
-    '#description': 'Below example is not working.'
-    collapsed_trigger:
-      '#type': details
-      '#title': 'Trigger collapsed'
-    collapsed_markup:
-      '#type': webform_markup
-      '#markup': 'Collapsed triggered'
-      '#states':
-        visible:
-          'details[data-webform-key="collapsed_trigger"]':
-            collapsed: true
-  
 css: ''
 javascript: ''
 settings:
@@ -142,7 +130,7 @@ settings:
   page: true
   page_submit_path: ''
   page_confirm_path: ''
-  page_admin_theme: false
+  page_theme_name: ''
   form_title: source_entity_webform
   form_submit_once: false
   form_exception_message: ''
@@ -151,7 +139,7 @@ settings:
   form_previous_submissions: true
   form_confidential: false
   form_confidential_message: ''
-  form_remote_addr: true
+  form_disable_remote_addr: false
   form_convert_anonymous: false
   form_prepopulate: false
   form_prepopulate_source_entity: false
@@ -172,6 +160,14 @@ settings:
   form_access_denied_message: ''
   form_access_denied_attributes: {  }
   form_file_limit: ''
+  form_method: ''
+  form_action: ''
+  form_attributes: {  }
+  share: false
+  share_node: false
+  share_theme_name: ''
+  share_title: true
+  share_page_body_attributes: {  }
   submission_label: ''
   submission_log: false
   submission_views: {  }
@@ -196,11 +192,22 @@ settings:
   wizard_progress_pages: false
   wizard_progress_percentage: false
   wizard_progress_link: false
+  wizard_progress_states: false
+  wizard_auto_forward: true
+  wizard_auto_forward_hide_next_button: false
+  wizard_keyboard: true
   wizard_start_label: ''
   wizard_preview_link: false
   wizard_confirmation: true
   wizard_confirmation_label: ''
   wizard_track: ''
+  wizard_prev_button_label: ''
+  wizard_next_button_label: ''
+  wizard_toggle: false
+  wizard_toggle_show_label: ''
+  wizard_toggle_hide_label: ''
+  wizard_page_type: container
+  wizard_page_title_tag: h2
   preview: 0
   preview_label: ''
   preview_title: ''
@@ -243,7 +250,11 @@ settings:
   purge_days: null
   results_disabled: false
   results_disabled_ignore: false
+  results_customize: false
+  token_view: false
   token_update: false
+  token_delete: false
+  serial_disabled: false
 access:
   create:
     roles:
@@ -292,3 +303,4 @@ access:
     users: {  }
     permissions: {  }
 handlers: {  }
+variants: {  }

@@ -25,7 +25,7 @@ class CoffeeCommandsTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->installSchema('system', ['sequences', 'router']);
@@ -35,7 +35,7 @@ class CoffeeCommandsTest extends KernelTestBase {
     // Create the node bundles required for testing.
     $node_type = NodeType::create([
       'type' => 'page',
-      'name' => 'Basic page'
+      'name' => 'Basic page',
     ]);
     $node_type->save();
 

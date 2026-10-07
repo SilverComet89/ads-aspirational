@@ -28,6 +28,9 @@ colorbox.settings:
   type: config_object
   label: 'Colorbox settings'
   mapping:
+    dompurify_hide_warning:
+      type: boolean
+      label: Don't show warning on status report
     custom:
       type: mapping
       label: Custom Settings
@@ -113,7 +116,7 @@ colorbox.settings:
           type: integer
           label: 'Mobile detection'
         mobile_device_width:
-          type: 'string'
+          type: string
           label: 'Device width'
         caption_trim:
           type: integer

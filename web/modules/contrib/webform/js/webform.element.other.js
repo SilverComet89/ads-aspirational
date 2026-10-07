@@ -3,7 +3,7 @@
  * JavaScript behaviors for other elements.
  */
 
-(function ($, Drupal) {
+(function ($, Drupal, once) {
 
   'use strict';
 
@@ -35,7 +35,7 @@
       $element[showEffect]();
       // If not initializing, then focus the other element.
       if (effect !== false) {
-        $input.focus();
+        $input.trigger('focus');
       }
       // Require the input.
       $input.prop('required', true).attr('aria-required', 'true');
@@ -59,7 +59,9 @@
       // Hide the element.
       $element[hideEffect]();
       // Save the input's value.
-      $input.data('webform-value', $input.val());
+      if ($input.val() !== '') {
+        $input.data('webform-value', $input.val());
+      }
       // Empty and un-required the input.
       $input.val('').prop('required', false).removeAttr('aria-required');
     }
@@ -72,18 +74,23 @@
    */
   Drupal.behaviors.webformSelectOther = {
     attach: function (context) {
-      $(context).find('.js-webform-select-other').once('webform-select-other').each(function () {
+      $(once('webform-select-other', '.js-webform-select-other', context)).each(function () {
         var $element = $(this);
 
         var $select = $element.find('select');
-        var $otherOption = $element.find('option[value="_other_"]');
         var $input = $element.find('.js-webform-select-other-input');
 
         $select.on('change', function () {
-          toggleOther($otherOption.is(':selected'), $input);
+          var isOtherSelected = $select
+            .find('option[value="_other_"]')
+            .is(':selected');
+          toggleOther(isOtherSelected, $input);
         });
 
-        toggleOther($otherOption.is(':selected'), $input, false);
+        var isOtherSelected = $select
+          .find('option[value="_other_"]')
+          .is(':selected');
+        toggleOther(isOtherSelected, $input, false);
       });
     }
   };
@@ -95,7 +102,7 @@
    */
   Drupal.behaviors.webformCheckboxesOther = {
     attach: function (context) {
-      $(context).find('.js-webform-checkboxes-other').once('webform-checkboxes-other').each(function () {
+      $(once('webform-checkboxes-other', '.js-webform-checkboxes-other', context)).each(function () {
         var $element = $(this);
         var $checkbox = $element.find('input[value="_other_"]');
         var $input = $element.find('.js-webform-checkboxes-other-input');
@@ -116,7 +123,7 @@
    */
   Drupal.behaviors.webformRadiosOther = {
     attach: function (context) {
-      $(context).find('.js-webform-radios-other').once('webform-radios-other').each(function () {
+      $(once('webform-radios-other', '.js-webform-radios-other', context)).each(function () {
         var $element = $(this);
 
         var $radios = $element.find('input[type="radio"]');
@@ -138,7 +145,7 @@
    */
   Drupal.behaviors.webformButtonsOther = {
     attach: function (context) {
-      $(context).find('.js-webform-buttons-other').once('webform-buttons-other').each(function () {
+      $(once('webform-buttons-other', '.js-webform-buttons-other', context)).each(function () {
         var $element = $(this);
 
         var $buttons = $element.find('input[type="radio"]');
@@ -146,7 +153,7 @@
         var $container = $(this).find('.js-webform-webform-buttons');
 
         // Create set onchange handler.
-        $container.change(function () {
+        $container.on('change', function () {
           toggleOther(($(this).find(':radio:checked').val() === '_other_'), $input);
         });
 
@@ -155,4 +162,4 @@
     }
   };
 
-})(jQuery, Drupal);
+})(jQuery, Drupal, once);

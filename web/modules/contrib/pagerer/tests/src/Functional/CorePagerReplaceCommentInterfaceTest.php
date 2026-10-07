@@ -11,14 +11,22 @@ use Drupal\Tests\comment\Functional\CommentInterfaceTest;
  */
 class CorePagerReplaceCommentInterfaceTest extends CommentInterfaceTest {
 
+  /**
+   * The URL for Pagerer admin UI page.
+   *
+   * @var string
+   */
   protected $pagererAdmin = 'admin/config/user-interface/pagerer';
 
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = ['dblog', 'pagerer', 'comment'];
 
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  public function setUp(): void {
     parent::setUp();
 
     $this->drupalLogin($this->drupalCreateUser([
@@ -26,15 +34,12 @@ class CorePagerReplaceCommentInterfaceTest extends CommentInterfaceTest {
       'administer site configuration',
     ]));
 
-    $edit = [
-      'label' => 'core_replace',
-      'id' => 'core_replace',
-    ];
-    $this->drupalPostForm($this->pagererAdmin . '/preset/add', $edit, 'Create');
-    $edit = [
-      'core_override_preset' => 'core_replace',
-    ];
-    $this->drupalPostForm($this->pagererAdmin, $edit, 'Save configuration');
+    // Replace the core pager.
+    $this->drupalGet($this->pagererAdmin . '/preset/add');
+    $this->submitForm(['label' => 'core_replace', 'id' => 'core_replace'], 'Create');
+    $this->drupalGet($this->pagererAdmin);
+    $this->submitForm(['core_override_preset' => 'core_replace'], 'Save configuration');
+
     $this->drupalLogout();
   }
 

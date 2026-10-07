@@ -9,7 +9,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\devel_generate\DevelGenerateBase;
-use Drush\Utils\StringUtils;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -81,7 +80,7 @@ class UserDevelGenerate extends DevelGenerateBase implements ContainerFactoryPlu
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
       $configuration, $plugin_id, $plugin_definition,
-      $container->get('entity.manager')->getStorage('user'),
+      $container->get('entity_type.manager')->getStorage('user'),
       $container->get('date.formatter'),
       $container->get('datetime.time')
     );
@@ -150,6 +149,7 @@ class UserDevelGenerate extends DevelGenerateBase implements ContainerFactoryPlu
     if ($kill) {
       $uids = $this->userStorage->getQuery()
         ->condition('uid', 1, '>')
+        ->accessCheck(FALSE)
         ->execute();
       $users = $this->userStorage->loadMultiple($uids);
       $this->userStorage->delete($users);
@@ -192,26 +192,14 @@ class UserDevelGenerate extends DevelGenerateBase implements ContainerFactoryPlu
   /**
    * {@inheritdoc}
    */
-  public function validateDrushParams($args, array $options = []) {
+  public function validateDrushParams(array $args, array $options = []) {
     $values = [
       'num' => array_shift($args),
       'time_range' => 0,
+      'roles' => self::csvToArray($options['roles']),
+      'kill' => $options['kill'],
+      'pass' => $options['pass'],
     ];
-
-    if ($this->isDrush8()) {
-      $values += [
-        'roles' => explode(',', drush_get_option('roles', '')),
-        'kill' => drush_get_option('kill'),
-        'pass' => drush_get_option('pass', NULL),
-      ];
-    }
-    else {
-      $values += [
-        'roles' => StringUtils::csvToArray($options['roles']),
-        'kill' => $options['kill'],
-        'pass' => $options['pass'],
-      ];
-    }
     return $values;
   }
 

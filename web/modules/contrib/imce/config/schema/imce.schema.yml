@@ -12,10 +12,10 @@ imce.settings:
     roles_profiles:
       type: sequence
       label: 'Role-profile assignments'
-      sequence: 
-        - type: sequence
-          sequence:
-            - type: string
+      sequence:
+        type: sequence
+        sequence:
+          type: string
 
 # Imce Profile entity
 imce.profile.*:
@@ -35,12 +35,16 @@ imce.profile.*:
       type: sequence
       label: 'Configuration'
       sequence:
-        - type: imce.profile_conf.[%key]
+        type: imce.profile_conf.[%key]
 
 # Profile configuration options
 imce.profile_conf.extensions:
   type: string
   label: 'Allowed file extensions'
+
+imce.profile_conf.usertab:
+  type: boolean
+  label: 'Display file browser tab in user profile pages'
 
 imce.profile_conf.maxsize:
   type: float
@@ -62,21 +66,45 @@ imce.profile_conf.replace:
   type: integer
   label: 'Upload replace method'
 
+imce.profile_conf.thumbnail_style:
+  type: string
+  label: 'Thumbnail style'
+
+imce.profile_conf.thumbnail_grid_style:
+  type: boolean
+  label: 'Thumbnail grid style'
+
+imce.profile_conf.ignore_usage:
+  type: boolean
+  label: 'Ignore file usage'
+
+imce.profile_conf.url_alter:
+  type: boolean
+  label: 'Enable URL altering'
+
+imce.profile_conf.image_extensions:
+  type: string
+  label: 'Image extensions'
+
+imce.profile_conf.lazy_dimensions:
+  type: boolean
+  label: 'Lazy image dimensions'
+
 imce.profile_conf.folders:
   type: sequence
   label: 'Folders'
   sequence:
-    - type: mapping
-      label: 'Folder'
-      mapping:
-        path:
-          type: string
-          label: 'Path'
-        permissions:
-          type: sequence
-          label: 'Permissions'
-          sequence:
-            - type: boolean
+    type: mapping
+    label: 'Folder'
+    mapping:
+      path:
+        type: string
+        label: 'Path'
+      permissions:
+        type: sequence
+        label: 'Permissions'
+        sequence:
+          type: boolean
 
 # File field settings
 field.widget.third_party.imce:

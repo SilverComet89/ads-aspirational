@@ -2,7 +2,9 @@
 
 namespace Html2Text;
 
-class LinkTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class LinkTest extends TestCase
 {
     const TEST_HTML = '<a href="http://example.com">Link text</a>';
 
@@ -142,6 +144,40 @@ EOT;
         $expected = '[url=http://example.com]LINK TEXT[/url]';
 
         $html2text = new Html2Text($html, array('do_links' => 'bbcode'));
+
+        $this->assertEquals($expected, $html2text->getText());
+    }
+
+    public function testDoLinksWhenTargetInText()
+    {
+        $html = '<a href="http://example.com">http://example.com</a>';
+        $expected = 'http://example.com';
+
+        $html2text = new Html2Text($html, array('do_links' => 'inline'));
+
+        $this->assertEquals($expected, $html2text->getText());
+
+        $html2text = new Html2Text($html, array('do_links' => 'nextline'));
+
+        $this->assertEquals($expected, $html2text->getText());
+    }
+
+    public function testMailto()
+    {
+        $html = '<a href="mailto:example@example.com">Link text</a>';
+        $expected = 'Link text';
+
+        $html2text = new Html2Text($html, array('do_links' => 'inline'));
+
+        $this->assertEquals($expected, $html2text->getText());
+    }
+
+    public function testMailtoWithEntity()
+    {
+        $html = '<a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;example@example.com">Link text</a>';
+        $expected = 'Link text';
+
+        $html2text = new Html2Text($html, array('do_links' => 'inline'));
 
         $this->assertEquals($expected, $html2text->getText());
     }

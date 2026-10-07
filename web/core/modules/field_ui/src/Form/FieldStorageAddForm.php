@@ -3,7 +3,7 @@
 namespace Drupal\field_ui\Form;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\DependencyInjection\DeprecatedServicePropertyTrait;
+use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldTypePluginManagerInterface;
@@ -20,14 +20,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal
  */
 class FieldStorageAddForm extends FormBase {
-  use DeprecatedServicePropertyTrait;
-
-  /**
-   * {@inheritdoc}
-   */
-  protected $deprecatedProperties = [
-    'entityManager' => 'entity.manager',
-  ];
 
   /**
    * The name of the entity type.
@@ -58,6 +50,13 @@ class FieldStorageAddForm extends FormBase {
   protected $entityFieldManager;
 
   /**
+   * The entity display repository.
+   *
+   * @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface
+   */
+  protected $entityDisplayRepository;
+
+  /**
    * The field type plugin manager.
    *
    * @var \Drupal\Core\Field\FieldTypePluginManagerInterface
@@ -82,16 +81,15 @@ class FieldStorageAddForm extends FormBase {
    *   The configuration factory.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface|null $entity_field_manager
    *   (optional) The entity field manager.
+   * @param \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display_repository
+   *   (optional) The entity display repository.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, FieldTypePluginManagerInterface $field_type_plugin_manager, ConfigFactoryInterface $config_factory, EntityFieldManagerInterface $entity_field_manager = NULL) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, FieldTypePluginManagerInterface $field_type_plugin_manager, ConfigFactoryInterface $config_factory, EntityFieldManagerInterface $entity_field_manager = NULL, EntityDisplayRepositoryInterface $entity_display_repository = NULL) {
     $this->entityTypeManager = $entity_type_manager;
     $this->fieldTypePluginManager = $field_type_plugin_manager;
     $this->configFactory = $config_factory;
-    if (!$entity_field_manager) {
-      @trigger_error('Calling FieldStorageAddForm::__construct() with the $entity_field_manager argument is supported in Drupal 8.7.0 and will be required before Drupal 9.0.0. See https://www.drupal.org/node/2549139.', E_USER_DEPRECATED);
-      $entity_field_manager = \Drupal::service('entity_field.manager');
-    }
     $this->entityFieldManager = $entity_field_manager;
+    $this->entityDisplayRepository = $entity_display_repository;
   }
 
   /**
@@ -109,7 +107,8 @@ class FieldStorageAddForm extends FormBase {
       $container->get('entity_type.manager'),
       $container->get('plugin.manager.field.field_type'),
       $container->get('config.factory'),
-      $container->get('entity_field.manager')
+      $container->get('entity_field.manager'),
+      $container->get('entity_display.repository')
     );
   }
 
@@ -188,9 +187,7 @@ class FieldStorageAddForm extends FormBase {
     $field_prefix = $this->config('field_ui.settings')->get('field_prefix');
     $form['new_storage_wrapper']['field_name'] = [
       '#type' => 'machine_name',
-      // This field should stay LTR even for RTL languages.
-      '#field_prefix' => '<span dir="ltr">' . $field_prefix,
-      '#field_suffix' => '</span>&lrm;',
+      '#field_prefix' => $field_prefix,
       '#size' => 15,
       '#description' => $this->t('A unique machine-readable name containing letters, numbers, and underscores.'),
       // Calculate characters depending on the length of the field prefix
@@ -341,7 +338,7 @@ class FieldStorageAddForm extends FormBase {
 
       // Check if we're dealing with a preconfigured field.
       if (strpos($field_storage_values['type'], 'field_ui:') !== FALSE) {
-        list(, $field_type, $option_key) = explode(':', $field_storage_values['type'], 3);
+        [, $field_type, $option_key] = explode(':', $field_storage_values['type'], 3);
         $field_storage_values['type'] = $field_type;
 
         $field_definition = $this->fieldTypePluginManager->getDefinition($field_type);
@@ -366,10 +363,10 @@ class FieldStorageAddForm extends FormBase {
           }
         }
 
-        $widget_id = isset($field_options['entity_form_display']['type']) ? $field_options['entity_form_display']['type'] : NULL;
-        $widget_settings = isset($field_options['entity_form_display']['settings']) ? $field_options['entity_form_display']['settings'] : [];
-        $formatter_id = isset($field_options['entity_view_display']['type']) ? $field_options['entity_view_display']['type'] : NULL;
-        $formatter_settings = isset($field_options['entity_view_display']['settings']) ? $field_options['entity_view_display']['settings'] : [];
+        $widget_id = $field_options['entity_form_display']['type'] ?? NULL;
+        $widget_settings = $field_options['entity_form_display']['settings'] ?? [];
+        $formatter_id = $field_options['entity_view_display']['type'] ?? NULL;
+        $formatter_settings = $field_options['entity_view_display']['settings'] ?? [];
       }
 
       // Create the field storage and field.
@@ -461,7 +458,7 @@ class FieldStorageAddForm extends FormBase {
     // Make sure the field is displayed in the 'default' form mode (using
     // default widget and settings). It stays hidden for other form modes
     // until it is explicitly configured.
-    entity_get_form_display($this->entityTypeId, $this->bundle, 'default')
+    $this->entityDisplayRepository->getFormDisplay($this->entityTypeId, $this->bundle, 'default')
       ->setComponent($field_name, $options)
       ->save();
   }
@@ -487,7 +484,7 @@ class FieldStorageAddForm extends FormBase {
     // Make sure the field is displayed in the 'default' view mode (using
     // default formatter and settings). It stays hidden for other view
     // modes until it is explicitly configured.
-    entity_get_display($this->entityTypeId, $this->bundle, 'default')
+    $this->entityDisplayRepository->getViewDisplay($this->entityTypeId, $this->bundle)
       ->setComponent($field_name, $options)
       ->save();
   }

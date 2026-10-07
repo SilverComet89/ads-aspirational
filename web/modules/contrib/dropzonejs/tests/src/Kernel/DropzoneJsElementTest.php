@@ -7,9 +7,9 @@ use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
 
 /**
- * Tests related to the dropzoneJs element.
+ * Tests related to the DropzoneJS element.
  *
- * @group DropzoneJs
+ * @group dropzonejs
  */
 class DropzoneJsElementTest extends KernelTestBase {
 
@@ -18,7 +18,7 @@ class DropzoneJsElementTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'system',
     'file',
     'user',
@@ -29,13 +29,12 @@ class DropzoneJsElementTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
-    $this->installSchema('system', 'router');
     $this->installEntitySchema('user');
 
     /** @var \Drupal\user\RoleInterface $role */
-    $role = Role::create(['id' => RoleInterface::ANONYMOUS_ID]);
+    $role = Role::create(['id' => RoleInterface::ANONYMOUS_ID, 'label' => 'editor']);
     $role->grantPermission('dropzone upload files');
     $role->save();
   }
@@ -50,17 +49,22 @@ class DropzoneJsElementTest extends KernelTestBase {
 
     $xpath_base = "//div[contains(@class, 'form-item-dropzonejs')]";
     // Label.
-    $this->assertFalse($this->xpath("$xpath_base/label[text()='Not DropzoneJs element']"));
-    $this->assertTrue($this->xpath("$xpath_base/label[text()='DropzoneJs element']"));
+    $this->assertEmpty($this->xpath("$xpath_base/label[text()='Not DropzoneJS element']"));
+    $this->assertNotEmpty($this->xpath("$xpath_base/label[text()='DropzoneJS element']"));
     // Element where dropzonejs is attached to.
-    $this->assertTrue($this->xpath("$xpath_base/div[contains(@class, 'dropzone-enable')]"));
+    $this->assertNotEmpty($this->xpath("$xpath_base/div[contains(@class, 'dropzone-enable')]"));
     // Uploaded files input.
-    $this->assertTrue($this->xpath("$xpath_base/input[contains(@data-drupal-selector, 'edit-dropzonejs-uploaded-files')]"));
+    $this->assertNotEmpty($this->xpath("$xpath_base/input[contains(@data-drupal-selector, 'edit-dropzonejs-uploaded-files')]"));
     // Upload files path.
-    $this->assertTrue($this->xpath("$xpath_base/input[contains(@data-upload-path, '/dropzonejs/upload?token=')]"));
+    $this->assertNotEmpty($this->xpath("$xpath_base/input[contains(@data-upload-path, '/dropzonejs/upload?token=')]"));
+
     // Js is attached.
-    $this->assertTrue($this->xpath("/html/body/script[contains(@src, 'libraries/dropzone/dist/min/dropzone.min.js')]"));
-    $this->assertTrue($this->xpath("/html/body/script[contains(@src, 'dropzonejs/js/dropzone.integration.js')]"));
+    $new_js_path = $this->xpath("//html/body/script[contains(@src, 'libraries/dropzone/dropzone-min.js')]");
+    $v6_js_path = $this->xpath("//html/body/script[contains(@src, 'libraries/dropzone/min/dropzone.min.js')]");
+    $old_js_path = $this->xpath("//html/body/script[contains(@src, 'libraries/dropzone/dist/min/dropzone.min.js')]");
+
+    $this->assertTrue($new_js_path || $v6_js_path || $old_js_path);
+    $this->assertNotEmpty($this->xpath("//html/body/script[contains(@src, 'js/dropzone.integration.js')]"));
   }
 
 }

@@ -5,8 +5,8 @@ namespace Drupal\webform\Form;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\webform\Element\WebformAjaxElementTrait;
 use Drupal\webform\Plugin\WebformHandlerMessageInterface;
-use Drupal\webform\WebformRequestInterface;
 use Drupal\webform\WebformSubmissionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -14,6 +14,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Defines a webform that resends webform submission.
  */
 class WebformSubmissionResendForm extends FormBase {
+
+  use WebformAjaxElementTrait;
+
+  /**
+   * The webform request handler.
+   *
+   * @var \Drupal\webform\WebformRequestInterface
+   */
+  protected $requestHandler;
 
   /**
    * A webform submission.
@@ -37,29 +46,12 @@ class WebformSubmissionResendForm extends FormBase {
   }
 
   /**
-   * Webform request handler.
-   *
-   * @var \Drupal\webform\WebformRequestInterface
-   */
-  protected $requestHandler;
-
-  /**
-   * Constructs a WebformResultsResendForm object.
-   *
-   * @param \Drupal\webform\WebformRequestInterface $request_handler
-   *   The webform request handler.
-   */
-  public function __construct(WebformRequestInterface $request_handler) {
-    $this->requestHandler = $request_handler;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('webform.request')
-    );
+    $instance = parent::create($container);
+    $instance->requestHandler = $container->get('webform.request');
+    return $instance;
   }
 
   /**
@@ -67,6 +59,10 @@ class WebformSubmissionResendForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state, WebformSubmissionInterface $webform_submission = NULL) {
     $this->webformSubmission = $webform_submission;
+
+    // Apply variants to the webform.
+    $webform = $webform_submission->getWebform();
+    $webform->applyVariants($webform_submission);
 
     // Get header.
     $header = [];
@@ -98,7 +94,8 @@ class WebformSubmissionResendForm extends FormBase {
     }
 
     // Display message handler with change message Ajax submit button.
-    $form['message_handler_id'] = [
+    $form['message_handler'] = [];
+    $form['message_handler']['message_handler_id'] = [
       '#type' => 'tableselect',
       '#header' => $header,
       '#options' => $options,
@@ -106,23 +103,6 @@ class WebformSubmissionResendForm extends FormBase {
       '#empty' => $this->t('No messages are available.'),
       '#multiple' => FALSE,
       '#default_value' => $message_handler_id,
-      '#attributes' => ['data-webform-trigger-submit' => '.js-webform-message-change-submit'],
-    ];
-    $form['message_change'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Change message'),
-      '#submit' => [[get_called_class(), 'changeMessageSubmit']],
-      '#attributes' => [
-        'class' => [
-          'js-hide',
-          'js-webform-message-change-submit',
-        ],
-      ],
-      '#ajax' => [
-        'callback' => '::ajaxMessageCallback',
-        'wrapper' => 'edit-webform-message-wrapper',
-        'progress' => ['type' => 'fullscreen'],
-      ],
     ];
 
     // Message.
@@ -134,8 +114,6 @@ class WebformSubmissionResendForm extends FormBase {
       '#title' => $this->t('Message'),
       '#open' => TRUE,
       '#tree' => TRUE,
-      '#prefix' => '<div id="edit-webform-message-wrapper">',
-      '#suffix' => '</div>',
     ] + $resend_form;
 
     // Add resend button.
@@ -158,6 +136,13 @@ class WebformSubmissionResendForm extends FormBase {
       '#weight' => -19,
     ];
     $form['#attached']['library'][] = 'webform/webform.admin';
+
+    $this->buildAjaxElement(
+      'webform-message-handler',
+      $form['message'],
+      $form['message_handler']['message_handler_id'],
+      $form['message_handler']
+    );
 
     return $form;
   }
@@ -196,9 +181,9 @@ class WebformSubmissionResendForm extends FormBase {
     return $this->webformSubmission->getWebform()->getHandler($message_handler_id);
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Helper methods.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * Get a webform submission's message handlers as options.
@@ -243,40 +228,20 @@ class WebformSubmissionResendForm extends FormBase {
     return $options;
   }
 
-  /****************************************************************************/
-  // Change message handling.
-  /****************************************************************************/
+  /* ************************************************************************ */
+  // Change message ajax callbacks.
+  /* ************************************************************************ */
 
   /**
-   * Change message handler.
-   *
-   * @param array $form
-   *   An associative array containing the structure of the form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The current state of the form.
+   * {@inheritdoc}
    */
-  public static function changeMessageSubmit(array &$form, FormStateInterface $form_state) {
+  public static function submitAjaxElementCallback(array $form, FormStateInterface $form_state) {
     // Unset the message so that it can be completely rebuilt.
     NestedArray::unsetValue($form_state->getUserInput(), ['message']);
     $form_state->unsetValue('message');
 
     // Rebuild the form.
     $form_state->setRebuild();
-  }
-
-  /**
-   * Handles switching between messages.
-   *
-   * @param array $form
-   *   An associative array containing the structure of the form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The current state of the form.
-   *
-   * @return array
-   *   An associative array containing an email message.
-   */
-  public function ajaxMessageCallback(array $form, FormStateInterface $form_state) {
-    return $form['message'];
   }
 
 }

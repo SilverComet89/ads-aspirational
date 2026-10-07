@@ -22,21 +22,25 @@ class Select extends OptionsBase {
   /**
    * {@inheritdoc}
    */
-  public function getDefaultProperties() {
-    return [
+  protected function defineDefaultProperties() {
+    $properties = [
       // Options settings.
       'multiple' => FALSE,
       'multiple_error' => '',
       'empty_option' => '',
       'empty_value' => '',
+      'sort_options' => FALSE,
       'select2' => FALSE,
       'choices' => FALSE,
       'chosen' => FALSE,
       'placeholder' => '',
       'help_display' => '',
       'size' => '',
-    ] + parent::getDefaultProperties();
+    ] + parent::defineDefaultProperties();
+    return $properties;
   }
+
+  /* ************************************************************************ */
 
   /**
    * {@inheritdoc}
@@ -114,6 +118,9 @@ class Select extends OptionsBase {
       $element['#attributes']['data-limit'] = $element['#multiple'];
     }
 
+    // Attach library which allows options to be disabled via JavaScript.
+    $element['#attached']['library'][] = 'webform/webform.element.select';
+
     parent::prepare($element, $webform_submission);
   }
 
@@ -146,7 +153,7 @@ class Select extends OptionsBase {
     $form['options']['choices'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Choices'),
-      '#description' => $this->t('Replace select element with <a href=":href">Choice.js</a> select box.', [':href' => 'https://joshuajohnson.co.uk/Choices/']),
+      '#description' => $this->t('Replace select element with <a href=":href">Choice.js</a> select box.', [':href' => 'https://choices-js.github.io/Choices/']),
       '#return_value' => TRUE,
       '#states' => [
         'disabled' => [

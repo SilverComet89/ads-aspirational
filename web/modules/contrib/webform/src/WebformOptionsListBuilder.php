@@ -4,15 +4,15 @@ namespace Drupal\webform;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Form\OptGroup;
 use Drupal\Core\Url;
 use Drupal\webform\Entity\WebformOptions;
+use Drupal\webform\EntityListBuilder\WebformEntityListBuilderSortLabelTrait;
 use Drupal\webform\Utility\WebformDialogHelper;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Defines a class to build a listing of webform options entities.
@@ -20,6 +20,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * @see \Drupal\webform\Entity\WebformOption
  */
 class WebformOptionsListBuilder extends ConfigEntityListBuilder {
+
+  use WebformEntityListBuilderSortLabelTrait;
 
   /**
    * Search keys.
@@ -36,32 +38,31 @@ class WebformOptionsListBuilder extends ConfigEntityListBuilder {
   protected $category;
 
   /**
-   * Constructs a new WebformOptionsListBuilder object.
+   * Query request.
    *
-   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
-   *   The entity type definition.
-   * @param \Drupal\Core\Entity\EntityStorageInterface $storage
-   *   The entity storage class.
-   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
-   *   The request stack.
+   * @var \Symfony\Component\HttpFoundation\RequestStack
    */
-  public function __construct(EntityTypeInterface $entity_type, EntityStorageInterface $storage, RequestStack $request_stack) {
-    parent::__construct($entity_type, $storage);
-    $this->request = $request_stack->getCurrentRequest();
-
-    $this->keys = $this->request->query->get('search');
-    $this->category = $this->request->query->get('category');
-  }
+  protected $request;
 
   /**
    * {@inheritdoc}
    */
   public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
-    return new static(
-      $entity_type,
-      $container->get('entity.manager')->getStorage($entity_type->id()),
-      $container->get('request_stack')
-    );
+    /** @var \Drupal\webform\WebformOptionsListBuilder $instance */
+    $instance = parent::createInstance($container, $entity_type);
+
+    $instance->request = $container->get('request_stack')->getCurrentRequest();
+
+    $instance->initialize();
+    return $instance;
+  }
+
+  /**
+   * Initialize WebformOptionsListBuilder object.
+   */
+  protected function initialize() {
+    $this->keys = $this->request->query->get('search');
+    $this->category = $this->request->query->get('category');
   }
 
   /**
@@ -111,13 +112,13 @@ class WebformOptionsListBuilder extends ConfigEntityListBuilder {
    *   A render array representing the information summary.
    */
   protected function buildInfo() {
-    $total = $this->getQuery($this->keys, $this->category)->count()->execute();
+    $total = $this->getQuery($this->keys, $this->category)->accessCheck(FALSE)->count()->execute();
     if (!$total) {
       return [];
     }
 
     return [
-      '#markup' => $this->formatPlural($total, '@total option', '@total options', ['@total' => $total]),
+      '#markup' => $this->formatPlural($total, '@count option', '@count options'),
       '#prefix' => '<div>',
       '#suffix' => '</div>',
     ];
@@ -139,7 +140,7 @@ class WebformOptionsListBuilder extends ConfigEntityListBuilder {
       'class' => [RESPONSIVE_PRIORITY_LOW],
     ];
     $header['used_by'] = [
-      'data' => $this->t('Used by Webforms / Composites'),
+      'data' => $this->t('Used by'),
       'class' => [RESPONSIVE_PRIORITY_LOW],
     ];
     return $header + parent::buildHeader();
@@ -150,7 +151,8 @@ class WebformOptionsListBuilder extends ConfigEntityListBuilder {
    */
   public function buildRow(EntityInterface $entity) {
     /** @var \Drupal\webform\WebformOptionsInterface $entity */
-    $row['label'] = $entity->toLink($entity->label(), 'edit-form');
+    $row = [];
+    $row['label'] = $entity->toLink((string) $entity->label(), 'edit-form');
     $row['category'] = $entity->get('category');
     $row['likert'] = $entity->isLikert() ? $this->t('Yes') : $this->t('No');
     $row['alter'] = $entity->hasAlterHooks() ? $this->t('Yes') : $this->t('No');
@@ -167,7 +169,7 @@ class WebformOptionsListBuilder extends ConfigEntityListBuilder {
     if ($entity->access('duplicate')) {
       $operations['duplicate'] = [
         'title' => $this->t('Duplicate'),
-        'weight' => 23,
+        'weight' => 20,
         'url' => Url::fromRoute('entity.webform_options.duplicate_form', ['webform_options' => $entity->id()]),
       ];
     }
@@ -225,7 +227,7 @@ class WebformOptionsListBuilder extends ConfigEntityListBuilder {
     $options = WebformOptions::getElementOptions($element);
     $options = OptGroup::flattenOptions($options);
     foreach ($options as $key => &$value) {
-      if ($key != $value) {
+      if ($key !== $value) {
         $value .= ' (' . $key . ')';
       }
     }
@@ -237,9 +239,9 @@ class WebformOptionsListBuilder extends ConfigEntityListBuilder {
    */
   public function buildOperations(EntityInterface $entity) {
     return parent::buildOperations($entity) + [
-        '#prefix' => '<div class="webform-dropbutton">',
-        '#suffix' => '</div>',
-      ];
+      '#prefix' => '<div class="webform-dropbutton">',
+      '#suffix' => '</div>',
+    ];
   }
 
   /**
@@ -253,7 +255,7 @@ class WebformOptionsListBuilder extends ConfigEntityListBuilder {
    * @return \Drupal\Core\Entity\Query\QueryInterface
    *   An entity query.
    */
-  protected function getQuery($keys = '', $category = '') {
+  protected function getQuery($keys = '', $category = ''): QueryInterface {
     $query = $this->getStorage()->getQuery();
 
     // Filter by key(word).

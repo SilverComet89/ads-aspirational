@@ -3,7 +3,7 @@
  * JavaScript behaviors for admin pages.
  */
 
-(function ($, Drupal, debounce) {
+(function ($, Drupal, debounce, once) {
 
   'use strict';
 
@@ -14,7 +14,7 @@
    */
   Drupal.behaviors.webformFilterAutocomplete = {
     attach: function (context) {
-      $('.webform-filter-form input.form-autocomplete', context).once('webform-autocomplete')
+      $(once('webform-autocomplete', '.webform-filter-form input.form-autocomplete', context))
         .each(function () {
           // If input value is an autocomplete match, reset the input to its
           // default value.
@@ -26,7 +26,7 @@
           $(this).bind('autocompleteselect', function (event, ui) {
             if (ui.item) {
               $(this).val(ui.item.value);
-              this.form.submit();
+              $(this.form).trigger('submit');
             }
           });
         });
@@ -42,12 +42,20 @@
     attach: function (context) {
       // Only attach the click event handler to the entire table and determine
       // which row triggers the event.
-      $('.webform-results-table', context).once('webform-results-table').click(function (event) {
-        if (event.target.tagName === 'A' || event.target.tagName === 'BUTTON') {
+      $(once('webform-results-table', '.webform-results-table', context)).on('click', function (event) {
+        if (event.target.tagName === 'A' || event.target.tagName === 'BUTTON' || event.target.tagName === 'INPUT') {
           return true;
         }
 
-        if ($(event.target).parents('a[href]').length) {
+        if ($(event.target).parents('a[href]').length || $(event.target).parents('.dropbutton-widget').length) {
+          return true;
+        }
+
+        var $input = $(event.target).closest('td').find('input');
+        if ($input.length) {
+          if ($input.attr('type') === 'checkbox') {
+            $input.click();
+          }
           return true;
         }
 
@@ -62,4 +70,4 @@
     }
   };
 
-})(jQuery, Drupal, Drupal.debounce);
+})(jQuery, Drupal, Drupal.debounce, once);

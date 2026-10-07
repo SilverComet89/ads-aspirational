@@ -3,14 +3,16 @@
  * Off-canvas styles.
  */
 
-#drupal-off-canvas .webform-default-data textarea {
-  font-family: monospace;
+#drupal-off-canvas:not(.drupal-off-canvas-reset) .webform-default-data textarea,
+#drupal-off-canvas-wrapper .webform-default-data textarea {
   white-space: pre;
+  font-family: monospace;
 }
 
-#drupal-off-canvas .webform-default-data pre {
-  border: 1px solid #ddd;
+#drupal-off-canvas:not(.drupal-off-canvas-reset) .webform-default-data pre,
+#drupal-off-canvas-wrapper .webform-default-data pre {
   padding: 10px;
-  font-family: monospace;
   white-space: pre;
+  border: 1px solid #ddd;
+  font-family: monospace;
 }

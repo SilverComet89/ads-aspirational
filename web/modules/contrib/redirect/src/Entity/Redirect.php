@@ -60,6 +60,8 @@ class Redirect extends ContentEntityBase {
    *   Base 64 hash.
    */
   public static function generateHash($source_path, array $source_query, $language) {
+    // Remove leading and trailing slashes, and convert to lowercase.
+    $source_path = trim(mb_strtolower($source_path), '/');
     $hash = [
       'source' => mb_strtolower($source_path),
       'language' => $language,
@@ -85,6 +87,11 @@ class Redirect extends ContentEntityBase {
    * {@inheritdoc}
    */
   public function preSave(EntityStorageInterface $storage_controller) {
+    // Strip any trailing slashes as these are removed when looking for matching
+    // redirects.
+    // @see \Drupal\redirect\EventSubscriber\RedirectRequestSubscriber::onKernelRequestCheckRedirect()
+    $this->redirect_source->path = rtrim($this->redirect_source->path, '/');
+
     // Get the language code directly from the field as language() might not
     // be up to date if the language was just changed.
     $this->set('hash', Redirect::generateHash($this->redirect_source->path, (array) $this->redirect_source->query, $this->get('language')->value));
@@ -207,7 +214,7 @@ class Redirect extends ContentEntityBase {
   public function setRedirect($url, array $query = [], array $options = []) {
     $uri = $url . ($query ? '?' . UrlHelper::buildQuery($query) : '');
     $external = UrlHelper::isValid($url, TRUE);
-    $uri = ($external ? $url : 'internal:/' . ltrim($uri, '/'));
+    $uri = ($external ? $uri : 'internal:/' . ltrim($uri, '/'));
     $this->redirect_redirect->set(0, ['uri' => $uri, 'options' => $options]);
   }
 
@@ -244,7 +251,7 @@ class Redirect extends ContentEntityBase {
    */
   public function getRedirectOption($key, $default = NULL) {
     $options = $this->getRedirectOptions();
-    return isset($options[$key]) ? $options[$key] : $default;
+    return $options[$key] ?? $default;
   }
 
   /**
@@ -305,7 +312,7 @@ class Redirect extends ContentEntityBase {
       ->setTranslatable(FALSE)
       ->setSettings([
         'link_type' => LinkItemInterface::LINK_GENERIC,
-        'title' => DRUPAL_DISABLED
+        'title' => DRUPAL_DISABLED,
       ])
       ->setDisplayOptions('form', [
         'type' => 'link',

@@ -22,7 +22,7 @@ class ImceFolder extends ImceItem {
   /**
    * Scan status.
    *
-   * @var boolean
+   * @var bool
    */
   public $scanned;
 
@@ -52,10 +52,10 @@ class ImceFolder extends ImceItem {
    *
    * @param string $name
    *   Folder name.
-   * @param array $conf
+   * @param array|null $conf
    *   Folder configuration.
    */
-  public function __construct($name, array $conf = NULL) {
+  public function __construct($name, ?array $conf = NULL) {
     parent::__construct($name);
     $this->setConf($conf);
   }
@@ -67,20 +67,18 @@ class ImceFolder extends ImceItem {
     if (isset($this->conf)) {
       return $this->conf;
     }
-    // Inherit parent conf
-    if ($parent = $this->parent) {
-      if ($conf = $parent->getConf()) {
-        if (Imce::permissionInFolderConf('browse_subfolders', $conf)) {
-          return $conf + ['inherited' => TRUE];
-        }
-      }
+    // Inherit parent conf.
+    $parent = $this->parent;
+    $conf = $parent ? $parent->getConf() : NULL;
+    if ($conf && Imce::permissionInFolderConf('browse_subfolders', $conf)) {
+      return $conf + ['inherited' => TRUE];
     }
   }
 
   /**
    * Sets folder configuration.
    */
-  public function setConf(array $conf = NULL) {
+  public function setConf(?array $conf = NULL) {
     $this->conf = $conf;
   }
 
@@ -97,14 +95,14 @@ class ImceFolder extends ImceItem {
   public function setPath($path) {
     $oldpath = $this->path;
     if ($path !== $oldpath) {
-      // Remove oldpath references
-      if (isset($oldpath)) {
+      // Remove oldpath references.
+      if ($oldpath !== NULL) {
         unset($this->fm()->tree[$oldpath]);
         foreach ($this->subfolders as $name => $item) {
           $item->setPath(NULL);
         }
       }
-      // Add new path references
+      // Add new path references.
       $this->path = $path;
       if (isset($path)) {
         $this->fm()->tree[$path] = $this;
@@ -130,10 +128,12 @@ class ImceFolder extends ImceItem {
 
   /**
    * Returns an item by name.
+   *
    * Scans the folder if needed.
    */
   public function checkItem($name) {
-    if (!$item = $this->getItem($name)) {
+    $item = $this->getItem($name);
+    if (!$item) {
       if (!$this->scanned) {
         $this->scan();
         $item = $this->getItem($name);
@@ -224,7 +224,8 @@ class ImceFolder extends ImceItem {
       return $this;
     }
     foreach ($this->subfolders as $folder) {
-      if ($folder = $folder->hasPredefinedPath()) {
+      $folder = $folder->hasPredefinedPath();
+      if ($folder) {
         return $folder;
       }
     }
@@ -235,26 +236,27 @@ class ImceFolder extends ImceItem {
    * Scans folder content.
    */
   public function scan() {
-    if (!$this->scanned) {
-      $this->scanned = TRUE;
-      $options = [
-        'browse_files' => $this->getPermission('browse_files'),
-        'browse_subfolders' => $this->getPermission('browse_subfolders'),
-      ];
-      $content = $this->fm()->scanDir($this->getUri(), $options);
-      // Add files as raw data. We create the objects when needed.
-      $this->files = $this->items = $content['files'];
-      // Create the subfolder objects.
-      $subfolders = $this->subfolders;
-      $this->subfolders = [];
-      foreach ($content['subfolders'] as $name => $uri) {
-        // Check if previously created
-        if (isset($subfolders[$name]) && is_object($subfolders[$name])) {
-          $this->subfolders[$name] = $this->items[$name] = $subfolders[$name];
-        }
-        else {
-          $this->addSubfolder($name);
-        }
+    if ($this->scanned) {
+      return;
+    }
+    $this->scanned = TRUE;
+    $options = [
+      'browse_files' => $this->getPermission('browse_files'),
+      'browse_subfolders' => $this->getPermission('browse_subfolders'),
+    ];
+    $content = $this->fm()->scanDir($this->getUri(), $options);
+    // Add files as raw data. We create the objects when needed.
+    $this->files = $this->items = $content['files'];
+    // Create the subfolder objects.
+    $subfolders = $this->subfolders;
+    $this->subfolders = [];
+    foreach ($content['subfolders'] as $name => $uri) {
+      // Check if previously created.
+      if (isset($subfolders[$name]) && is_object($subfolders[$name])) {
+        $this->subfolders[$name] = $this->items[$name] = $subfolders[$name];
+      }
+      else {
+        $this->addSubfolder($name);
       }
     }
   }

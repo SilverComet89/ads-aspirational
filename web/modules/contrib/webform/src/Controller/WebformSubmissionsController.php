@@ -5,6 +5,7 @@ namespace Drupal\webform\Controller;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\webform\WebformInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -12,6 +13,22 @@ use Symfony\Component\HttpFoundation\Request;
  * Provides route responses for Webform submissions.
  */
 class WebformSubmissionsController extends ControllerBase {
+
+  /**
+   * The entity repository.
+   *
+   * @var \Drupal\Core\Entity\EntityRepositoryInterface
+   */
+  protected $entityRepository;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    $instance = parent::create($container);
+    $instance->entityRepository = $container->get('entity.repository');
+    return $instance;
+  }
 
   /**
    * Returns response for the source entity autocompletion.
@@ -41,6 +58,7 @@ class WebformSubmissionsController extends ControllerBase {
       }
 
       $query = $storage->getQuery();
+      $query->accessCheck(TRUE);
       $query->range(0, 10);
       $query->condition($definition->getKey('id'), $source_entity_ids, 'IN');
       $query->condition($query->orConditionGroup()
@@ -52,7 +70,7 @@ class WebformSubmissionsController extends ControllerBase {
 
       $entities = $storage->loadMultiple($entity_ids);
       foreach ($entities as $source_entity_id => $source_entity) {
-        $label = Html::escape($this->entityManager()->getTranslationFromContext($source_entity)->label());
+        $label = Html::escape($this->entityRepository->getTranslationFromContext($source_entity)->label());
         $value = "$label ($source_entity_type:$source_entity_id)";
         $matches[] = [
           'value' => $value,

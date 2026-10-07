@@ -2,9 +2,9 @@
 
 namespace Drupal\webform;
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\user\EntityOwnerInterface;
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\user\UserInterface;
 
 /**
@@ -64,6 +64,24 @@ interface WebformSubmissionInterface extends ContentEntityInterface, EntityOwner
    *   The serial number.
    */
   public function serial();
+
+  /**
+   * Gets the langcode of the field values held in the object.
+   *
+   * @return string
+   *   The langcode.
+   */
+  public function getLangcode();
+
+  /**
+   * Sets the langcode of the field values held in the object.
+   *
+   * @param string $langcode
+   *   The langcode.
+   *
+   * @return $this
+   */
+  public function setLangcode($langcode);
 
   /**
    * Returns the time that the submission was created.
@@ -140,6 +158,8 @@ interface WebformSubmissionInterface extends ContentEntityInterface, EntityOwner
   /**
    * Get the submission's sticky flag.
    *
+   * Please note that the sticky flag is displayed as a star.
+   *
    * @return string
    *   The submission's stick flag.
    */
@@ -147,6 +167,8 @@ interface WebformSubmissionInterface extends ContentEntityInterface, EntityOwner
 
   /**
    * Sets the submission's sticky flag.
+   *
+   * Please note that the sticky flag is displayed as a star.
    *
    * @param bool $sticky
    *   The submission's stick flag.
@@ -245,6 +267,8 @@ interface WebformSubmissionInterface extends ContentEntityInterface, EntityOwner
   /**
    * Returns the submission sticky status.
    *
+   * Please note that the sticky flag is displayed as a star.
+   *
    * @return bool
    *   TRUE if the submission is sticky.
    */
@@ -303,10 +327,18 @@ interface WebformSubmissionInterface extends ContentEntityInterface, EntityOwner
   public function setElementData($key, $value);
 
   /**
-   * Gets the webform submission's data.
+   * Gets the webform submission's raw data.
    *
    * @return array
-   *   The webform submission data.
+   *   The webform submission raw data.
+   */
+  public function getRawData();
+
+  /**
+   * Gets the webform submission's data with computed valued.
+   *
+   * @return array
+   *   The webform submission data with computed valued.
    */
   public function getData();
 
@@ -339,10 +371,29 @@ interface WebformSubmissionInterface extends ContentEntityInterface, EntityOwner
   public function setOriginalData(array $data);
 
   /**
+   * Get a webform submission element's original data.
+   *
+   * @param string $key
+   *   An webform submission element's key.
+   *
+   * @return mixed
+   *   An webform submission element's original data/value.
+   */
+  public function getElementOriginalData($key);
+
+  /**
+   * Get a webform submission data as a hash view.
+   *
+   * @return string
+   *   Webform submission data as a hash view.
+   */
+  public function getDataHash();
+
+  /**
    * Gets the webform submission's token.
    *
-   * @return array
-   *   The webform submission data.
+   * @return string
+   *   The webform submission token.
    */
   public function getToken();
 
@@ -376,16 +427,22 @@ interface WebformSubmissionInterface extends ContentEntityInterface, EntityOwner
   /**
    * Gets the webform submission's secure tokenized URL.
    *
+   * @param string $operation
+   *   Token URL's operation. Defaults to update.
+   *
    * @return \Drupal\Core\Url
    *   The webform submission's secure tokenized URL.
    */
-  public function getTokenUrl();
+  public function getTokenUrl($operation = 'update');
 
   /**
    * Invoke all webform handlers method.
    *
    * @param string $method
    *   The webform handler method to be invoked.
+   *
+   * @return \Drupal\Core\Access\AccessResult|null
+   *   If 'access' method is invoked an AccessResult is returned.
    */
   public function invokeWebformHandlers($method);
 
@@ -415,9 +472,10 @@ interface WebformSubmissionInterface extends ContentEntityInterface, EntityOwner
    *
    * @param bool $custom
    *   If TRUE, return customized array that contains simplified properties
-   *   and webform submission data.
+   *   and webform submission (element) data.
    * @param bool $check_access
-   *   If TRUE, view access is checked for element data.
+   *   If $custom and $check_access is TRUE, view access is checked
+   *   for webform submission (element) data.
    *
    * @return mixed[]
    *   An array of property values, keyed by property name.

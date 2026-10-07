@@ -23,7 +23,8 @@ class VerboseMessengerTest extends UnitTestCase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
+    parent::setUp();
     $config_factory = $this->getConfigFactoryStub(['pathauto.settings' => ['verbose' => TRUE]]);
     $account = $this->createMock(AccountInterface::class);
     $account->expects($this->once())

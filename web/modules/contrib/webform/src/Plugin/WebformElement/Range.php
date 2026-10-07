@@ -23,7 +23,7 @@ class Range extends NumericBase {
   /**
    * {@inheritdoc}
    */
-  public function getDefaultProperties() {
+  protected function defineDefaultProperties() {
     $properties = [
       // Number settings.
       'min' => 0,
@@ -34,16 +34,21 @@ class Range extends NumericBase {
       'output__field_prefix' => '',
       'output__field_suffix' => '',
       'output__attributes' => [],
-    ] + parent::getDefaultProperties();
+    ] + parent::defineDefaultProperties();
     unset(
       $properties['size'],
       $properties['minlength'],
       $properties['maxlength'],
       $properties['placeholder'],
-      $properties['autocomplete']
+      $properties['autocomplete'],
+      $properties['format_items'],
+      $properties['format_items_html'],
+      $properties['format_items_text']
     );
     return $properties;
   }
+
+  /* ************************************************************************ */
 
   /**
    * {@inheritdoc}
@@ -62,7 +67,7 @@ class Range extends NumericBase {
       return;
     }
 
-    $webform_key = (isset($element['#webform_key'])) ? $element['#webform_key'] : 'range';
+    $webform_key = $element['#webform_key'] ?? 'range';
 
     if (in_array($element['#output'], ['above', 'below'])) {
       $element += ['#output__attributes' => []];
@@ -189,10 +194,10 @@ class Range extends NumericBase {
       '#title' => $this->t("Output the range's value"),
       '#empty_option' => $this->t('- None -'),
       '#options' => [
-        'right' => t('Right'),
-        'left' => t('Left'),
-        'above' => t('Above (Floating)'),
-        'below' => t('Below (Floating)'),
+        'right' => $this->t('Right'),
+        'left' => $this->t('Left'),
+        'above' => $this->t('Above (Floating)'),
+        'below' => $this->t('Below (Floating)'),
       ],
     ];
 

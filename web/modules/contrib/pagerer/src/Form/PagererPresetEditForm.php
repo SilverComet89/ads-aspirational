@@ -20,7 +20,7 @@ class PagererPresetEditForm extends PagererPresetFormBase {
     $form = parent::form($form, $form_state);
 
     // Fake pager for preview.
-    $this->pagererFactory->get(0)->init(47884, 50);
+    $this->pagerManager->createPager(47884, 50);
 
     // Add admin UI library.
     $form['#attached']['library'][] = 'pagerer/admin.ui';
@@ -124,7 +124,7 @@ class PagererPresetEditForm extends PagererPresetFormBase {
    * Refreshes the form after a change of a style.
    */
   public function processStyleChange($form, FormStateInterface $form_state) {
-    drupal_set_message($this->t('Click on the <em>Save</em> button to confirm the selection.'), 'warning');
+    $this->messenger->addMessage($this->t('Click on the <em>Save</em> button to confirm the selection.'), 'warning');
     $response = new AjaxResponse();
     $status_messages = ['#type' => 'status_messages'];
     $response->addCommand(new HtmlCommand('#pagerer-ajax-messages', $status_messages));
@@ -188,7 +188,7 @@ class PagererPresetEditForm extends PagererPresetFormBase {
       $form_state->setRedirect('entity.pagerer_preset.pane_reset_form', ['pagerer_preset' => $this->entity->id(), 'pane' => $pane]);
     }
     else {
-      drupal_set_message($this->t('Changes to the pager %label have been saved.', ['%label' => $this->entity->label()]));
+      $this->messenger->addMessage($this->t('Changes to the pager %label have been saved.', ['%label' => $this->entity->label()]));
     }
   }
 

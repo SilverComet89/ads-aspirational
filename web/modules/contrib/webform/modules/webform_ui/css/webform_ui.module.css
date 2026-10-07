@@ -83,7 +83,7 @@ thead th .dropbutton {
 }
 
 .webform-ui-elements-table tr.webform-ui-element-disabled {
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
   color: #666;
 }
 
@@ -111,11 +111,36 @@ thead th .dropbutton {
   .js-off-canvas-dialog-open .webform-ui-elements-table td {
     display: none;
   }
+
   .js-off-canvas-dialog-open .webform-ui-elements-table th:first-child,
+  .js-off-canvas-dialog-open .webform-ui-elements-table th:nth-child(2),
   .js-off-canvas-dialog-open .webform-ui-elements-table th:last-child,
   .js-off-canvas-dialog-open .webform-ui-elements-table td:first-child,
+  .js-off-canvas-dialog-open .webform-ui-elements-table td:nth-child(2),
   .js-off-canvas-dialog-open .webform-ui-elements-table td:last-child {
     display: table-cell;
+  }
+
+  .js-off-canvas-dialog-open .webform-ui-elements-table th:nth-child(2) span,
+  .js-off-canvas-dialog-open .webform-ui-elements-table td:nth-child(2) span {
+    position: absolute !important;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    width: 1px;
+    height: 1px;
+    word-wrap: normal;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .webform-ui-elements-table th:nth-child(2) span,
+  .webform-ui-elements-table td:nth-child(2) span {
+    position: absolute !important;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    width: 1px;
+    height: 1px;
+    word-wrap: normal;
   }
 }
 
@@ -136,9 +161,13 @@ thead th .dropbutton {
   margin-bottom: 0;
 }
 
-.webform-ui-element-type-table tr td:first-child,
+.webform-ui-element-type-table tr td:first-child a,
 .webform-ui-element-type-table tr td:last-child {
   white-space: nowrap;
+}
+
+.webform-ui-element-type-table tr td:first-child .tippy-content /** Allow tippy tooltip to wrap */ {
+  white-space: normal;
 }
 
 .webform-ui-element-type-table > tbody > tr > td:last-child {
@@ -195,4 +224,8 @@ thead th .dropbutton {
 .form--inline.webform-ui-element-form-inline--input .form-item input[type="text"],
 .form--inline.webform-ui-element-form-inline--input .form-item input[type="number"] {
   width: 140px;
+}
+
+.form--inline.webform-ui-element-form-inline--input .form-item input.webform-ui-element-form-inline--input-double-width {
+  width: 300px;
 }

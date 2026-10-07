@@ -5,158 +5,67 @@
  * Provides an module functionality.
  */
 
+use Drupal\Core\Hook\Attribute\LegacyHook;
+use Drupal\views_fieldsets\Hook\ViewsFieldsetsHooks;
 use Drupal\Component\Utility\SortArray;
-use Drupal\Core\Render\Element;
+use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\views_fieldsets\Plugin\views\field\Fieldset;
 use Drupal\views_ui\ViewUI;
 
 /**
+ * Implements hook_help().
+ */
+#[LegacyHook]
+function views_fieldsets_help($route_name, RouteMatchInterface $route_match) {
+  return \Drupal::service(ViewsFieldsetsHooks::class)->help($route_name, $route_match);
+}
+
+/**
  * Implements hook_theme().
  */
+#[LegacyHook]
 function views_fieldsets_theme() {
-  $vars = ['fields' => [], 'classes' => ''];
-  $path = drupal_get_path('module', 'views_fieldsets');
-  $hooks['views_fieldsets_fieldset'] = [
-    'variables' => $vars + [
-        'legend' => '',
-        'collapsible' => TRUE,
-        'collapsed' => FALSE,
-      ],
-    'template' => 'views-fieldsets-fieldset',
-    'path' => $path,
-  ];
-  $hooks['views_fieldsets_details'] = [
-    'variables' => $vars + ['legend' => '', 'collapsed' => FALSE],
-    'template' => 'views-fieldsets-details',
-    'path' => $path,
-  ];
-  $hooks['views_fieldsets_div'] = [
-    'variables' => $vars,
-    'template' => 'views-fieldsets-div',
-    'path' => $path,
-  ];
-  return $hooks;
+  return \Drupal::service(ViewsFieldsetsHooks::class)->theme();
 }
 
 /**
  * Implements hook_views_data().
  */
+#[LegacyHook]
 function views_fieldsets_views_data() {
-  $data['views']['fieldset'] = [
-    'title' => t('Fieldset'),
-    'help' => t('Create a group of fields.'),
-    'field' => [
-      'id' => 'fieldset',
-    ],
-  ];
-  return $data;
+  return \Drupal::service(ViewsFieldsetsHooks::class)->viewsData();
 }
 
 /**
  * Implements hook_preprocess_views_view_fields().
  */
+#[LegacyHook]
 function views_fieldsets_preprocess_views_view_fields(&$vars) {
-  $view = $vars['view'];
-  Fieldset::replaceFieldsetHandlers($view, $vars['fields'], $vars['row']);
+  \Drupal::service(ViewsFieldsetsHooks::class)->preprocessViewsViewFields($vars);
 }
 
 /**
  * Implements hook_views_ui_display_tab_alter().
  */
+#[LegacyHook]
 function views_fieldsets_views_ui_display_tab_alter(&$build, ViewUI $ui_view, $display_id) {
-  $view = $ui_view->getExecutable();
-  $view->build($display_id);
-  $ui_view->set('executable', $view);
-  if (Fieldset::isFieldsetView($view)) {
-    $fieldsets = Fieldset::getAllFieldsets($view);
-    foreach ($build['details']['columns']['first']['fields']['fields'] as $field_name => &$renderable) {
-      // Noticable fieldsets.
-      if (isset($fieldsets[$field_name])) {
-        $renderable['#class'][] = 'views-fieldsets-fieldset';
-      }
-      // Indentation for all fields.
-      $renderable['#class'][] = 'views-fieldsets-level-' . count(Fieldset::getFieldParents($view, $field_name));
-      unset($renderable);
-    }
-    $build['details']['#attached']['library'][] = 'views_fieldsets/admin';
-  }
+  \Drupal::service(ViewsFieldsetsHooks::class)->viewsUiDisplayTabAlter($build, $ui_view, $display_id);
 }
 
 /**
  * Implements hook_preprocess_views_ui_display_tab_setting().
  */
+#[LegacyHook]
 function views_fieldsets_preprocess_views_ui_display_tab_setting(&$vars) {
-  // Copy #class from views_fieldsets_views_ui_display_tab_alter()
-  // to renderable #attributes.
-  if (!empty($vars['class'])) {
-    $vars['attributes'] += ['class' => []];
-    $vars['attributes']['class'] = array_merge($vars['attributes']['class'], $vars['class']);
-  }
+  \Drupal::service(ViewsFieldsetsHooks::class)->preprocessViewsUiDisplayTabSetting($vars);
 }
 
 /**
  * Implements hook_form_FORM_ID_alter() for views_ui_rearrange_form().
  */
+#[LegacyHook]
 function views_fieldsets_form_views_ui_rearrange_form_alter(&$form, &$form_state) {
-  $ui_view = $form_state->get('view');
-  $view = $ui_view->getExecutable();
-  $view->build($form_state->get('display_id'));
-  $fieldsets = Fieldset::getAllFieldsets($view);
-  $debug_tabledrag = [];
-  foreach (Element::children($form['fields']) as $field_name) {
-    $row = &$form['fields'][$field_name];
-    if (isset($fieldsets[$field_name])) {
-      $row['#attributes']['class'][] = 'views-fieldsets-fieldset';
-    }
-    else {
-      $row['#attributes']['class'][] = 'tabledrag-leaf';
-    }
-    $depth = count(Fieldset::getFieldParents($view, $field_name));
-    $row['name'] = [
-      'indent' => $depth > 0 ? [
-        '#theme' => 'indentation',
-        '#size' => $depth,
-      ] : [],
-      'name' => $row['name'],
-      'field_name' => [
-        '#type' => 'hidden',
-        '#value' => $field_name,
-        '#attributes' => ['class' => ['field-name']],
-      ],
-      'hierarchy' => $debug_tabledrag + [
-          '#type' => 'hidden',
-          '#default_value' => Fieldset::getFieldParent($view, $field_name),
-          '#attributes' => ['class' => ['hierarchy']],
-        ],
-      'depth' => $debug_tabledrag + [
-          '#type' => 'hidden',
-          '#default_value' => $depth,
-          '#attributes' => ['class' => ['depth']],
-        ],
-    ];
-    unset($row);
-  }
-  $form['fields']['#tabledrag'] = [];
-  $form['fields']['#tabledrag'][] = [
-    'action' => 'match',
-    'relationship' => 'parent',
-    'group' => 'hierarchy',
-    'subgroup' => 'hierarchy',
-    'source' => 'field-name',
-    'hidden' => FALSE,
-  ];
-  $form['fields']['#tabledrag'][] = [
-    'action' => 'depth',
-    'relationship' => 'group',
-    'group' => 'depth',
-    'hidden' => FALSE,
-  ];
-  $form['fields']['#tabledrag'][] = [
-    'action' => 'order',
-    'relationship' => 'sibling',
-    'group' => 'weight',
-  ];
-  $form['actions']['submit']['#submit'][] = 'views_fieldsets_views_ui_rearrange_form_submit';
+  \Drupal::service(ViewsFieldsetsHooks::class)->formViewsUiRearrangeFormAlter($form, $form_state);
 }
 
 /**
@@ -167,6 +76,8 @@ function views_fieldsets_views_ui_rearrange_form_submit($form, $form_state) {
   $display_id = $form_state->get('display_id');
   $view = $ui_view->getExecutable();
   $view->setDisplay($display_id);
+  // Re-init handlers.
+  $view->inited = FALSE;
   $view->build($display_id);
   $fieldsets = Fieldset::getAllFieldsets($view);
   // Sort 1-dimensionally (wrong overall, but right per level).
@@ -180,7 +91,7 @@ function views_fieldsets_views_ui_rearrange_form_submit($form, $form_state) {
   // Sort overall: level by level, n-dimensionally following the tree down.
   $input_fields_weights = [];
   foreach ($input_fields as $field_name => $fieldset) {
-    $parents = Fieldset::getUIFieldParents($input_fields, $field_name);
+    $parents = Fieldset::getUiFieldParents($input_fields, $field_name);
     $id = array_reverse(array_merge([$field_name], $parents));
     $id = array_map(function ($field) use ($fields_order) {
       return array_search($field, $fields_order);
@@ -207,9 +118,19 @@ function views_fieldsets_views_ui_rearrange_form_submit($form, $form_state) {
   }
   // Sort the fields storage in the right order too!
   uksort($display_fields, function ($a, $b) use ($input_fields_weights) {
-    return $input_fields_weights[$a] - $input_fields_weights[$b];
+    if (isset($input_fields_weights[$a]) && isset($input_fields_weights[$b])) {
+      return $input_fields_weights[$a] - $input_fields_weights[$b];
+    }
   });
   // Save and save.
   $display->setOption('fields', $display_fields);
   $ui_view->cacheSet();
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+#[LegacyHook]
+function views_fieldsets_theme_suggestions_paragraph(array $variables) {
+  return \Drupal::service(ViewsFieldsetsHooks::class)->themeSuggestionsParagraph($variables);
 }

@@ -2,7 +2,9 @@
 
 namespace Drupal\colorbox\Plugin\Field\FieldFormatter;
 
+use Drupal\Core\Asset\LibraryDiscoveryInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Link;
@@ -45,6 +47,27 @@ class ColorboxFormatter extends ImageFormatterBase implements ContainerFactoryPl
   protected $imageStyleStorage;
 
   /**
+   * Element attachment allowing library to be attached to pages.
+   *
+   * @var \Drupal\colorbox\ElementAttachmentInterface
+   */
+  protected $attachment;
+
+  /**
+   * Drupal\Core\Extension\ModuleHandlerInterface definition.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  private $moduleHandler;
+
+  /**
+   * Library discovery service.
+   *
+   * @var \Drupal\Core\Asset\LibraryDiscoveryInterface
+   */
+  private $libraryDiscovery;
+
+  /**
    * Constructs an ImageFormatter object.
    *
    * @param string $plugin_id
@@ -60,17 +83,36 @@ class ColorboxFormatter extends ImageFormatterBase implements ContainerFactoryPl
    * @param string $view_mode
    *   The view mode.
    * @param array $third_party_settings
-   *   Any third party settings settings.
+   *   Any third party settings.
    * @param \Drupal\Core\Session\AccountInterface $current_user
    *   The current user.
+   * @param \Drupal\Core\Entity\EntityStorageInterface $image_style_storage
+   *   The image style storage.
    * @param \Drupal\colorbox\ElementAttachmentInterface $attachment
    *   Allow the library to be attached to the page.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler
+   *   Module handler services.
+   * @param \Drupal\Core\Asset\LibraryDiscoveryInterface $libraryDiscovery
+   *   Library discovery service.
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, AccountInterface $current_user, EntityStorageInterface $image_style_storage, ElementAttachmentInterface $attachment) {
+  public function __construct($plugin_id,
+                              $plugin_definition,
+                              FieldDefinitionInterface $field_definition,
+                              array $settings,
+                              $label,
+                              $view_mode,
+                              array $third_party_settings,
+                              AccountInterface $current_user,
+                              EntityStorageInterface $image_style_storage,
+                              ElementAttachmentInterface $attachment,
+                              ModuleHandlerInterface $moduleHandler,
+                              LibraryDiscoveryInterface $libraryDiscovery) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
     $this->currentUser = $current_user;
     $this->imageStyleStorage = $image_style_storage;
     $this->attachment = $attachment;
+    $this->moduleHandler = $moduleHandler;
+    $this->libraryDiscovery = $libraryDiscovery;
   }
 
   /**
@@ -86,8 +128,10 @@ class ColorboxFormatter extends ImageFormatterBase implements ContainerFactoryPl
       $configuration['view_mode'],
       $configuration['third_party_settings'],
       $container->get('current_user'),
-      $container->get('entity.manager')->getStorage('image_style'),
-      $container->get('colorbox.attachment')
+      $container->get('entity_type.manager')->getStorage('image_style'),
+      $container->get('colorbox.attachment'),
+      $container->get('module_handler'),
+      $container->get('library.discovery')
     );
   }
 
@@ -176,12 +220,19 @@ class ColorboxFormatter extends ImageFormatterBase implements ContainerFactoryPl
         ],
       ],
     ];
-    if (\Drupal::moduleHandler()->moduleExists('token')) {
+    if ($this->moduleHandler->moduleExists('token')) {
+
+      $entity_type = '';
+
+      if (isset($form['#entity_type']) && !empty($form['#entity_type'])) {
+        $entity_type = $form['#entity_type'];
+      }
+
       $element['colorbox_token_gallery'] = [
         '#type' => 'fieldset',
-        '#title' => t('Replacement patterns'),
+        '#title' => $this->t('Replacement patterns'),
         '#theme' => 'token_tree_link',
-        '#token_types' => [$form['#entity_type'], 'file'],
+        '#token_types' => [$entity_type, 'file'],
         '#states' => [
           'visible' => [
             ':input[name$="[settings_edit_form][settings][colorbox_gallery]"]' => ['value' => 'custom'],
@@ -227,12 +278,19 @@ class ColorboxFormatter extends ImageFormatterBase implements ContainerFactoryPl
         ],
       ],
     ];
-    if (\Drupal::moduleHandler()->moduleExists('token')) {
+    if ($this->moduleHandler->moduleExists('token')) {
+
+      $entity_type = '';
+
+      if (isset($form['#entity_type']) && !empty($form['#entity_type'])) {
+        $entity_type = $form['#entity_type'];
+      }
+
       $element['colorbox_token_caption'] = [
         '#type' => 'fieldset',
-        '#title' => t('Replacement patterns'),
+        '#title' => $this->t('Replacement patterns'),
         '#theme' => 'token_tree_link',
-        '#token_types' => [$form['#entity_type'], 'file'],
+        '#token_types' => [$entity_type, 'file'],
         '#states' => [
           'visible' => [
             ':input[name$="[settings_edit_form][settings][colorbox_caption]"]' => ['value' => 'custom'],
@@ -375,6 +433,15 @@ class ColorboxFormatter extends ImageFormatterBase implements ContainerFactoryPl
     // Attach the Colorbox JS and CSS.
     if ($this->attachment->isApplicable()) {
       $this->attachment->attach($elements);
+
+      $dompurify = $this->libraryDiscovery->getLibraryByName('colorbox', 'dompurify');
+      $dompurify_file = !empty($dompurify['js'][0]['data']) ?
+        DRUPAL_ROOT . '/' . $dompurify['js'][0]['data'] : NULL;
+      $dompurify_exists = !empty($dompurify) && !empty($dompurify_file) &&
+        file_exists($dompurify_file);
+      if ($dompurify_exists) {
+        $elements['#attached']['library'][] = 'colorbox/dompurify';
+      }
     }
 
     return $elements;
@@ -391,8 +458,8 @@ class ColorboxFormatter extends ImageFormatterBase implements ContainerFactoryPl
       $style_ids[] = $this->getSetting('colorbox_node_style_first');
     }
     $style_ids[] = $this->getSetting('colorbox_image_style');
-    /** @var \Drupal\image\ImageStyleInterface $style */
     foreach ($style_ids as $style_id) {
+      /** @var \Drupal\image\ImageStyleInterface $style */
       if ($style_id && $style = ImageStyle::load($style_id)) {
         // If this formatter uses a valid image style to display the image, add
         // the image style configuration entity as dependency of this formatter.
@@ -413,8 +480,8 @@ class ColorboxFormatter extends ImageFormatterBase implements ContainerFactoryPl
       $style_ids['colorbox_node_style_first'] = $this->getSetting('colorbox_node_style_first');
     }
     $style_ids['colorbox_image_style'] = $this->getSetting('colorbox_image_style');
-    /** @var \Drupal\image\ImageStyleInterface $style */
     foreach ($style_ids as $name => $style_id) {
+      /** @var \Drupal\image\ImageStyleInterface $style */
       if ($style_id && $style = ImageStyle::load($style_id)) {
         if (!empty($dependencies[$style->getConfigDependencyKey()][$style->getConfigDependencyName()])) {
           $replacement_id = $this->imageStyleStorage->getReplacementId($style_id);

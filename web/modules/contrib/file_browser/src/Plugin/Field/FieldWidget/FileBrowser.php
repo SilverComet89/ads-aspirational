@@ -31,7 +31,7 @@ class FileBrowser extends FileBrowserWidget {
     // using this widget to continue their work normally, but prevents future
     // users from using this instead of Entity Browser's widget.
     $entity_type_id = $field_definition->getTargetEntityTypeId();
-    $bundle = $field_definition->getTargetBundle();
+    $bundle = $field_definition->getTargetBundle() ?? '';
     $ids = \Drupal::entityQuery('entity_form_display')
       ->condition('bundle', $bundle)
       ->condition('targetEntityType', $entity_type_id)

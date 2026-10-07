@@ -21,14 +21,14 @@ class EntityReferenceFieldFormatterTest extends EntityEmbedTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     // Add a new menu entity which does not has a view controller.
     $this->menu = \Drupal::entityTypeManager()
       ->getStorage('menu')
       ->create([
-        'id' => 'menu_name',
+        'id' => 'menu-name',
         'label' => 'Label',
         'description' => 'Description text',
       ]);
@@ -93,7 +93,7 @@ class EntityReferenceFieldFormatterTest extends EntityEmbedTestBase {
     // Ensure that 'Rendered Entity' plugin is not available for an entity not
     // having a view controller.
     $plugin_options = $this->container->get('plugin.manager.entity_embed.display')->getDefinitionOptionsForEntity($this->menu);
-    $this->assertFalse(array_key_exists('entity_reference:entity_reference_entity_view', $plugin_options), "The 'Rendered entity' plugin is not available.");
+    $this->assertArrayNotHasKey('entity_reference:entity_reference_entity_view', $plugin_options, "The 'Rendered entity' plugin is not available.");
   }
 
   /**
@@ -137,7 +137,7 @@ class EntityReferenceFieldFormatterTest extends EntityEmbedTestBase {
     $settings['body'] = [['value' => $content, 'format' => 'custom_format']];
     $node = $this->drupalCreateNode($settings);
     $this->drupalGet('node/' . $node->id());
-    $this->assertSession()->responseContains($this->node->body->value, 'Body of embedded node does not exists in page.');
+    $this->assertSession()->responseContains($this->node->body->value);
     $this->assertSession()->responseNotContains('This placeholder should not be rendered.');
   }
 

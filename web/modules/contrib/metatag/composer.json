@@ -1,13 +1,12 @@
 {
   "name": "drupal/metatag",
   "description": "Manage meta tags for all entities.",
+  "license": "GPL-2.0-or-later",
   "type": "drupal-module",
-  "license": "GPL-2.0+",
   "keywords": [
     "Drupal",
     "seo"
   ],
-  "homepage": "https://www.drupal.org/project/metatag",
   "authors": [
     {
       "name": "See contributors",
@@ -15,19 +14,30 @@
       "role": "Developer"
     }
   ],
-  "minimum-stability": "dev",
+  "homepage": "https://www.drupal.org/project/metatag",
   "support": {
-    "issues": "http://drupal.org/project/issues/metatag",
-    "source": "http://cgit.drupalcode.org/metatag"
+    "issues": "https://www.drupal.org/project/issues/metatag",
+    "source": "https://git.drupalcode.org/project/metatag",
+    "docs": "https://www.drupal.org/docs/8/modules/metatag"
   },
   "require": {
+    "php": ">=8.0",
+    "drupal/core": "^9.4 || ^10 || ^11",
     "drupal/token": "^1.0"
   },
   "require-dev": {
-    "drupal/devel": "^2.0",
-    "drupal/redirect": "^1.0",
-    "drupal/restui": "^1.0",
+    "drupal/forum": "1.x-dev",
+    "drupal/hal": "^1 || ^2 || ^9",
     "drupal/page_manager": "^4.0",
-    "drupal/schema_metatag": "^1.0"
+    "drupal/redirect": "^1.0",
+    "ergebnis/composer-normalize": "*",
+    "mpyw/phpunit-patch-serializable-comparison": "*"
+  },
+  "minimum-stability": "dev",
+  "extra": {
+    "composer-normalize": {
+      "indent-size": 2,
+      "indent-style": "space"
+    }
   }
 }

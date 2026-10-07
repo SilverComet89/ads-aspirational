@@ -2,7 +2,9 @@
 
 namespace Html2Text;
 
-class SearchReplaceTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class SearchReplaceTest extends TestCase
 {
     public function searchReplaceDataProvider() {
         return array(
@@ -25,6 +27,10 @@ class SearchReplaceTest extends \PHPUnit_Framework_TestCase
             'Table Header' => array(
                 'html'      => '<th>Hello, World!</th>',
                 'expected'  => "\t\tHELLO, WORLD!\n",
+            ),
+            'Apostrophe' => array(
+                'html'      => 'L&#39;incubateur',
+                'expected'  => 'L\'incubateur'
             ),
         );
     }

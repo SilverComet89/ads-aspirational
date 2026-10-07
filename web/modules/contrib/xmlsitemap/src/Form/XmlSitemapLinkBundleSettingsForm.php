@@ -2,10 +2,11 @@
 
 namespace Drupal\xmlsitemap\Form;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Drupal\Core\State\StateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Configure what entities will be included in sitemap.
@@ -16,6 +17,36 @@ class XmlSitemapLinkBundleSettingsForm extends ConfigFormBase {
   private $entity_type;
   private $bundle_type;
   // @codingStandardsIgnoreEnd
+
+  /**
+   * The state system.
+   *
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected $state;
+
+  /**
+   * Constructs a XmlSitemapLinkBundleSettingsForm object.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The factory for configuration objects.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state system.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, StateInterface $state) {
+    parent::__construct($config_factory);
+    $this->state = $state;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('state')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -39,16 +70,7 @@ class XmlSitemapLinkBundleSettingsForm extends ConfigFormBase {
     $this->bundle_type = $bundle;
     $request = $this->getRequest();
 
-    if (!$request->isXmlHttpRequest() && $admin_path = xmlsitemap_get_bundle_path($entity, $bundle)) {
-      // If this is a non-ajax form, redirect to the bundle administration page.
-      $destination = drupal_get_destination();
-      $request->query->remove('destination');
-      $url = Url::fromUri($admin_path, ['query' => [$destination]]);
-      return new RedirectResponse($url);
-    }
-    else {
-      $form['#title'] = $this->t('@bundle XML sitemap settings', ['@bundle' => $bundle]);
-    }
+    $form['#title'] = $this->t('@bundle XML Sitemap settings', ['@bundle' => $bundle]);
 
     xmlsitemap_add_link_bundle_settings($form, $form_state, $entity, $bundle);
     $form['xmlsitemap']['#type'] = 'markup';
@@ -89,18 +111,18 @@ class XmlSitemapLinkBundleSettingsForm extends ConfigFormBase {
     }
 
     $xmlsitemap = $form_state->getValue('xmlsitemap');
-    xmlsitemap_link_bundle_settings_save($this->entity_type, $this->bundle_type, $xmlsitemap, TRUE);
-    \Drupal::state()->set('xmlsitemap_regenerate_needed', TRUE);
+    xmlsitemap_link_bundle_settings_save($this->entity_type, $this->bundle_type, $xmlsitemap);
 
     $entity_info = $form['xmlsitemap']['#entity_info'];
     if (!empty($form['xmlsitemap']['#show_message'])) {
-      drupal_set_message($this->t('XML sitemap settings for the %bundle have been saved.', ['%bundle' => $entity_info['bundles'][$bundle]['label']]));
+      $this->messenger()->addStatus($this->t('XML Sitemap settings for the %bundle have been saved.', ['%bundle' => $entity_info['bundles'][$bundle]['label']]));
     }
 
     // Unset the form values since we have already saved the bundle settings and
     // we don't want these values to get saved as configuration, depending on
     // how the form saves the form values.
     $form_state->unsetValue('xmlsitemap');
+    $form_state->setRedirect('xmlsitemap.admin_settings');
     parent::submitForm($form, $form_state);
   }
 

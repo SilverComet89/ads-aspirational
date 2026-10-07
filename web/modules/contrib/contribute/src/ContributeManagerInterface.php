@@ -13,7 +13,7 @@ interface ContributeManagerInterface {
    * @return array
    *   An associative array containing account status.
    */
-  public function getAccount();
+  public function getAccount($display_type);
 
   /**
    * Get membership status.

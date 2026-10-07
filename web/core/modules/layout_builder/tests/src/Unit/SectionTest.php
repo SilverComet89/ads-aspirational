@@ -2,6 +2,10 @@
 
 namespace Drupal\Tests\layout_builder\Unit;
 
+use Drupal\Core\DependencyInjection\ContainerBuilder;
+use Drupal\Core\Layout\LayoutInterface;
+use Drupal\Core\Layout\LayoutPluginManagerInterface;
+use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\layout_builder\Section;
 use Drupal\layout_builder\SectionComponent;
 use Drupal\Tests\UnitTestCase;
@@ -22,7 +26,7 @@ class SectionTest extends UnitTestCase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->section = new Section(
@@ -59,7 +63,8 @@ class SectionTest extends UnitTestCase {
    * @covers ::getComponent
    */
   public function testGetComponentInvalidUuid() {
-    $this->setExpectedException(\InvalidArgumentException::class, 'Invalid UUID "invalid-uuid"');
+    $this->expectException(\InvalidArgumentException::class);
+    $this->expectExceptionMessage('Invalid UUID "invalid-uuid"');
     $this->section->getComponent('invalid-uuid');
   }
 
@@ -122,7 +127,8 @@ class SectionTest extends UnitTestCase {
    * @covers ::insertAfterComponent
    */
   public function testInsertAfterComponentValidUuidRegionMismatch() {
-    $this->setExpectedException(\InvalidArgumentException::class, 'Invalid preceding UUID "existing-uuid"');
+    $this->expectException(\InvalidArgumentException::class);
+    $this->expectExceptionMessage('Invalid preceding UUID "existing-uuid"');
     $this->section->insertAfterComponent('existing-uuid', new SectionComponent('new-uuid', 'ordered-region'));
   }
 
@@ -130,7 +136,8 @@ class SectionTest extends UnitTestCase {
    * @covers ::insertAfterComponent
    */
   public function testInsertAfterComponentInvalidUuid() {
-    $this->setExpectedException(\InvalidArgumentException::class, 'Invalid preceding UUID "invalid-uuid"');
+    $this->expectException(\InvalidArgumentException::class);
+    $this->expectExceptionMessage('Invalid preceding UUID "invalid-uuid"');
     $this->section->insertAfterComponent('invalid-uuid', new SectionComponent('new-uuid', 'ordered-region'));
   }
 
@@ -169,7 +176,8 @@ class SectionTest extends UnitTestCase {
    * @covers ::insertComponent
    */
   public function testInsertComponentInvalidDelta() {
-    $this->setExpectedException(\OutOfBoundsException::class, 'Invalid delta "7" for the "new-uuid" component');
+    $this->expectException(\OutOfBoundsException::class);
+    $this->expectExceptionMessage('Invalid delta "7" for the "new-uuid" component');
     $this->section->insertComponent(7, new SectionComponent('new-uuid', 'ordered-region'));
   }
 
@@ -180,8 +188,10 @@ class SectionTest extends UnitTestCase {
    *   The expected sections.
    * @param \Drupal\layout_builder\Section $section
    *   The section storage to check.
+   *
+   * @internal
    */
-  protected function assertComponents(array $expected, Section $section) {
+  protected function assertComponents(array $expected, Section $section): void {
     $result = $section->getComponents();
     $this->assertEquals($expected, $result);
     $this->assertSame(array_keys($expected), array_keys($result));
@@ -310,42 +320,42 @@ class SectionTest extends UnitTestCase {
    * @covers ::unsetThirdPartySetting
    * @dataProvider providerTestUnsetThirdPartySetting
    */
-  public function testUnsetThirdPartySetting() {
-    $this->section->unsetThirdPartySetting('bad_judgement', 'blink_speed');
-    $this->assertSame(['spin_direction' => 'clockwise'], $this->section->getThirdPartySettings('bad_judgement'));
-    $this->section->unsetThirdPartySetting('hunt_and_peck', 'delay');
-    $this->assertSame([], $this->section->getThirdPartySettings('hunt_and_peck'));
-    $this->section->unsetThirdPartySetting('bad_judgement', 'non_existing_key');
-    $this->section->unsetThirdPartySetting('non_existing_provider', 'non_existing_key');
+  public function testUnsetThirdPartySetting($provider, $key, $expected) {
+    $this->section->unsetThirdPartySetting($provider, $key);
+    $this->assertSame($expected, $this->section->getThirdPartySettings($provider));
   }
 
   /**
-   * Provides test data for ::testUnsetThirdPartySettings().
+   * Provides test data for ::testUnsetThirdPartySetting().
    */
   public function providerTestUnsetThirdPartySetting() {
     $data = [];
-    $data[] = [
+    $data['Key with values'] = [
       'bad_judgement',
       'blink_speed',
       [
         'spin_direction' => 'clockwise',
       ],
     ];
-    $data[] = [
+    $data['Key without values'] = [
       'hunt_and_peck',
       'delay',
       [],
     ];
-    $data[] = [
+    $data['Non-existing key'] = [
       'bad_judgement',
       'non_existing_key',
-      [],
+      [
+        'blink_speed' => 'fast',
+        'spin_direction' => 'clockwise',
+      ],
     ];
-    $data[] = [
+    $data['Non-existing provider'] = [
       'non_existing_provider',
       'non_existing_key',
       [],
     ];
+
     return $data;
   }
 
@@ -356,6 +366,42 @@ class SectionTest extends UnitTestCase {
     $this->assertSame(['bad_judgement', 'hunt_and_peck'], $this->section->getThirdPartyProviders());
     $this->section->unsetThirdPartySetting('hunt_and_peck', 'delay');
     $this->assertSame(['bad_judgement'], $this->section->getThirdPartyProviders());
+  }
+
+  /**
+   * @covers ::getLayout
+   * @dataProvider providerTestGetLayout
+   */
+  public function testGetLayout(array $contexts, bool $should_context_apply) {
+    $layout = $this->prophesize(LayoutInterface::class);
+    $layout_plugin_manager = $this->prophesize(LayoutPluginManagerInterface::class);
+    $layout_plugin_manager->createInstance('layout_onecol', [])->willReturn($layout->reveal());
+
+    $context_handler = $this->prophesize(ContextHandlerInterface::class);
+    if ($should_context_apply) {
+      $context_handler->applyContextMapping($layout->reveal(), $contexts)->shouldBeCalled();
+    }
+    else {
+      $context_handler->applyContextMapping($layout->reveal(), $contexts)->shouldNotBeCalled();
+    }
+
+    $container = new ContainerBuilder();
+    $container->set('plugin.manager.core.layout', $layout_plugin_manager->reveal());
+    $container->set('context.handler', $context_handler->reveal());
+    \Drupal::setContainer($container);
+
+    $output = $this->section->getLayout($contexts);
+    $this->assertSame($layout->reveal(), $output);
+  }
+
+  /**
+   * Provides test data for ::testGetLayout().
+   */
+  public function providerTestGetLayout() {
+    $data = [];
+    $data['contexts'] = [['foo' => 'bar'], TRUE];
+    $data['no contexts'] = [[], FALSE];
+    return $data;
   }
 
 }

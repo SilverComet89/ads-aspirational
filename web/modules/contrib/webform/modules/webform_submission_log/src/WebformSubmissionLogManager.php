@@ -3,11 +3,12 @@
 namespace Drupal\webform_submission_log;
 
 use Drupal\Core\Database\Connection;
+use Drupal\Core\Database\Query\SelectInterface;
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
-use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 
 /**
  * Webform submission log manager.
@@ -15,11 +16,6 @@ use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 class WebformSubmissionLogManager implements WebformSubmissionLogManagerInterface {
 
   use DependencySerializationTrait;
-
-  /**
-   * Name of the table where log entries are stored.
-   */
-  const TABLE = 'webform_submission_log';
 
   /**
    * The database service.
@@ -31,11 +27,11 @@ class WebformSubmissionLogManager implements WebformSubmissionLogManagerInterfac
   /**
    * WebformSubmissionLogManager constructor.
    *
-   * @param \Drupal\Core\Database\Connection $datababse
+   * @param \Drupal\Core\Database\Connection $database
    *   The database service.
    */
-  public function __construct(Connection $datababse) {
-    $this->database = $datababse;
+  public function __construct(Connection $database) {
+    $this->database = $database;
   }
 
   /**
@@ -53,7 +49,7 @@ class WebformSubmissionLogManager implements WebformSubmissionLogManagerInterfac
       'data' => serialize([]),
       'timestamp' => '',
     ];
-    $this->database->insert(self::TABLE)
+    $this->database->insert(WebformSubmissionLogManagerInterface::TABLE)
       ->fields($fields)
       ->execute();
   }
@@ -61,14 +57,14 @@ class WebformSubmissionLogManager implements WebformSubmissionLogManagerInterfac
   /**
    * {@inheritdoc}
    */
-  public function getQuery(EntityInterface $webform_entity = NULL, EntityInterface $source_entity = NULL, AccountInterface $account = NULL, array $options = []) {
+  public function getQuery(EntityInterface $webform_entity = NULL, EntityInterface $source_entity = NULL, AccountInterface $account = NULL, array $options = []): SelectInterface {
     // Default options.
     $options += [
       'header' => NULL,
       'limit' => NULL,
     ];
 
-    $query = $this->database->select(static::TABLE, 'log');
+    $query = $this->database->select(WebformSubmissionLogManagerInterface::TABLE, 'log');
 
     // Log fields.
     $query->fields('log', [
@@ -85,7 +81,7 @@ class WebformSubmissionLogManager implements WebformSubmissionLogManagerInterfac
     ]);
 
     // User fields.
-    $query->leftJoin('users_field_data', 'user', 'log.uid = user.uid');
+    $query->leftJoin('users_field_data', 'u', 'log.uid = u.uid');
 
     // Submission fields.
     $query->leftJoin('webform_submission', 'submission', 'log.sid = submission.sid');
@@ -138,8 +134,16 @@ class WebformSubmissionLogManager implements WebformSubmissionLogManagerInterfac
       ->execute();
     $records = [];
     while ($record = $result->fetchObject()) {
-      $record->variables = unserialize($record->variables);
-      $record->data = unserialize($record->data);
+      $record->variables = unserialize($record->variables, [
+      'allowed_classes' => [
+        'Drupal\Core\StringTranslation\TranslatableMarkup',
+      ],
+      ]);
+      $record->data = unserialize($record->data, [
+      'allowed_classes' => [
+        'Drupal\Core\StringTranslation\TranslatableMarkup',
+      ],
+      ]);
       $records[] = $record;
     }
     return $records;

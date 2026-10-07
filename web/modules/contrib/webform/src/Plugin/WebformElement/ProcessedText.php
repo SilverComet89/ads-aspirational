@@ -5,6 +5,7 @@ namespace Drupal\webform\Plugin\WebformElement;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\webform\WebformSubmissionInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a 'processed_text' element.
@@ -21,14 +22,30 @@ use Drupal\webform\WebformSubmissionInterface;
 class ProcessedText extends WebformMarkupBase {
 
   /**
+   * The renderer.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
    * {@inheritdoc}
    */
-  public function getDefaultProperties() {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    $instance->renderer = $container->get('renderer');
+    return $instance;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function defineDefaultProperties() {
     if (function_exists('filter_formats')) {
       // Works around filter_default_format() throwing fatal error when
       // user is not allowed to use any filter formats.
       // @see filter_default_format.
-      $formats = filter_formats(\Drupal::currentUser());
+      $formats = filter_formats($this->currentUser);
       $format = reset($formats);
       $default_format = $format ? $format->id() : filter_fallback_format();
     }
@@ -42,15 +59,17 @@ class ProcessedText extends WebformMarkupBase {
       // Markup settings.
       'text' => '',
       'format' => $default_format ,
-    ] + parent::getDefaultProperties();
+    ] + parent::defineDefaultProperties();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getTranslatableProperties() {
-    return array_merge(parent::getTranslatableProperties(), ['text']);
+  protected function defineTranslatableProperties() {
+    return array_merge(parent::defineTranslatableProperties(), ['text']);
   }
+
+  /* ************************************************************************ */
 
   /**
    * {@inheritdoc}
@@ -59,7 +78,7 @@ class ProcessedText extends WebformMarkupBase {
     // Copy to element so that we can render it without altering the actual
     // $element.
     $render_element = $element;
-    $html = (string) \Drupal::service('renderer')->renderPlain($render_element);
+    $html = (string) $this->renderer->renderPlain($render_element);
     $element['#markup'] = MailFormatHelper::htmlToText($html);
 
     // Must remove #type, #text, and #format.
@@ -71,19 +90,12 @@ class ProcessedText extends WebformMarkupBase {
   /**
    * {@inheritdoc}
    */
-  public function preview() {
-    return (\Drupal::moduleHandler()->moduleExists('filter')) ? parent::preview() : [];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function form(array $form, FormStateInterface $form_state) {
     // Issue #2741877 Nested modals don't work: when using CKEditor in a
     // modal, then clicking the image button opens another modal,
     // which closes the original modal.
     // @todo Remove the below workaround once this issue is resolved.
-    if (!$form_state->getUserInput() && \Drupal::currentUser()->hasPermission('administer webform')) {
+    if (!$form_state->getUserInput() && $this->currentUser->hasPermission('administer webform')) {
       $this->messenger()->addWarning($this->t('Processed text element can not be opened within a modal. Please see <a href="https://www.drupal.org/node/2741877">Issue #2741877: Nested modals don\'t work</a>.'));
     }
     $form = parent::form($form, $form_state);
@@ -105,7 +117,7 @@ class ProcessedText extends WebformMarkupBase {
    */
   protected function setConfigurationFormDefaultValue(array &$form, array &$element_properties, array &$property_element, $property_name) {
     // Apply element.format to the text (text_format) element and unset it.
-    if ($property_name == 'text') {
+    if ($property_name === 'text') {
       $property_element['#format'] = $element_properties['format'];
       unset($element_properties['format']);
     }
@@ -117,7 +129,7 @@ class ProcessedText extends WebformMarkupBase {
    * {@inheritdoc}
    */
   protected function getConfigurationFormProperty(array &$properties, $property_name, $property_value, array $element) {
-    if ($property_name == 'text') {
+    if ($property_name === 'text') {
       $properties['text'] = $property_value['value'];
       $properties['format'] = $property_value['format'];
     }

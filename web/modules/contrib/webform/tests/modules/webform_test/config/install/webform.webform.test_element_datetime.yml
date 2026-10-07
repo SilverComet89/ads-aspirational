@@ -1,3 +1,4 @@
+uuid: null
 langcode: en
 status: open
 dependencies:
@@ -13,7 +14,8 @@ archive: false
 id: test_element_datetime
 title: 'Test: Element: Date/time'
 description: 'Test date/time element'
-category: 'Test: Element'
+categories:
+  - 'Test: Element'
 elements: |
   datetime_default:
     '#type': datetime
@@ -64,28 +66,26 @@ elements: |
     '#date_min': '2009-01-01 09:00:00'
     '#date_max': '2009-12-31 17:00:00'
     '#default_value': '2009-01-01 09:00:00'
-  datetime_datepicker_timepicker:
+  datetime_timepicker:
     '#type': datetime
-    '#title': datetime_datepicker_timepicker
+    '#title': datetime_timepicker
     '#default_value': '2009-08-18T01:00:00-05:00'
-    '#date_date_element': datepicker
+    '#date_date_element': text
     '#date_date_format': 'D, m/d/Y'
     '#date_time_element': timepicker
     '#date_time_format': 'g:i A'
-  datetime_datepicker_time_text:
+  datetime_time_text:
     '#type': datetime
-    '#title': datetime_datepicker_time_text
+    '#title': datetime_time_text
     '#default_value': '2009-08-18T01:00:00-05:00'
     '#date_time_element': text
-  datetime_datepicker_timepicker_button:
+  datetime_placeholder:
     '#type': datetime
-    '#title': datetime_datepicker_timepicker_button
-    '#default_value': '2009-08-18T01:00:00-05:00'
-    '#date_date_element': datepicker
-    '#date_date_datepicker_button': true
-    '#date_date_format': 'D, m/d/Y'
+    '#title': datetime_placeholder
+    '#date_date_element': text
+    '#date_date_placeholder': '{date}'
     '#date_time_element': timepicker
-    '#date_time_format': 'g:i A'
+    '#date_time_placeholder': '{time}'
   datetime_time_min_max:
     '#type': datetime
     '#title': datetime_time_min_max
@@ -96,16 +96,16 @@ elements: |
     '#date_time_max': '17:00:00'
     '#date_time_step': '1800'
     '#default_value': '2009-08-18T18:00:00-05:00'
-  datetime_datepicker_timepicker_time_min_max:
+  datetime_timepicker_time_min_max:
     '#type': datetime
-    '#title': datetime_datepicker_timepicker_time_min_max
+    '#title': datetime_timepicker_time_min_max
     '#description': '(2009-01-01 to 2009-12-31 and 09:00:00 to 17:00:00)'
     '#date_date_min': '2009-01-01'
     '#date_date_max': '2009-12-31'
     '#date_time_min': '09:00:00'
     '#date_time_max': '17:00:00'
     '#date_time_step': '1800'
-    '#date_date_element': datepicker
+    '#date_date_element': text
     '#date_date_format': 'D, m/d/Y'
     '#date_time_element': timepicker
     '#date_time_format': 'g:i A'
@@ -116,8 +116,7 @@ elements: |
     '#description': |
       @see <a href="https://www.drupal.org/node/2917107">Issue #2917107: Date and Time validation problem</a><br/>
       @see <a href="https://www.drupal.org/node/2723159">Issue #2723159: Datetime form element cannot validate when using a format without seconds</a><br/>
-      
-    '#date_date_element': datepicker
+      @see <a href="https://www.drupal.org/project/webform/issues/3371639">Issue #3371639: The form won't submit if the user enters a time out of the interval/step</a><br/>
     '#date_time_element': text
     '#date_time_format': 'H:i'
     '#date_time_step': '900'
@@ -126,7 +125,7 @@ elements: |
     '#type': datetime
     '#title': datetime_multiple
     '#default_value': '2009-08-18T01:00:00-05:00'
-    '#date_date_element': datepicker
+    '#date_date_element': text
     '#date_date_format': 'D, m/d/Y'
     '#date_time_element': timepicker
     '#date_time_format': 'g:i A'
@@ -138,7 +137,7 @@ elements: |
       datetime:
         '#type': datetime
         '#title': datetime
-        '#date_date_element': datepicker
+        '#date_date_element': text
         '#date_date_format': d/m/Y
         '#date_time_element': timepicker
         '#date_time_format': 'g:i A'
@@ -146,7 +145,6 @@ elements: |
         '#autocomplete': 'off'
     '#default_value':
       - datetime: '2009-08-18T01:00:00-05:00'
-  
 css: ''
 javascript: ''
 settings:
@@ -158,7 +156,7 @@ settings:
   page: true
   page_submit_path: ''
   page_confirm_path: ''
-  page_admin_theme: false
+  page_theme_name: ''
   form_title: source_entity_webform
   form_submit_once: false
   form_exception_message: ''
@@ -167,7 +165,7 @@ settings:
   form_previous_submissions: true
   form_confidential: false
   form_confidential_message: ''
-  form_remote_addr: true
+  form_disable_remote_addr: false
   form_convert_anonymous: false
   form_prepopulate: false
   form_prepopulate_source_entity: false
@@ -188,6 +186,14 @@ settings:
   form_access_denied_message: ''
   form_access_denied_attributes: {  }
   form_file_limit: ''
+  form_method: ''
+  form_action: ''
+  form_attributes: {  }
+  share: false
+  share_node: false
+  share_theme_name: ''
+  share_title: true
+  share_page_body_attributes: {  }
   submission_label: ''
   submission_log: false
   submission_views: {  }
@@ -212,11 +218,22 @@ settings:
   wizard_progress_pages: false
   wizard_progress_percentage: false
   wizard_progress_link: false
+  wizard_progress_states: false
+  wizard_auto_forward: true
+  wizard_auto_forward_hide_next_button: false
+  wizard_keyboard: true
   wizard_start_label: ''
   wizard_preview_link: false
   wizard_confirmation: true
   wizard_confirmation_label: ''
   wizard_track: ''
+  wizard_prev_button_label: ''
+  wizard_next_button_label: ''
+  wizard_toggle: false
+  wizard_toggle_show_label: ''
+  wizard_toggle_hide_label: ''
+  wizard_page_type: container
+  wizard_page_title_tag: h2
   preview: 1
   preview_label: ''
   preview_title: ''
@@ -259,7 +276,11 @@ settings:
   purge_days: null
   results_disabled: false
   results_disabled_ignore: false
+  results_customize: false
+  token_view: false
   token_update: false
+  token_delete: false
+  serial_disabled: false
 access:
   create:
     roles:
@@ -311,8 +332,12 @@ handlers:
   debug:
     id: debug
     label: Debug
+    notes: ''
     handler_id: debug
     status: true
     conditions: {  }
     weight: 1
-    settings: {  }
+    settings:
+      format: yaml
+      submission: false
+variants: {  }

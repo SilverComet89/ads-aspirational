@@ -16,9 +16,24 @@ class FastTest extends BrowserTestBase {
    *
    * @var array
    */
-  public static $modules = ['theme_test'];
+  protected static $modules = ['theme_test'];
 
-  protected function setUp() {
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * User allowed to access use profiles.
+   *
+   * @var \Drupal\user\Entity\User
+   */
+  protected $account;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp(): void {
     parent::setUp();
     $this->account = $this->drupalCreateUser(['access user profiles']);
   }
@@ -29,8 +44,8 @@ class FastTest extends BrowserTestBase {
   public function testUserAutocomplete() {
     $this->drupalLogin($this->account);
     $this->drupalGet('user/autocomplete', ['query' => ['q' => $this->account->getAccountName()]]);
-    $this->assertRaw($this->account->getAccountName());
-    $this->assertNoText('registry initialized', 'The registry was not initialized');
+    $this->assertSession()->responseContains($this->account->getAccountName());
+    $this->assertSession()->pageTextNotContains('registry initialized');
   }
 
 }

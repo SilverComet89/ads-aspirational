@@ -5,7 +5,7 @@ disqus:
     js/disqus.settings.js: {}
   dependencies:
     - core/jquery
-    - core/jquery.once
+    - core/once
     - core/drupal
     - core/drupal.form
 ga:
@@ -14,3 +14,12 @@ ga:
     js/disqus_ga.js: {}
   dependencies:
     - disqus/disqus
+    - core/jquery
+notification:
+  version: 1.x
+  js:
+    js/disqus_notification.js: {}
+  dependencies:
+    - disqus/disqus
+    - core/jquery
+    - core/drupalSettings

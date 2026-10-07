@@ -51,13 +51,13 @@ function _views_slideshow_preprocess_views_view_slideshow(&$vars) {
   // Make sure the main slideshow settings are defined before building the
   // slideshow.
   if (empty($main_frame_module)) {
-    drupal_set_message(
+    \Drupal::messenger()->addMessage(
       t('No main frame module is enabled for views slideshow. This is often because another module which Views Slideshow needs is not enabled. For example, 4.x needs a module like "Views Slideshow: Cycle" enabled.'),
       'error'
     );
   }
   elseif (empty($options[$main_frame_module])) {
-    drupal_set_message(t('The options for @module does not exists.', ['@module' => $main_frame_module]), 'error');
+    \Drupal::messenger()->addMessage(t('The options for @module does not exists.', ['@module' => $main_frame_module]), 'error');
   }
   elseif (!empty($vars['rows'])) {
     $settings = $options[$main_frame_module];
@@ -163,7 +163,7 @@ function _views_slideshow_preprocess_views_view_slideshow(&$vars) {
         if (is_array($widgets)) {
           foreach ($widgets as $widgetData) {
             $vars[$location . '_widget_rendered'][] = [
-              '#theme' => $view->buildThemeFunctions($widgetData['widgetId'] . '_widget_render'),
+              '#theme' => $view->buildThemeFunctions($widgetData['widgetId'] . '_widget'),
               '#vss_id' => $vss_id,
               '#view' => $view,
               '#settings' => $widgetData['widgetSettings'],
@@ -196,7 +196,7 @@ function _views_slideshow_preprocess_views_view_slideshow(&$vars) {
 /**
  * Views Slideshow: pager.
  */
-function template_preprocess_views_slideshow_pager_widget_render(&$vars) {
+function template_preprocess_views_slideshow_pager_widget(&$vars) {
   // Add JavaScript settings for the pager type.
   $vars['#attached']['library'][] = 'views_slideshow/widget_info';
   $vars['#attached']['drupalSettings']['viewsSlideshowPager'][$vars['vss_id']] = [
@@ -209,7 +209,7 @@ function template_preprocess_views_slideshow_pager_widget_render(&$vars) {
   $attributes['class'][] = 'widget_pager widget_pager_' . $vars['location'];
   $attributes['id'] = 'widget_pager_' . $vars['location'] . '_' . $vars['vss_id'];
 
-  $pager = [
+  $vars['widget'] = [
     '#theme' => $vars['view']->buildThemeFunctions($vars['settings']['type']),
     '#vss_id' => $vars['vss_id'],
     '#view' => $vars['view'],
@@ -217,8 +217,6 @@ function template_preprocess_views_slideshow_pager_widget_render(&$vars) {
     '#location' => $vars['location'],
     '#attributes' => $attributes,
   ];
-
-  return \Drupal::service('renderer')->render($pager);
 }
 
 /**
@@ -292,7 +290,7 @@ function template_preprocess_views_slideshow_pager_bullets(&$vars) {
   $vars['#attached']['library'][] = 'views_slideshow/pager_bullets';
   $vars['#attached']['drupalSettings']['viewsSlideshowPagerFields'][$vars['vss_id']] = [
     $vars['location'] => [
-      'activatePauseOnHover' => $vars['settings']['views_slideshow_pager_bullets']['views_slideshow_pager_bullets_hover'],
+      'activatePauseOnHover' => $vars['settings']['views_slideshow_pager_bullets']['views_slideshow_pager_bullets_hover'] ?? '',
     ],
   ];
 
@@ -317,7 +315,7 @@ function template_preprocess_views_slideshow_pager_bullets(&$vars) {
 /**
  * Views Slideshow: Controls.
  */
-function template_preprocess_views_slideshow_controls_widget_render(&$vars) {
+function template_preprocess_views_slideshow_controls_widget(&$vars) {
   // Add JavaScript settings for the controls type.
   $vars['#attached']['library'][] = 'views_slideshow/widget_info';
   $vars['#attached']['drupalSettings']['viewsSlideshowControls'][$vars['vss_id']] = [
@@ -326,7 +324,7 @@ function template_preprocess_views_slideshow_controls_widget_render(&$vars) {
     ],
   ];
 
-  $output = [
+  $vars['widget'] = [
     '#theme' => $vars['view']->buildThemeFunctions($vars['settings']['type']),
     '#vss_id' => $vars['vss_id'],
     '#view' => $vars['view'],
@@ -334,8 +332,6 @@ function template_preprocess_views_slideshow_controls_widget_render(&$vars) {
     '#location' => $vars['location'],
     '#rows' => $vars['rows'],
   ];
-
-  return \Drupal::service('renderer')->render($output);
 }
 
 /**
@@ -393,8 +389,8 @@ function template_preprocess_views_slideshow_controls_text_next(&$vars) {
 /**
  * Views Slideshow: Slide Counter.
  */
-function template_preprocess_views_slideshow_slide_counter_widget_render(&$vars) {
-  $slide = [
+function template_preprocess_views_slideshow_slide_counter_widget(&$vars) {
+  $vars['widget'] = [
     '#theme' => $vars['view']->buildThemeFunctions('views_slideshow_slide_counter'),
     '#vss_id' => $vars['vss_id'],
     '#view' => $vars['view'],
@@ -402,8 +398,6 @@ function template_preprocess_views_slideshow_slide_counter_widget_render(&$vars)
     '#location' => $vars['location'],
     '#rows' => $vars['rows'],
   ];
-
-  return \Drupal::service('renderer')->render($slide);
 }
 
 /**

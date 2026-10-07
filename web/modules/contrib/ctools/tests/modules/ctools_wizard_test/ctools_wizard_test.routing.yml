@@ -1,19 +1,19 @@
 ctools.wizard.test:
   path: '/ctools/wizard'
   defaults:
-    _wizard: '\Drupal\ctools_wizard_test\Wizard\WizardTest'
+    _wizard: '\Drupal\ctools_wizard_test\Wizard\EntityWizard'
     _title: 'Wizard Test'
     tempstore_id: 'ctools.wizard.test'
-    machine_name: 'WizardTest'
+    machine_name: 'EntityWizard'
   requirements:
     _access: 'TRUE'
 ctools.wizard.test.step:
   path: '/ctools/wizard/{step}'
   defaults:
-    _wizard: '\Drupal\ctools_wizard_test\Wizard\WizardTest'
+    _wizard: '\Drupal\ctools_wizard_test\Wizard\EntityWizard'
     _title: 'Wizard Test'
     tempstore_id: 'ctools.wizard.test'
-    machine_name: 'WizardTest'
+    machine_name: 'EntityWizard'
   requirements:
     _access: 'TRUE'
 
@@ -66,6 +66,16 @@ entity.ctools_wizard_test_config_entity.external_form:
   defaults:
     _title: 'Edit Example config entity'
     _form: '\Drupal\ctools_wizard_test\Form\ExampleConfigEntityExternalForm'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
+
+entity.ctools_wizard_test_config_entity.canonical:
+  path: '/admin/structure/ctools_wizard_test_config_entity/{ctools_wizard_test_config_entity}'
+  defaults:
+    _entity_view: 'ctools_wizard_test_config_entity'
+    _title_callback: '\Drupal\Core\Entity\Controller\EntityController::title'
   requirements:
     _permission: 'administer site configuration'
   options:

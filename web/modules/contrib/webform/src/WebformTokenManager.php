@@ -6,8 +6,8 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -64,7 +64,10 @@ class WebformTokenManager implements WebformTokenManagerInterface {
    *
    * @see webform_token_info_alter()
    */
-  static protected $suffixes = [
+  protected static $suffixes = [
+    // Base64 encode the token's value.
+    // @see https://www.php.net/manual/en/function.base64-encode.php
+    'base64encode',
     // Removes the token when not replaced.
     'clear',
     // Decodes HTML entities.
@@ -72,7 +75,11 @@ class WebformTokenManager implements WebformTokenManagerInterface {
     // Removes all HTML tags from the token's value.
     'striptags',
     // URL encodes the token's value.
+    // @see https://www.php.net/manual/en/function.urlencode.php
     'urlencode',
+    // Raw URL encodes the token's value.
+    // @see https://www.php.net/manual/en/function.rawurlencode.php
+    'rawurlencode',
     // XML encodes the token's value.
     'xmlencode',
   ];
@@ -97,8 +104,6 @@ class WebformTokenManager implements WebformTokenManagerInterface {
     $this->configFactory = $config_factory;
     $this->moduleHandler = $module_handler;
     $this->token = $token;
-
-    $this->config = $this->configFactory->get('webform.settings');
   }
 
   /**
@@ -108,7 +113,7 @@ class WebformTokenManager implements WebformTokenManagerInterface {
     // Replace tokens within an array.
     if (is_array($text)) {
       foreach ($text as $key => $token_value) {
-        $text[$key] = $this->replace($token_value, $entity, $data, $options);
+        $text[$key] = $this->replace($token_value, $entity, $data, $options, $bubbleable_metadata);
       }
       return $text;
     }
@@ -206,9 +211,9 @@ class WebformTokenManager implements WebformTokenManagerInterface {
     $options += $token_options;
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Token elements.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * {@inheritdoc}
@@ -250,7 +255,8 @@ class WebformTokenManager implements WebformTokenManagerInterface {
     ];
 
     if ($description) {
-      if ($this->config->get('ui.description_help')) {
+      $config = $this->configFactory->get('webform.settings');
+      if ($config->get('ui.description_help')) {
         return [
           '#type' => 'container',
           'token_tree_link' => $build,
@@ -279,9 +285,9 @@ class WebformTokenManager implements WebformTokenManagerInterface {
     }
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Token validation.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * {@inheritdoc}
@@ -333,25 +339,35 @@ class WebformTokenManager implements WebformTokenManagerInterface {
    * Element is not being based by reference since the #value is being altered.
    */
   public static function validateElement($element, FormStateInterface $form_state, &$complete_form) {
-    $value = isset($element['#value']) ? $element['#value'] : $element['#default_value'];
+    $value = $element['#value'] ?? $element['#default_value'];
 
     if (!mb_strlen($value)) {
       return $element;
     }
 
-    // Remove suffixes which are not valid.
-    $element['#value'] = preg_replace('/\[(webform[^]]+)((?::' . implode('|:', static::$suffixes) . ')+)\]/', '[\1]', $value);
+    // Remove all suffixes which are not valid.
+    $pattern = '/\[((?:webform|current-user)[^]]+)((?::' . implode('|:', static::$suffixes) . ')+)\]/';
+    while (preg_match($pattern, $value)) {
+      $value = preg_replace($pattern, '[\1]', $value);
+    }
+
+    // Remove input names which may contain invalid tokens.
+    // For example, a checkboxes options can include colons.
+    // @see https://www.drupal.org/project/webform/issues/3263195
+    $value = preg_replace('/:input\[name="[^"]+"\]/', '', $value);
 
     // Convert all token field deltas to 0 to prevent unexpected
     // token validation errors.
-    $element['#value'] = preg_replace('/:\d+:/', ':0:', $element['#value']);
+    $value = preg_replace('/:\d+:/', ':0:', $value);
+
+    $element['#value'] = $value;
 
     token_element_validate($element, $form_state);
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Suffix handling.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * Get an array of supported token suffixes.
@@ -434,16 +450,22 @@ class WebformTokenManager implements WebformTokenManagerInterface {
         else {
           // Decode and XSS filter value first.
           if (isset($suffixes['htmldecode'])) {
-            $replace = html_entity_decode($replace);
+            $replace = html_entity_decode($replace, ENT_QUOTES);
             $replace = (isset($suffixes['striptags'])) ? strip_tags($replace) : html_entity_decode(Xss::filterAdmin($replace));
           }
           // Encode URL.
           if (isset($suffixes['urlencode'])) {
             $replace = urlencode($replace);
           }
+          if (isset($suffixes['rawurlencode'])) {
+            $replace = rawurlencode($replace);
+          }
           // Encode xml.
           if (isset($suffixes['xmlencode'])) {
             $replace = htmlspecialchars($replace, ENT_XML1);
+          }
+          if (isset($suffixes['base64encode'])) {
+            $replace = base64_encode($replace);
           }
         }
 

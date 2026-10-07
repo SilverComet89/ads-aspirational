@@ -2,8 +2,9 @@
 
 namespace Drupal\captcha\Entity;
 
-use Drupal\captcha\CaptchaPointInterface;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
+use Drupal\captcha\CaptchaPointInterface;
+use Drupal\captcha\Constants\CaptchaConstants;
 
 /**
  * Defines the CaptchaPoint entity.
@@ -16,7 +17,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   id = "captcha_point",
  *   label = @Translation("Captcha Point"),
  *   handlers = {
- *     "list_builder" = "Drupal\captcha\Controller\CaptchaPointListBuilder",
+ *     "list_builder" = "Drupal\captcha\Entity\Controller\CaptchaPointListBuilder",
  *     "form" = {
  *       "add" = "Drupal\captcha\Form\CaptchaPointForm",
  *       "edit" = "Drupal\captcha\Form\CaptchaPointForm",
@@ -50,10 +51,26 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  * )
  */
 class CaptchaPoint extends ConfigEntityBase implements CaptchaPointInterface {
+
+  /**
+   * The captcha type.
+   *
+   * @var string
+   */
   public $captchaType;
 
+  /**
+   * The captcha label.
+   *
+   * @var string
+   */
   protected $label;
 
+  /**
+   * The formid associated with the captcha.
+   *
+   * @var string
+   */
   public $formId;
 
   /**
@@ -99,8 +116,10 @@ class CaptchaPoint extends ConfigEntityBase implements CaptchaPointInterface {
       return $this->captchaType;
     }
     else {
-      // @Todo inject config via DI.
-      return \Drupal::config('captcha.settings')->get('default_challenge');
+      return static::getConfigManager()
+        ->getConfigFactory()
+        ->get('captcha.settings')
+        ->get('default_challenge');
     }
   }
 
@@ -108,7 +127,7 @@ class CaptchaPoint extends ConfigEntityBase implements CaptchaPointInterface {
    * {@inheritdoc}
    */
   public function setCaptchaType($captcha_type) {
-    $this->captchaType = $captcha_type != 'default' ? $captcha_type : NULL;
+    $this->captchaType = $captcha_type != CaptchaConstants::CAPTCHA_TYPE_DEFAULT ? $captcha_type : NULL;
   }
 
 }

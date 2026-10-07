@@ -1,9 +1,9 @@
 /**
  * @file
- * JavaScript behaviors for webform wizard.
+ * JavaScript behaviors for webform wizard pages.
  */
 
-(function ($, Drupal) {
+(function ($, Drupal, once) {
 
   'use strict';
 
@@ -17,7 +17,7 @@
    */
   Drupal.behaviors.webformWizardPagesLink = {
     attach: function (context) {
-      $('.js-webform-wizard-pages-links', context).once('webform-wizard-pages-links').each(function () {
+      $(once('webform-wizard-pages-links', '.js-webform-wizard-pages-links', context)).each(function () {
         var $pages = $(this);
         var $form = $pages.closest('form');
 
@@ -32,17 +32,23 @@
           // Link progress marker and title.
           if (hasProgressLink) {
             var $progress = $form.find('.webform-progress [data-webform-page="' + page + '"]');
-            $progress.find('.progress-marker, .progress-title')
+            $progress.find('.progress-marker, .progress-title, .webform-progress-bar__page-title')
               .attr({
                 'role': 'link',
                 'title': title,
-                'aria-label': title
+                'aria-label': title,
+                'tabindex': '0'
               })
-              .click(function () {
-                $button.click();
+              .on('click', function () {
+                $button.trigger('click');
+              })
+              .on('keydown', function (event) {
+                if (event.which === 13) {
+                  $button.trigger('click');
+                }
               });
             // Only allow the marker to be tabbable.
-            $progress.find('.progress-marker').attr('tabindex', 0);
+            $progress.find('.progress-marker, .webform-progress-bar__page-title').attr('tabindex', 0);
           }
 
           // Move button to preview page div container with [data-webform-page].
@@ -58,4 +64,4 @@
     }
   };
 
-})(jQuery, Drupal);
+})(jQuery, Drupal, once);

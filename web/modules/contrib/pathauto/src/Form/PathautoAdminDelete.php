@@ -4,8 +4,8 @@ namespace Drupal\pathauto\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\pathauto\AliasTypeManager;
 use Drupal\pathauto\AliasStorageHelperInterface;
+use Drupal\pathauto\AliasTypeManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -87,7 +87,10 @@ class PathautoAdminDelete extends FormBase {
         '#type' => 'checkbox',
         '#title' => (string) $definition['label'],
         '#default_value' => FALSE,
-        '#description' => $this->t('Delete aliases for all @label. Number of aliases which will be deleted: %count.', ['@label' => (string) $definition['label'], '%count' => $count]),
+        '#description' => $this->t('Delete aliases for all @label. Number of aliases which will be deleted: %count.', [
+          '@label' => (string) $definition['label'],
+          '%count' => $count,
+        ]),
       ];
     }
 
@@ -106,7 +109,7 @@ class PathautoAdminDelete extends FormBase {
     ];
 
     // Warn them and give a button that shows we mean business.
-    $form['warning'] = ['#markup' => '<p>' . $this->t('<strong>Note:</strong> there is no confirmation. Be sure of your action before clicking the "Delete aliases now!" button.<br />You may want to make a backup of the database and/or the url_alias table prior to using this feature.') . '</p>'];
+    $form['warning'] = ['#markup' => '<p>' . $this->t('<strong>Note:</strong> there is no confirmation. Be sure of your action before clicking the "Delete aliases now!" button.<br />You may want to make a backup of the database and/or the path_alias and path_alias_revision tables prior to using this feature.') . '</p>'];
     $form['buttons']['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Delete aliases now!'),

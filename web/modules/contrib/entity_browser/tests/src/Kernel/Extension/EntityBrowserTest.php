@@ -9,11 +9,12 @@ use Drupal\Core\Entity\EntityMalformedException;
 use Drupal\Core\Form\FormState;
 use Drupal\entity_browser\DisplayInterface;
 use Drupal\entity_browser\EntityBrowserInterface;
+use Drupal\entity_browser\SelectionDisplayInterface;
 use Drupal\entity_browser\WidgetInterface;
 use Drupal\entity_browser\WidgetSelectorInterface;
-use Drupal\entity_browser\SelectionDisplayInterface;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\views\Entity\View;
+use Symfony\Component\Routing\RouteCollection;
 
 /**
  * Tests the entity_browser config entity.
@@ -27,7 +28,7 @@ class EntityBrowserTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'system',
     'user',
     'views',
@@ -61,15 +62,15 @@ class EntityBrowserTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     FileCacheFactory::setPrefix($this->randomString(4));
     parent::setUp();
 
-    $this->controller = $this->container->get('entity.manager')->getStorage('entity_browser');
+    $this->controller = $this->container->get('entity_type.manager')->getStorage('entity_browser');
     $this->widgetUUID = $this->container->get('uuid')->generate();
     $this->routeProvider = $this->container->get('router.route_provider');
 
-    $this->installSchema('system', ['router', 'key_value_expire', 'sequences']);
+    $this->installSchema('system', ['sequences']);
     View::create(['id' => 'test_view'])->save();
   }
 
@@ -77,7 +78,7 @@ class EntityBrowserTest extends KernelTestBase {
    * Tests CRUD operations.
    */
   public function testEntityBrowserCrud() {
-    $this->assertTrue($this->controller instanceof ConfigEntityStorage, 'The entity_browser storage is loaded.');
+    $this->assertInstanceOf(ConfigEntityStorage::class, $this->controller, 'The entity_browser storage is loaded.');
 
     // Run each test method in the same installation.
     $this->createTests();
@@ -127,7 +128,7 @@ class EntityBrowserTest extends KernelTestBase {
         $this->fail('An entity browser without required ' . $plugin_type . ' created with no exception thrown.');
       }
       catch (PluginException $e) {
-        $this->assertContains('The "" plugin does not exist.', $e->getMessage(), 'An exception was thrown when an entity_browser was created without a ' . $plugin_type . ' plugin.');
+        $this->assertStringContainsString('The "" plugin does not exist.', $e->getMessage(), 'An exception was thrown when an entity_browser was created without a ' . $plugin_type . ' plugin.');
       }
     }
 
@@ -147,7 +148,7 @@ class EntityBrowserTest extends KernelTestBase {
     $entity = $this->controller->create($plugin);
     $entity->save();
 
-    $this->assertTrue($entity instanceof EntityBrowserInterface, 'The newly created entity is an Entity browser.');
+    $this->assertInstanceOf(EntityBrowserInterface::class, $entity, 'The newly created entity is an Entity browser.');
 
     // Verify all of the properties.
     $actual_properties = $this->container->get('config.factory')
@@ -193,7 +194,7 @@ class EntityBrowserTest extends KernelTestBase {
 
     // Ensure that rebuilding routes works.
     $route = $this->routeProvider->getRoutesByPattern('/test-browser-test');
-    $this->assertTrue($route, 'Route exists.');
+    $this->assertInstanceOf(RouteCollection::class, $route);
   }
 
   /**
@@ -203,22 +204,22 @@ class EntityBrowserTest extends KernelTestBase {
     /** @var \Drupal\entity_browser\EntityBrowserInterface $entity */
     $entity = $this->controller->load('test_browser');
 
-    $this->assertTrue($entity instanceof EntityBrowserInterface, 'The loaded entity is an entity browser.');
+    $this->assertInstanceOf(EntityBrowserInterface::class, $entity, 'The loaded entity is an entity browser.');
 
     // Verify several properties of the entity browser.
     $this->assertEquals($entity->label(), 'Testing entity browser instance');
-    $this->assertTrue($entity->uuid());
+    $this->assertNotEmpty($entity->uuid());
     $plugin = $entity->getDisplay();
-    $this->assertTrue($plugin instanceof DisplayInterface, 'Testing display plugin.');
+    $this->assertInstanceOf(DisplayInterface::class, $plugin, 'Testing display plugin.');
     $this->assertEquals($plugin->getPluginId(), 'standalone');
     $plugin = $entity->getSelectionDisplay();
-    $this->assertTrue($plugin instanceof SelectionDisplayInterface, 'Testing selection display plugin.');
+    $this->assertInstanceOf(SelectionDisplayInterface::class, $plugin, 'Testing selection display plugin.');
     $this->assertEquals($plugin->getPluginId(), 'no_display');
     $plugin = $entity->getWidgetSelector();
-    $this->assertTrue($plugin instanceof WidgetSelectorInterface, 'Testing widget selector plugin.');
+    $this->assertInstanceOf(WidgetSelectorInterface::class, $plugin, 'Testing widget selector plugin.');
     $this->assertEquals($plugin->getPluginId(), 'single');
     $plugin = $entity->getWidget($this->widgetUUID);
-    $this->assertTrue($plugin instanceof WidgetInterface, 'Testing widget plugin.');
+    $this->assertInstanceOf(WidgetInterface::class, $plugin, 'Testing widget plugin.');
     $this->assertEquals($plugin->getPluginId(), 'view');
   }
 
@@ -258,14 +259,7 @@ class EntityBrowserTest extends KernelTestBase {
     $this->assertEquals($route->getDefault('_title_callback'), 'Drupal\entity_browser\Controllers\EntityBrowserFormController::title', 'Title callback matches.');
     $this->assertEquals($route->getRequirement('_permission'), 'access ' . $entity->id() . ' entity browser pages', 'Permission matches.');
 
-    try {
-      $registered_route = $this->routeProvider->getRouteByName('entity_browser.' . $entity->id());
-    }
-    catch (\Exception $e) {
-      $this->fail(t('Expected route not found: @message', ['@message' => $e->getMessage()]));
-      return;
-    }
-
+    $registered_route = $this->routeProvider->getRouteByName('entity_browser.' . $entity->id());
     $this->assertEquals($registered_route->getPath(), '/entity-browser/test', 'Dynamic path matches.');
     $this->assertEquals($registered_route->getDefault('entity_browser_id'), $entity->id(), 'Entity browser ID matches.');
     $this->assertEquals($registered_route->getDefault('_controller'), 'Drupal\entity_browser\Controllers\EntityBrowserFormController::getContentResult', 'Controller matches.');
@@ -457,14 +451,14 @@ class EntityBrowserTest extends KernelTestBase {
     $form_state->setValue('dummy_entities', [$entity]);
     $form_object->validateForm($form, $form_state);
 
-    $this->assertNotEmpty($form_state->getErrors(), t('Validation failed where expected'));
+    $this->assertNotEmpty($form_state->getErrors(), 'Validation failed where expected');
 
     // Use an entity that we know will pass validation.
     $form_state->clearErrors();
     $form_state->setValue('dummy_entities', [$user]);
     $form_object->validateForm($form, $form_state);
 
-    $this->assertEmpty($form_state->getErrors(), t('Validation succeeded where expected'));
+    $this->assertEmpty($form_state->getErrors(), 'Validation succeeded where expected');
   }
 
   /**
@@ -485,7 +479,7 @@ class EntityBrowserTest extends KernelTestBase {
     $role = $this->container->get('entity_type.manager')
       ->getStorage('user_role')
       ->create([
-        'name' => $this->randomString(),
+        'label' => $this->randomString(),
         'id' => $this->randomMachineName(),
       ]);
     $role->grantPermission('access content');

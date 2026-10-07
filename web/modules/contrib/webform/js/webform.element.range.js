@@ -3,7 +3,7 @@
  * JavaScript behaviors for range element integration.
  */
 
-(function ($, Drupal) {
+(function ($, Drupal, once) {
 
   'use strict';
 
@@ -14,7 +14,7 @@
    */
   Drupal.behaviors.webformRangeOutputNumber = {
     attach: function (context) {
-      $(context).find('.js-form-type-range').once('webform-range-output-number').each(function () {
+      $(once('webform-range-output-number', '.js-form-type-range', context)).each(function () {
         // Handle browser that don't support the HTML5 range input.
         if (Modernizr.inputtypes.range === false) {
           return;
@@ -31,10 +31,10 @@
         $output.val($input.val());
 
         // Sync input and output values.
-        $input.on('input', function () {
+        $input.on('change input', function () {
           $output.val($input.val());
         });
-        $output.on('input', function () {
+        $output.on('change input', function () {
           $input.val($output.val());
         });
       });
@@ -51,7 +51,7 @@
    */
   Drupal.behaviors.webformRangeOutputBubble = {
     attach: function (context) {
-      $(context).find('.js-form-type-range').once('webform-range-output-bubble').each(function () {
+      $(once('webform-range-output-bubble', '.js-form-type-range', context)).each(function () {
         // Handle browser that don't support the HTML5 range input.
         if (Modernizr.inputtypes.range === false) {
           return;
@@ -68,7 +68,7 @@
 
         $element.css('position', 'relative');
 
-        $input.on('input', function () {
+        $input.on('change input', function () {
           var inputValue = $input.val();
 
           // Set output text with prefix and suffix.
@@ -145,4 +145,4 @@
     }
   };
 
-})(jQuery, Drupal);
+})(jQuery, Drupal, once);

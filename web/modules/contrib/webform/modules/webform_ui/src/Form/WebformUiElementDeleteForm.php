@@ -4,13 +4,12 @@ namespace Drupal\webform_ui\Form;
 
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\RendererInterface;
 use Drupal\webform\Form\WebformDeleteFormBase;
-use Drupal\webform\Plugin\WebformElementManagerInterface;
-use Drupal\webform\WebformEntityElementsValidatorInterface;
+use Drupal\webform\Plugin\WebformElementVariantInterface;
+use Drupal\webform\Utility\WebformElementHelper;
 use Drupal\webform\WebformInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Webform for deleting a webform element.
@@ -25,14 +24,14 @@ class WebformUiElementDeleteForm extends WebformDeleteFormBase {
   protected $renderer;
 
   /**
-   * Webform element manager.
+   * The webform element manager.
    *
    * @var \Drupal\webform\Plugin\WebformElementManagerInterface
    */
   protected $elementManager;
 
   /**
-   * Webform element validator.
+   * The webform element validator.
    *
    * @var \Drupal\webform\WebformEntityElementsValidatorInterface
    */
@@ -67,35 +66,19 @@ class WebformUiElementDeleteForm extends WebformDeleteFormBase {
   protected $element;
 
   /**
-   * Constructs a WebformUiElementDeleteForm.
-   *
-   * @param \Drupal\Core\Render\RendererInterface $renderer
-   *   The renderer.
-   * @param \Drupal\webform\Plugin\WebformElementManagerInterface $element_manager
-   *   The webform element manager.
-   * @param \Drupal\webform\WebformEntityElementsValidatorInterface $elements_validator
-   *   Webform element validator.
-   */
-  public function __construct(RendererInterface $renderer, WebformElementManagerInterface $element_manager, WebformEntityElementsValidatorInterface $elements_validator) {
-    $this->renderer = $renderer;
-    $this->elementManager = $element_manager;
-    $this->elementsValidator = $elements_validator;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('renderer'),
-      $container->get('plugin.manager.webform.element'),
-      $container->get('webform.elements_validator')
-    );
+    $instance = parent::create($container);
+    $instance->renderer = $container->get('renderer');
+    $instance->elementManager = $container->get('plugin.manager.webform.element');
+    $instance->elementsValidator = $container->get('webform.elements_validator');
+    return $instance;
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Delete form.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * {@inheritdoc}
@@ -141,7 +124,9 @@ class WebformUiElementDeleteForm extends WebformDeleteFormBase {
     if ($element_plugin->isContainer($this->element)) {
       $items[] = $this->t('Delete all child elements');
     }
-
+    if ($element_plugin instanceof WebformElementVariantInterface) {
+      $items[] = $this->t('Delete all related variants');
+    }
     return [
       'title' => [
         '#markup' => $this->t('This action will…'),
@@ -170,9 +155,9 @@ class WebformUiElementDeleteForm extends WebformDeleteFormBase {
     }
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Form methods.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * {@inheritdoc}
@@ -213,12 +198,20 @@ class WebformUiElementDeleteForm extends WebformDeleteFormBase {
     $this->webform->save();
 
     $this->messenger()->addStatus($this->t('The webform element %title has been deleted.', ['%title' => $this->getElementTitle()]));
-    $form_state->setRedirectUrl($this->webform->toUrl('edit-form'));
+
+    $query = [];
+    // Variants require the entire page to be reloaded so that Variants tab
+    // can be hidden.
+    if ($this->getWebformElementPlugin() instanceof WebformElementVariantInterface) {
+      $query = ['reload' => 'true'];
+    }
+
+    $form_state->setRedirectUrl($this->webform->toUrl('edit-form', ['query' => $query]));
   }
 
-  /****************************************************************************/
+  /* ************************************************************************ */
   // Helper methods.
-  /****************************************************************************/
+  /* ************************************************************************ */
 
   /**
    * Get deleted elements as item list.
@@ -262,7 +255,7 @@ class WebformUiElementDeleteForm extends WebformDeleteFormBase {
    *   The webform element's title or key,
    */
   protected function getElementTitle() {
-    return (!empty($this->element['#title'])) ? $this->element['#title'] : $this->key;
+    return WebformElementHelper::getAdminTitle($this->element);
   }
 
   /**

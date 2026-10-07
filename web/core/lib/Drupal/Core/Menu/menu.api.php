@@ -317,19 +317,19 @@ function hook_menu_local_tasks_alter(&$data, $route_name, \Drupal\Core\Cache\Ref
 
   // Add a tab linking to node/add to all pages.
   $data['tabs'][0]['node.add_page'] = [
-      '#theme' => 'menu_local_task',
-      '#link' => [
-          'title' => t('Example tab'),
-          'url' => Url::fromRoute('node.add_page'),
-          'localized_options' => [
-              'attributes' => [
-                  'title' => t('Add content'),
-              ],
-          ],
+    '#theme' => 'menu_local_task',
+    '#link' => [
+      'title' => t('Example tab'),
+      'url' => Url::fromRoute('node.add_page'),
+      'localized_options' => [
+        'attributes' => [
+          'title' => t('Add content'),
+        ],
       ],
+    ],
   ];
   // The tab we're adding is dependent on a user's access to add content.
-  $cacheability->addCacheTags(['user.permissions']);
+  $cacheability->addCacheContexts(['user.permissions']);
 }
 
 /**
@@ -400,7 +400,7 @@ function hook_contextual_links_alter(array &$links, $group, array $route_paramet
   if ($group == 'menu') {
     // Dynamically use the menu name for the title of the menu_edit contextual
     // link.
-    $menu = \Drupal::entityManager()->getStorage('menu')->load($route_parameters['menu']);
+    $menu = \Drupal::entityTypeManager()->getStorage('menu')->load($route_parameters['menu']);
     $links['menu_edit']['title'] = t('Edit menu: @label', ['@label' => $menu->label()]);
   }
 }
@@ -485,7 +485,9 @@ function hook_system_breadcrumb_alter(\Drupal\Core\Breadcrumb\Breadcrumb &$bread
  */
 function hook_link_alter(&$variables) {
   // Add a warning to the end of route links to the admin section.
-  if (isset($variables['route_name']) && strpos($variables['route_name'], 'admin') !== FALSE) {
+  /** @var \Drupal\Core\Url $url */
+  $url = $variables['url'];
+  if ($url->isRouted() && strpos($url->getRouteName(), 'admin') !== FALSE) {
     $variables['text'] = t('@text (Warning!)', ['@text' => $variables['text']]);
   }
 }

@@ -21,6 +21,8 @@ class ImporterService {
    */
   public static $messages = [];
 
+  public static $options = [];
+
   /**
    * Main method: execute parsing and saving of redirects.
    *
@@ -32,19 +34,19 @@ class ImporterService {
   public static function import($file, array $options) {
     // Parse the CSV file into a readable array.
     $data = self::read($file, $options);
-
+    self::$options = $options;
     // Perform Drupal-specific validation logic on each row.
     $data = array_filter($data, ['self', 'preSave']);
 
     if ($options['suppress_messages'] != 1 && !empty(self::$messages['warning'])) {
       // Messaging/logging is separated out in case we want to suppress these.
       foreach (self::$messages['warning'] as $warning) {
-        drupal_set_message($warning, 'warning');
+        \Drupal::messenger()->addWarning($warning, 'warning');
       }
     }
 
     if (empty($data)) {
-      drupal_set_message(t('The uploaded file contains no rows with compatible redirect data. No redirects have imported. Compare your file to <a href=":sample">this sample data.</a>', [':sample' => '/' . drupal_get_path('module', 'path_redirect_import') . '/redirect-example-file.csv']), 'warning');
+      \Drupal::messenger()->addWarning(t('The uploaded file contains no rows with compatible redirect data. No redirects have imported. Compare your file to <a href=":sample">this sample data.</a>', [':sample' => '/' . drupal_get_path('module', 'path_redirect_import') . '/redirect-example-file.csv']));
     }
     else {
       if (PHP_SAPI == 'cli' && function_exists('drush_main')) {
@@ -83,7 +85,7 @@ class ImporterService {
     else {
       $message = t('Finished with an error.');
     }
-    drupal_set_message($message, 'status');
+    \Drupal::messenger()->addStatus($message);
   }
 
   /**
@@ -125,7 +127,7 @@ class ImporterService {
       $message = [];
       $line_no++;
       if ($line_no == 1 && !$options['no_headers']) {
-        drupal_set_message(t('Skipping the header row.'));
+        \Drupal::messenger()->addMessage(t('Skipping the header row.'));
         continue;
       }
 
@@ -148,7 +150,7 @@ class ImporterService {
         }
       }
 
-      if (empty($line[3])) {
+      if (empty($line[3]) || !\Drupal::moduleHandler()->moduleExists('language')) {
         $line[3] = $options['language'];
       }
       elseif (!self::isValidLanguage($line[3])) {
@@ -193,7 +195,7 @@ class ImporterService {
     }
 
     // Disallow redirects to nonexistent internal paths.
-    if (self::internalPathMissing($row['redirect'])) {
+    if (self::internalPathMissing($row['redirect']) && self::$options['allow_nonexistent'] == 0) {
       self::$messages['warning'][] = t('The destination path "@redirect" does not exist on the site. Redirect from "@source" bypassed.', ['@redirect' => $row['redirect'], '@source' => $row['source']]);
       return FALSE;
     }
@@ -233,7 +235,7 @@ class ImporterService {
       $query = isset($parsed_url['query']) ? $parsed_url['query'] : NULL;
 
       /** @var \Drupal\redirect\Entity\Redirect $redirect */
-      $redirectEntityManager = \Drupal::service('entity.manager')->getStorage('redirect');
+      $redirectEntityManager = \Drupal::entityTypeManager()->getStorage('redirect');
       $redirect = $redirectEntityManager->create();
       $redirect->setSource($path, $query);
     }
@@ -248,12 +250,11 @@ class ImporterService {
     $redirect->setStatusCode($redirect_array['status_code']);
     $redirect->setLanguage($redirect_array['language']);
     $redirect->save();
-    drupal_set_message(t('@message_type redirect from @source to @redirect', [
+    \Drupal::messenger()->addStatus(t('@message_type redirect from @source to @redirect', [
       '@message_type' => $message_type,
       '@source' => $redirect_array['source'],
       '@redirect' => $redirect_array['redirect'],
-    ]),
-    'status');
+    ]));
   }
 
   /**
@@ -305,14 +306,14 @@ class ImporterService {
     if (!isset($parsed['scheme'])) {
       // Check for aliases *including* named anchors/query strings.
       $alias = self::addLeadingSlash($destination);
-      $normal_path = \Drupal::service('path.alias_manager')->getPathByAlias($alias);
+      $normal_path = \Drupal::service('path_alias.manager')->getPathByAlias($alias);
       if ($alias != $normal_path) {
         return FALSE;
       }
       // Check for aliases *excluding* named anchors/query strings.
       if (isset($parsed['path'])) {
         $alias = self::addLeadingSlash($parsed['path']);
-        $normal_path = \Drupal::service('path.alias_manager')->getPathByAlias($alias);
+        $normal_path = \Drupal::service('path_alias.manager')->getPathByAlias($alias);
         if ($alias != $normal_path) {
           return FALSE;
         }

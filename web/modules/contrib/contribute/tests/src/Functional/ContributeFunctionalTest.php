@@ -14,6 +14,11 @@ class ContributeFunctionalTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = ['contribute'];
 
   /**

@@ -2,10 +2,12 @@
 
 namespace Drupal\Tests\ctools\Unit;
 
+use Prophecy\PhpUnit\ProphecyTrait;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\Context\ContextDefinition;
+use Drupal\Core\Plugin\Context\EntityContextDefinition;
 use Drupal\Core\TypedData\DataDefinition;
 use Drupal\Core\TypedData\Plugin\DataType\IntegerData;
 use Drupal\Core\TypedData\TypedDataManager;
@@ -20,6 +22,8 @@ use Drupal\Tests\UnitTestCase;
  */
 class ContextMapperTest extends UnitTestCase {
 
+  use ProphecyTrait;
+
   /**
    * The typed data manager.
    *
@@ -28,11 +32,15 @@ class ContextMapperTest extends UnitTestCase {
   protected $typedDataManager;
 
   /**
+   * The entity repository.
+   *
    * @var \Drupal\Core\Entity\EntityRepositoryInterface|\Prophecy\Prophecy\ProphecyInterface
    */
   protected $entityRepository;
 
   /**
+   * The static context.
+   *
    * @var \Drupal\page_manager\ContextMapper
    */
   protected $staticContext;
@@ -40,7 +48,7 @@ class ContextMapperTest extends UnitTestCase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->typedDataManager = $this->prophesize(TypedDataManager::class);
@@ -96,7 +104,7 @@ class ContextMapperTest extends UnitTestCase {
         'value' => 'the_node_uuid',
       ],
     ];
-    $expected = new EntityLazyLoadContext(new ContextDefinition('entity:node', 'Foo'), $this->entityRepository->reveal(), 'the_node_uuid');
+    $expected = new EntityLazyLoadContext(new EntityContextDefinition('entity:node', 'Foo'), $this->entityRepository->reveal(), 'the_node_uuid');
     $actual = $this->staticContext->getContextValues($input)['foo'];
     $this->assertEquals($expected, $actual);
   }

@@ -45,12 +45,17 @@ class MediaImageTest extends EntityEmbedTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['entity_embed_test'];
+  protected $defaultTheme = 'stable9';
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected static $modules = ['entity_embed_test'];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp(): void {
     parent::setUp();
 
     // Note that media_install() grants 'view media' to all users by default.
@@ -107,7 +112,7 @@ class MediaImageTest extends EntityEmbedTestBase {
 
     $this->pressEditorButton('test_node');
     $this->assertSession()->waitForId('drupal-modal');
-
+    $this->assertSession()->waitForField('entity_id');
     // Test that node embed doesn't display alt and title fields.
     $this->assertSession()
       ->fieldExists('entity_id')
@@ -117,7 +122,7 @@ class MediaImageTest extends EntityEmbedTestBase {
 
     // Assert that the review step displays the selected entity with the label.
     $text = $form->getText();
-    $this->assertContains('Red-lipped batfish', $text);
+    $this->assertStringContainsString('Red-lipped batfish', $text);
 
     $select = $this->assertSession()
       ->selectExists('attributes[data-entity-embed-display]');
@@ -158,7 +163,7 @@ class MediaImageTest extends EntityEmbedTestBase {
 
     // Assert that the review step displays the selected entity with the label.
     $text = $form->getText();
-    $this->assertContains('Screaming hairy armadillo', $text);
+    $this->assertStringContainsString('Screaming hairy armadillo', $text);
 
     $select = $this->assertSession()
       ->selectExists('attributes[data-entity-embed-display]');
@@ -406,6 +411,7 @@ class MediaImageTest extends EntityEmbedTestBase {
     $this->assignNameToCkeditorIframe();
     $this->pressEditorButton('test_media_entity_embed');
     $this->assertSession()->waitForId('drupal-modal');
+    $this->assertSession()->waitForField('entity_id');
 
     // Embed media.
     $this->assertSession()
@@ -503,8 +509,8 @@ class MediaImageTest extends EntityEmbedTestBase {
     $this->pressEditorButton('source');
     $source = $this->assertSession()->elementExists('css', "textarea.cke_source");
     $value = $source->getValue();
-    $this->assertContains('https://www.drupal.org/project/drupal', $value);
-    $this->assertNotContains('data-cke-saved-href', $value);
+    $this->assertStringContainsString('https://www.drupal.org/project/drupal', $value);
+    $this->assertStringNotContainsString('data-cke-saved-href', $value);
 
     // Save the entity.
     $this->assertSession()->buttonExists('Save')->press();
@@ -625,7 +631,9 @@ class MediaImageTest extends EntityEmbedTestBase {
     $this->getSession()->switchToIFrame('ckeditor');
 
     // Select the CKEditor Widget and click the "link" button.
-    $this->assertSession()->elementExists('css', 'drupal-entity')->click();
+    $drupal_entity = $this->assertSession()->waitForElementVisible('css', 'drupal-entity');
+    $this->assertNotEmpty($drupal_entity);
+    $drupal_entity->click();
     $this->pressEditorButton('drupallink');
     $this->assertSession()->waitForId('drupal-modal');
 
@@ -708,8 +716,8 @@ class MediaImageTest extends EntityEmbedTestBase {
 
     // Configure a different default and admin theme, like on most Drupal sites.
     $this->config('system.theme')
-      ->set('default', 'stable')
-      ->set('admin', 'classy')
+      ->set('default', 'stable9')
+      ->set('admin', 'stark')
       ->save();
 
     // Assert that when looking at an embedded entity in the CKEditor Widget,
@@ -723,15 +731,15 @@ class MediaImageTest extends EntityEmbedTestBase {
     $this->getSession()->switchToIFrame('ckeditor');
     $this->assertSession()->waitForElementVisible('css', 'img[src*="image-test.png"]');
     $element = $this->assertSession()->elementExists('css', '[data-entity-embed-test-active-theme]');
-    $this->assertSame('stable', $element->getAttribute('data-entity-embed-test-active-theme'));
+    $this->assertSame('stable9', $element->getAttribute('data-entity-embed-test-active-theme'));
 
-    // Assert that the first preview request transferred >2 KB over the wire.
+    // Assert that the first preview request transferred data over the wire.
     // Then toggle source mode on and off. This causes the CKEditor widget to be
     // destroyed and then reconstructed. Assert that during this reconstruction,
     // a second request is sent. This second request should have transferred 0
     // bytes: the browser should have cached the response, thus resulting in a
     // much better user experience.
-    $this->assertGreaterThan(2048, $this->getLastPreviewRequestTransferSize());
+    $this->assertGreaterThan(0, $this->getLastPreviewRequestTransferSize());
     $this->pressEditorButton('source');
     $this->assertSession()->waitForElement('css', 'textarea.cke_source');
     $this->pressEditorButton('source');
@@ -745,6 +753,7 @@ class MediaImageTest extends EntityEmbedTestBase {
    * Gets the transfer size of the last preview request.
    *
    * @return int
+   *   The transfer size in octets.
    */
   protected function getLastPreviewRequestTransferSize() {
     $this->getSession()->switchToIFrame();
@@ -753,7 +762,7 @@ class MediaImageTest extends EntityEmbedTestBase {
   return window.performance
     .getEntries()
     .filter(function (entry) {
-      return entry.initiatorType == 'xmlhttprequest' && entry.name.indexOf('/entity-embed/preview/') !== -1;
+      return entry.initiatorType == 'xmlhttprequest' && entry.name.indexOf('/embed/preview/') !== -1;
     })
     .pop()
     .transferSize;

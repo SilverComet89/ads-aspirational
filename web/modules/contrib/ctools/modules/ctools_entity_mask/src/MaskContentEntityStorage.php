@@ -53,7 +53,7 @@ class MaskContentEntityStorage extends ContentEntityStorageBase {
   /**
    * {@inheritdoc}
    */
-  protected function doLoadMultiple(array $ids = NULL) {
+  protected function doLoadMultiple(?array $ids = NULL) {
     return [];
   }
 
@@ -76,6 +76,13 @@ class MaskContentEntityStorage extends ContentEntityStorageBase {
    */
   public function countFieldData($storage_definition, $as_bool = FALSE) {
     return $as_bool ? FALSE : 0;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function doLoadMultipleRevisionsFieldItems($revision_ids) {
+    return [];
   }
 
 }

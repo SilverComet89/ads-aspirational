@@ -17,8 +17,8 @@ use Drupal\ctools_wizard_test\ExampleConfigEntityInterface;
  *       "delete" = "Drupal\ctools_wizard_test\Form\ExampleConfigEntityDeleteForm"
  *     },
  *     "wizard" = {
- *       "add" = "Drupal\ctools_wizard_test\Wizard\EntityAddWizardTest",
- *       "edit" = "Drupal\ctools_wizard_test\Wizard\EntityEditWizardTest"
+ *       "add" = "Drupal\ctools_wizard_test\Wizard\EntityAddWizard",
+ *       "edit" = "Drupal\ctools_wizard_test\Wizard\EntityEditWizard"
  *     }
  *   },
  *   config_prefix = "ctools_wizard_test_config_entity",
@@ -33,6 +33,12 @@ use Drupal\ctools_wizard_test\ExampleConfigEntityInterface;
  *     "edit-form" = "/admin/structure/ctools_wizard_test_config_entity/{machine_name}/{step}",
  *     "delete-form" = "/admin/structure/ctools_wizard_test_config_entity/{ctools_wizard_test_config_entity}/delete",
  *     "collection" = "/admin/structure/ctools_wizard_test_config_entity"
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "one",
+ *     "two",
  *   }
  * )
  */
@@ -67,14 +73,14 @@ class ExampleConfigEntity extends ConfigEntityBase implements ExampleConfigEntit
   protected $two;
 
   /**
-   * @inheritDoc
+   * {@inheritDoc}
    */
   public function getOne() {
     return $this->one;
   }
 
   /**
-   * @inheritDoc
+   * {@inheritDoc}
    */
   public function getTwo() {
     return $this->two;

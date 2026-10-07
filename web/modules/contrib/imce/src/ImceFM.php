@@ -2,18 +2,21 @@
 
 namespace Drupal\imce;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Drupal\Component\Serialization\Json;
 use Drupal\Component\Render\MarkupInterface;
+use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Imce File Manager.
  */
 class ImceFM {
+
+  use StringTranslationTrait;
 
   /**
    * File manager configuration.
@@ -39,7 +42,7 @@ class ImceFM {
   /**
    * Current validation status for the configuration.
    *
-   * @var boolean
+   * @var bool
    */
   public $validated;
 
@@ -79,32 +82,43 @@ class ImceFM {
   public $messages = [];
 
   /**
+   * Image style for thumbnails.
+   *
+   * @var \Drupal\image\Entity\ImageStyle
+   */
+  private $thumbnailStyle;
+
+  /**
    * Constructs the file manager.
    *
    * @param array $conf
-   *   File manager configuration
-   * @param \Drupal\Core\Session\AccountProxyInterface $user
-   *   The active user
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   *   The active request that contains parameters for file manager operations
+   *   File manager configuration.
+   * @param \Drupal\Core\Session\AccountProxyInterface|null $user
+   *   The active user.
+   * @param \Symfony\Component\HttpFoundation\Request|null $request
+   *   The active request that contains parameters for file manager operations.
    */
-  public function __construct(array $conf, AccountProxyInterface $user = NULL, Request $request = NULL) {
+  public function __construct(array $conf, ?AccountProxyInterface $user = NULL, ?Request $request = NULL) {
     $this->conf = $conf;
-    $this->user = $user ?: \Drupal::currentUser();
+    $this->user = $user ?: Imce::currentUser();
     $this->request = $request;
     $this->init();
   }
 
   /**
-   * Initializes the file manager by validating the current configuration and request.
+   * Initializes the file manager.
+   *
+   * Initializes the file manager by validating
+   *   the current configuration and request.
    */
   protected function init() {
     if (!isset($this->validated)) {
       // Create the root.
       $root = $this->createItem('folder', '.');
       $root->setPath('.');
-      // Check initialization error
-      if ($error = $this->getInitError()) {
+      // Check initialization error.
+      $error = $this->getInitError();
+      if ($error) {
         $this->setMessage($error);
       }
       else {
@@ -123,17 +137,17 @@ class ImceFM {
     $keys = ['folders', 'root_uri'];
     foreach ($keys as $key) {
       if (empty($conf[$key])) {
-        return t('Missing configuration %key.', ['%key' => $key]);
+        return $this->t('Missing configuration %key.', ['%key' => $key]);
       }
     }
     // Check root.
     $root_uri = $conf['root_uri'];
     if (!is_dir($root_uri)) {
       if (!mkdir($root_uri, $this->getConf('chmod_directory', 0775), TRUE)) {
-        return t('Missing root folder.');
+        return $this->t('Missing root folder.');
       }
     }
-    // Check and add predefined folders
+    // Check and add predefined folders.
     foreach ($conf['folders'] as $path => $folder_conf) {
       $path = (string) $path;
       $uri = $this->createUri($path);
@@ -145,22 +159,27 @@ class ImceFM {
       }
     }
     if (!$conf['folders']) {
-      return t('No valid folder definitions found.');
+      return $this->t('No valid folder definitions found.');
     }
     // Check and set active folder if provided.
     $path = $this->getPost('active_path');
     if (isset($path) && $path !== '') {
-      if ($folder = $this->checkFolder($path)) {
+      $folder = $this->checkFolder($path);
+      if ($folder) {
         $this->activeFolder = $folder;
-        // Remember active path
+        // Remember active path.
         if ($this->user->isAuthenticated()) {
-          if (!isset($conf['folders'][$path]) || count($conf['folders']) > 1 || $folder->getPermission('browse_subfolders')) {
+          if (
+            !isset($conf['folders'][$path])
+            || count($conf['folders']) > 1
+            || $folder->getPermission('browse_subfolders')
+          ) {
             $this->request->getSession()->set('imce_active_path', $path);
           }
         }
       }
       else {
-        return t('Invalid active folder path: %path.', ['%path' => $path]);
+        return $this->t('Invalid active folder path: %path.', ['%path' => $path]);
       }
     }
     return FALSE;
@@ -173,10 +192,11 @@ class ImceFM {
     $paths = $this->getPost('selection');
     if ($paths && is_array($paths)) {
       foreach ($paths as $path) {
-        if ($item = $this->checkItem($path)) {
+        $item = $this->checkItem($path);
+        if ($item) {
           $item->select();
         }
-        // Remove non-existing paths from js
+        // Remove non-existing paths from js.
         else {
           $this->removePathFromJs($path);
         }
@@ -201,13 +221,13 @@ class ImceFM {
     // Validate security token.
     $token = $this->getPost('token');
     if (!$token || $token !== $this->getConf('token')) {
-      $this->setMessage(t('Invalid security token.'));
+      $this->setMessage($this->t('Invalid security token.'));
       return FALSE;
     }
     // Let plugins handle the operation.
-    $return = \Drupal::service('plugin.manager.imce.plugin')->handleOperation($op, $this);
+    $return = Imce::service('plugin.manager.imce.plugin')->handleOperation($op, $this);
     if ($return === FALSE) {
-      $this->setMessage(t('Invalid operation %op.', ['%op' => $op]));
+      $this->setMessage($this->t('Invalid operation %op.', ['%op' => $op]));
     }
     return $return;
   }
@@ -215,33 +235,47 @@ class ImceFM {
   /**
    * Adds a folder to the tree.
    */
-  public function addFolder($path, array $conf = NULL) {
+  public function addFolder($path, ?array $conf = NULL) {
     // Existing.
-    if ($folder = $this->getFolder($path)) {
+    $folder = $this->getFolder($path);
+    if ($folder) {
       if (isset($conf)) {
         $folder->setConf($conf);
       }
       return $folder;
     }
     // New. Append to the parent.
-    if ($parts = Imce::splitPath($path)) {
-      list($parent_path, $name) = $parts;
-      if ($parent = $this->addFolder($parent_path)) {
+    $parts = Imce::splitPath($path);
+    if ($parts) {
+      [$parent_path, $name] = $parts;
+      $parent = $this->addFolder($parent_path);
+      if ($parent) {
         return $parent->addSubfolder($name, $conf);
       }
     }
   }
 
   /**
-   * Returns a folder from the tree.
+   * Get folder.
+   *
+   * @param string $path
+   *   The patches folder.
+   *
+   * @return \Drupal\imce\ImceFolder
+   *   Returns a folder from the tree.
    */
   public function getFolder($path) {
-    return isset($this->tree[$path]) ? $this->tree[$path] : NULL;
+    return $this->tree[$path] ?? NULL;
   }
 
   /**
    * Checks if the user provided folder path is accessible.
-   * Returns the folder object with the path.
+   *
+   * @param string $path
+   *   The patches folder.
+   *
+   * @return \Drupal\imce\ImceFolder|null
+   *   Returns the folder object with the path.
    */
   public function checkFolder($path) {
     if (is_array(Imce::folderInConf($path, $this->conf))) {
@@ -251,6 +285,7 @@ class ImceFM {
 
   /**
    * Checks if the user provided file path is accessible.
+   *
    * Returns the file object with the path.
    */
   public function checkFile($path) {
@@ -262,11 +297,14 @@ class ImceFM {
 
   /**
    * Checks the existence of a user provided item path.
+   *
    * Scans the parent folder and returns the item object if it is accessible.
    */
   public function checkItem($path) {
-    if ($parts = Imce::splitPath($path)) {
-      if ($folder = $this->checkFolder($parts[0])) {
+    $parts = Imce::splitPath($path);
+    if ($parts) {
+      $folder = $this->checkFolder($parts[0]);
+      if ($folder) {
         return $folder->checkItem($parts[1]);
       }
     }
@@ -299,14 +337,18 @@ class ImceFM {
    * Returns value of a posted parameter.
    */
   public function getPost($key, $default = NULL) {
-    return $this->request ? $this->request->request->get($key, $default) : $default;
+    if ($this->request) {
+      $params = $this->request->request->all();
+      return $params[$key] ?? $default;
+    }
+    return $default;
   }
 
   /**
    * Returns a configuration option.
    */
   public function getConf($key, $default = NULL) {
-    return isset($this->conf[$key]) ? $this->conf[$key] : $default;
+    return $this->conf[$key] ?? $default;
   }
 
   /**
@@ -393,15 +435,21 @@ class ImceFM {
    * Add an item to the response.
    */
   public function addItemToJs(ImceItem $item) {
-    if ($parent = $item->parent) {
-      if ($path = $parent->getPath()) {
+    $parent = $item->parent;
+    if ($parent) {
+      $path = $parent->getPath();
+      if (isset($path)) {
         $name = $item->name;
         $uri = $item->getUri();
         if ($item->type === 'folder') {
           $this->response['added'][$path]['subfolders'][$name] = $this->getFolderProperties($uri);
         }
         else {
-          $this->response['added'][$path]['files'][$name] = $this->getFileProperties($uri);
+          $props = $this->getFileProperties($uri);
+          if (isset($item->uuid)) {
+            $props['uuid'] = $item->uuid;
+          }
+          $this->response['added'][$path]['files'][$name] = $props;
         }
       }
     }
@@ -427,12 +475,49 @@ class ImceFM {
    * Returns js properties of a file.
    */
   public function getFileProperties($uri) {
-    $properties = ['date' => filemtime($uri), 'size' => filesize($uri)];
-    if (preg_match('/\.(jpe?g|png|gif)$/i', $uri) && $info = getimagesize($uri)) {
-      $properties['width'] = $info[0];
-      $properties['height'] = $info[1];
+    $properties = [
+      'date' => @filemtime($uri) ?: 0,
+      'size' => @filesize($uri) ?: 0,
+    ];
+    // Some file systems need url altering for each file.
+    if (!empty($this->conf['url_alter'])) {
+      $properties['url'] = Imce::service('file_url_generator')->generateAbsoluteString($uri);
+    }
+    // Skip image properties if lazy_dimensions is enabled.
+    if (!empty($this->conf['lazy_dimensions'])) {
+      return $properties;
+    }
+    // Get image properties.
+    $regexp = $this->conf['image_extensions_regexp'] ?? $this->imageExtensionsRegexp();
+    if ($regexp && preg_match($regexp, $uri)) {
+      $info = getimagesize($uri);
+      if ($info) {
+        $properties['width'] = $info[0];
+        $properties['height'] = $info[1];
+        $style = $this->getThumbnailStyle();
+        if ($style && strpos($uri, '/styles/') === FALSE) {
+          $properties['thumbnail'] = $style->buildUrl($uri);
+        }
+      }
     }
     return $properties;
+  }
+
+  /**
+   * Returns thumbnail style.
+   *
+   * @return false|\Drupal\image\ImageStyleInterface
+   *   Drupal ImageStyle entity.
+   */
+  public function getThumbnailStyle() {
+    if (!isset($this->thumbnailStyle)) {
+      $this->thumbnailStyle = FALSE;
+      $style_name = $this->getConf('thumbnail_style');
+      if ($style_name) {
+        $this->thumbnailStyle = Imce::entityStorage('image_style')->load($style_name);
+      }
+    }
+    return $this->thumbnailStyle;
   }
 
   /**
@@ -447,10 +532,12 @@ class ImceFM {
    */
   public function getResponse() {
     $defaults = ['jsop' => $this->getOp()];
-    if ($messages = $this->getMessages()) {
+    $messages = $this->getMessages();
+    if ($messages) {
       $defaults['messages'] = $messages;
     }
-    if ($folder = $this->activeFolder) {
+    $folder = $this->activeFolder;
+    if ($folder) {
       $defaults['active_path'] = $folder->getPath();
     }
     return $this->response + $defaults;
@@ -467,8 +554,10 @@ class ImceFM {
    * Returns the status messages.
    */
   public function getMessages() {
-    // Get drupal messages
-    $messages = drupal_get_messages();
+    // Get drupal messages.
+    $messenger = Imce::messenger();
+    $messages = $messenger->all();
+    $messenger->deleteAll();
     foreach ($messages as &$group) {
       foreach ($group as &$message) {
         $message = $message instanceof MarkupInterface ? $message . '' : Html::escape($message);
@@ -491,13 +580,13 @@ class ImceFM {
   public function validatePermissions(array $items, $file_perm = NULL, $subfolder_perm = NULL) {
     foreach ($this->groupItems($items) as $path => $content) {
       $parent = $this->getFolder($path);
-      // Parent contains files but does not have the file permission
+      // Parent contains files but does not have the file permission.
       if (!empty($content['files'])) {
         if (!isset($file_perm) || !$parent->getPermission($file_perm)) {
           return FALSE;
         }
       }
-      // Parent contains subfolders but does not have the subfolder permission
+      // Parent contains subfolders but does not have the subfolder permission.
       if (!empty($content['subfolders'])) {
         if (!isset($subfolder_perm) || !$parent->getPermission($subfolder_perm)) {
           return FALSE;
@@ -512,9 +601,16 @@ class ImceFM {
    */
   public function validatePredefinedPath(array $items, $silent = FALSE) {
     foreach ($items as $item) {
-      if ($item->type === 'folder' && ($folder = $item->hasPredefinedPath())) {
+      if ($item->type !== 'folder') {
+        continue;
+      }
+      $folder = $item->hasPredefinedPath();
+      if ($folder) {
         if (!$silent) {
-          $this->setMessage(t('%path is a predefined path and can not be modified.', ['%path' => $folder->getPath()]));
+          $this->setMessage($this->t(
+            '%path is a predefined path and can not be modified.',
+            ['%path' => $folder->getPath()]
+          ));
         }
         return FALSE;
       }
@@ -526,23 +622,12 @@ class ImceFM {
    * Validates a file name.
    */
   public function validateFileName($filename, $silent = FALSE) {
-    // Basic validation.
-    if ($filename === '.' || $filename === '..' || !($len = strlen($filename)) || $len > 240) {
-      return FALSE;
-    }
-    // Test name filters.
-    if ($name_filter = $this->getNameFilter()) {
-      if (preg_match($name_filter, $filename)) {
-        if (!$silent) {
-          $this->setMessage(t('%filename is not allowed.', ['%filename' => $filename]));
-        }
-        return FALSE;
-      }
-    }
-    // Test chars forbidden in various operating systems.
-    if (preg_match('@^\s|\s$|[/\\\\:\*\?"<>\|\x00-\x1F]@', $filename)) {
+    if (!Imce::validateFileName($filename, $this->getNameFilter())) {
       if (!$silent) {
-        $this->setMessage(t('%filename contains invalid characters. Use only alphanumeric characters for better portability.', ['%filename' => $filename]));
+        $msg = $this->t('%filename is not allowed.', [
+          '%filename' => $filename,
+        ]);
+        $this->setMessage($msg);
       }
       return FALSE;
     }
@@ -553,7 +638,7 @@ class ImceFM {
    * Validates min/max image dimensions.
    */
   public function validateDimensions(array $items, $width, $height, $silent = FALSE) {
-    // Check min dimensions
+    // Check min dimensions.
     if ($width < 1 || $height < 1) {
       return FALSE;
     }
@@ -562,7 +647,10 @@ class ImceFM {
     $maxheight = $this->getConf('maxheight');
     if ($maxwidth && $width > $maxwidth || $maxheight && $height > $maxheight) {
       if (!$silent) {
-        $this->setMessage(t('Image dimensions must be smaller than %dimensions pixels.', ['%dimensions' => $maxwidth . 'x' . $maxwidth]));
+        $this->setMessage($this->t(
+          'Image dimensions must be smaller than %dimensions pixels.',
+          ['%dimensions' => $maxwidth . 'x' . $maxwidth]
+        ));
       }
       return FALSE;
     }
@@ -573,16 +661,29 @@ class ImceFM {
    * Checks if all the selected items are images.
    */
   public function validateImageTypes(array $items, $silent = FALSE) {
-    $regex = '/\.(' . preg_replace('/ +/', '|', preg_quote(trim($this->getConf('image_extensions', 'jpg jpeg png gif')))) . ')$/i';
+    $regex = $this->imageExtensionsRegexp();
     foreach ($items as $item) {
-      if ($item->type === 'folder' || !preg_match($regex, $item->name)) {
+      if ($item->type !== 'file' || !preg_match($regex, $item->name)) {
         if (!$silent) {
-          $this->setMessage(t('%name is not an image.', ['%name' => $item->name]));
+          $this->setMessage($this->t('%name is not a supported image type.', ['%name' => $item->name]));
         }
         return FALSE;
       }
     }
     return TRUE;
+  }
+
+  /**
+   * Builds and returns image extension regular expression.
+   */
+  public function imageExtensionsRegexp() {
+    // Build only once.
+    $regexp = &$this->conf['image_extensions_regexp'];
+    if (!isset($regexp)) {
+      $exts = trim($this->getConf('image_extensions', 'jpg jpeg png gif webp avif'));
+      $regexp = $exts ? '/\.(' . preg_replace('/ +/', '|', $exts) . ')$/i' : FALSE;
+    }
+    return $regexp;
   }
 
   /**
@@ -600,31 +701,37 @@ class ImceFM {
       ],
     ];
     $page['#attached']['html_head'][] = [$robots, 'robots'];
-    // Disable cache
+    // Disable cache.
     $page['#cache']['max-age'] = 0;
-    // Run builders of available plugins
-    \Drupal::service('plugin.manager.imce.plugin')->buildPage($page, $this);
+    // Run builders of available plugins.
+    Imce::service('plugin.manager.imce.plugin')->buildPage($page, $this);
     // Add active path to the conf.
     $conf = $this->conf;
     if (!isset($conf['active_path'])) {
-      if ($folder = $this->activeFolder) {
+      $folder = $this->activeFolder;
+      if ($folder) {
         $conf['active_path'] = $folder->getPath();
       }
       elseif ($this->request) {
-        // Check $_GET['init_path']
-        if (($path = $this->request->query->get('init_path')) && $this->checkFolder($path)) {
+        // Check $_GET['init_path'].
+        $path = $this->request->query->get('init_path');
+        if ($path && $this->checkFolder($path)) {
           $conf['active_path'] = $path;
         }
-        // Check session
-        elseif ($this->user->isAuthenticated() && $path = $this->request->getSession()->get('imce_active_path')) {
-          if ($this->checkFolder($path)) {
-            $conf['active_path'] = $path; 
+        // Check session.
+        elseif ($this->user->isAuthenticated()) {
+          $path = $this->request->getSession()->get('imce_active_path');
+          if ($path) {
+            if ($this->checkFolder($path)) {
+              $conf['active_path'] = $path;
+            }
           }
         }
       }
     }
     // Set initial messages.
-    if ($messages = $this->getMessages()) {
+    $messages = $this->getMessages();
+    if ($messages) {
       $conf['messages'] = $messages;
     }
     $page['#attached']['drupalSettings']['imce'] = $conf;
@@ -636,27 +743,35 @@ class ImceFM {
    */
   public function buildRenderPage() {
     $page = $this->buildPage();
-    return \Drupal::service('bare_html_page_renderer')->renderBarePage($page, t('File manager'), 'imce_page', ['#show_messages' => FALSE])->getContent();
+    return Imce::service('bare_html_page_renderer')->renderBarePage(
+      $page,
+      $this->t('File manager'),
+      'imce_page',
+      ['#show_messages' => FALSE]
+    )->getContent();
   }
 
   /**
    * Returns a page response based on the current request.
    */
   public function pageResponse() {
-    if ($request = $this->request) {
-      // Json request
-      if ($request->request->has('jsop')) {
-        $this->run();
-        $data = $this->getResponse();
-        // Return html response if the flag is set.
-        if ($request->request->get('return_html')) {
-          return new Response('<html><body><textarea>' . Json::encode($data)  . '</textarea></body></html>');
-        }
-        return new JsonResponse($data);
-      }
-      // Build and render the main page.
-      return new Response($this->buildRenderPage());
+    $request = $this->request;
+    if (!$request) {
+      return;
     }
+    // Json request.
+    if ($request->request->has('jsop')) {
+      $this->run();
+      $data = $this->getResponse();
+      Imce::service('plugin.manager.imce.plugin')->alterJsResponse($data, $this);
+      // Return html response if the flag is set.
+      if ($request->request->get('return_html')) {
+        return new Response('<html><body><textarea>' . Json::encode($data) . '</textarea></body></html>');
+      }
+      return new JsonResponse($data);
+    }
+    // Build and render the main page.
+    return new Response($this->buildRenderPage());
   }
 
 }

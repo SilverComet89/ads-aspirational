@@ -3,7 +3,7 @@
  * JavaScript behaviors for RateIt integration.
  */
 
-(function ($, Drupal) {
+(function ($, Drupal, once) {
 
   'use strict';
 
@@ -17,20 +17,22 @@
    */
   Drupal.behaviors.webformRating = {
     attach: function (context) {
-      if (!$.fn.rateit) {
-        return;
-      }
-
-      $(context)
-        .find('[data-rateit-backingfld]')
-        .once('webform-rating')
+      $(once('webform-rating', '[data-rateit-backingfld]', context))
         .each(function () {
           var $rateit = $(this);
           var $input = $($rateit.attr('data-rateit-backingfld'));
+          if (!$.fn.rateit) {
+            $rateit.remove();
+            $input.removeClass('js-webform-visually-hidden');
+            return;
+          }
 
           // Rateit only initialize inputs on load.
           if (document.readyState === 'complete') {
             $rateit.rateit();
+          }
+          else {
+            window.setTimeout(function () {$rateit.rateit();});
           }
 
           // Update the RateIt widget when the input's value has changed.
@@ -48,4 +50,4 @@
     }
   };
 
-})(jQuery, Drupal);
+})(jQuery, Drupal, once);
