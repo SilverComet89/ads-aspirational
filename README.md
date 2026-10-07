@@ -88,16 +88,3 @@ Visual regression testing uses a headless browser to take screenshots of web pag
 ## Updating your site
 
 When using this repository to manage your Drupal site, you will no longer use the Pantheon dashboard to update your Drupal version. Instead, you will manage your updates using Composer. Ensure your site is in Git mode, clone it locally, and then run composer commands from there.  Commit and push your files back up to Pantheon as usual.
-
-## Using Drush locally
-
-Drush 9 is installed as a Composer development dependency. This Drupal 8.7.6
-site must be bootstrapped with PHP 7.4; select PHP 7.4 for your CLI before
-running Drush:
-
-```sh
-php ./vendor/bin/drush status
-```
-
-Use the same command form for other Drush commands, for example
-`php ./vendor/bin/drush cr`.

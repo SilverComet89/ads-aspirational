@@ -1,0 +1,12 @@
+{
+  "name": "drupal/jquery_carousel",
+  "description": "Formats data in form of a carousel.",
+  "license": "GPL-2.0+",
+  "support": {
+    "issues": "https://drupal.org/project/issues/jquery_carousel",
+    "source":"https://drupal.org/project/jquery_carousel"
+  },
+  "require": {
+    "richardscarrott/jquery-ui-carousel": "dev-master",
+  }
+}
